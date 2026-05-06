@@ -153,11 +153,11 @@
     <label>Fighter Class</label>
     <select id="classSelect">
       <option value="berserker">Berserker</option>
-      <option value="gladiator" disabled>Gladiator (coming)</option>
-      <option value="samurai" disabled>Samurai (coming)</option>
-      <option value="monk" disabled>Monk (coming)</option>
-      <option value="spellblade" disabled>Spellblade (coming)</option>
-      <option value="paladin" disabled>Paladin (coming)</option>
+      <option value="gladiator">Gladiator</option>
+      <option value="samurai">Samurai</option>
+      <option value="monk">Monk</option>
+      <option value="spellblade">Spellblade</option>
+      <option value="paladin">Paladin</option>
     </select>
   </div>
 
@@ -242,6 +242,54 @@ const M = {
   crimsonSash: new THREE.MeshStandardMaterial({ color: 0x5a1a1a, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
   savageEye:   new THREE.MeshStandardMaterial({ color: 0xffd048, emissive: 0xff9020, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
   savageRune:  new THREE.MeshStandardMaterial({ color: 0xffaa30, emissive: 0xff8020, emissiveIntensity: 1.8, metalness: 0, roughness: 0.5 }),
+
+  // Gladiator palette — arena bronze, crimson plume + sash, copper-red eye glow
+  bronze:      new THREE.MeshStandardMaterial({ color: 0xbe7838, metalness: 0.85, roughness: 0.3, emissive: 0x3a1a05, emissiveIntensity: 0.18 }),
+  bronzeHi:    new THREE.MeshStandardMaterial({ color: 0xe39850, metalness: 0.9, roughness: 0.2 }),
+  bronzeDark:  new THREE.MeshStandardMaterial({ color: 0x7a4818, metalness: 0.85, roughness: 0.45 }),
+  crimson:     new THREE.MeshStandardMaterial({ color: 0xa01818, metalness: 0.0, roughness: 0.7 }),
+  crimsonHi:   new THREE.MeshStandardMaterial({ color: 0xd02828, metalness: 0.0, roughness: 0.55 }),
+  gladTan:     new THREE.MeshStandardMaterial({ color: 0x7a5028, metalness: 0.0, roughness: 0.85 }),
+  gladEye:     new THREE.MeshStandardMaterial({ color: 0xff8040, emissive: 0xff5018, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Samurai palette — lacquered black, crimson cord, gold mon, steel-white eye glow
+  lacquer:     new THREE.MeshStandardMaterial({ color: 0x14161e, metalness: 0.35, roughness: 0.18 }),
+  lacquerHi:   new THREE.MeshStandardMaterial({ color: 0x2a2c38, metalness: 0.5, roughness: 0.22 }),
+  lacquerDark: new THREE.MeshStandardMaterial({ color: 0x080910, metalness: 0.35, roughness: 0.28 }),
+  samCord:     new THREE.MeshStandardMaterial({ color: 0x9a1818, metalness: 0.0, roughness: 0.85 }),
+  samCordHi:   new THREE.MeshStandardMaterial({ color: 0xc02828, metalness: 0.0, roughness: 0.7 }),
+  samGold:     new THREE.MeshStandardMaterial({ color: 0xd8a848, metalness: 0.95, roughness: 0.25, emissive: 0x3a2810, emissiveIntensity: 0.2 }),
+  samEye:      new THREE.MeshStandardMaterial({ color: 0xeaf0ff, emissive: 0xa0c0ff, emissiveIntensity: 4.5, metalness: 0, roughness: 0 }),
+
+  // Monk palette — saffron robe, cream sash, jade beads, jade-green ki glow
+  saffron:     new THREE.MeshStandardMaterial({ color: 0xd87830, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  saffronHi:   new THREE.MeshStandardMaterial({ color: 0xf09838, metalness: 0.0, roughness: 0.75, side: THREE.DoubleSide }),
+  saffronDark: new THREE.MeshStandardMaterial({ color: 0x8e4818, metalness: 0.0, roughness: 0.9, side: THREE.DoubleSide }),
+  monkCream:   new THREE.MeshStandardMaterial({ color: 0xe8d8a8, metalness: 0.0, roughness: 0.85 }),
+  jade:        new THREE.MeshStandardMaterial({ color: 0x3aa86a, metalness: 0.4, roughness: 0.3, emissive: 0x10a040, emissiveIntensity: 0.35 }),
+  jadeHi:      new THREE.MeshStandardMaterial({ color: 0x60d090, metalness: 0.4, roughness: 0.22 }),
+  monkEye:     new THREE.MeshStandardMaterial({ color: 0x80ffb0, emissive: 0x40ff80, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Spellblade palette — silver runic plate, indigo trim, electric-blue arcane glow
+  silverPlate:    new THREE.MeshStandardMaterial({ color: 0xa8b0c0, metalness: 0.92, roughness: 0.28 }),
+  silverPlateHi:  new THREE.MeshStandardMaterial({ color: 0xd0d8e0, metalness: 0.95, roughness: 0.18 }),
+  silverPlateDark:new THREE.MeshStandardMaterial({ color: 0x4e5868, metalness: 0.9, roughness: 0.45 }),
+  indigoTrim:     new THREE.MeshStandardMaterial({ color: 0x2a2860, metalness: 0.5, roughness: 0.45 }),
+  arcaneRune:     new THREE.MeshStandardMaterial({ color: 0x90b0ff, emissive: 0x4060ff, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  sbCape:         new THREE.MeshStandardMaterial({ color: 0x1c1e3c, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  sbCapeTrim:     new THREE.MeshStandardMaterial({ color: 0xa8b0c0, metalness: 0.92, roughness: 0.28, side: THREE.DoubleSide }),
+  sbEye:          new THREE.MeshStandardMaterial({ color: 0x90c0ff, emissive: 0x4060ff, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Paladin palette — sun gold, polished steel, sky-blue cape, warm sun-yellow glow
+  sunGold:        new THREE.MeshStandardMaterial({ color: 0xe8b048, metalness: 0.95, roughness: 0.22, emissive: 0x4a2c08, emissiveIntensity: 0.3 }),
+  sunGoldHi:      new THREE.MeshStandardMaterial({ color: 0xffd870, metalness: 0.95, roughness: 0.15 }),
+  palSteel:       new THREE.MeshStandardMaterial({ color: 0xc0c8d4, metalness: 0.95, roughness: 0.3 }),
+  palSteelHi:     new THREE.MeshStandardMaterial({ color: 0xe0e6ee, metalness: 0.95, roughness: 0.18 }),
+  palSteelDark:   new THREE.MeshStandardMaterial({ color: 0x6a7080, metalness: 0.92, roughness: 0.42 }),
+  skyCape:        new THREE.MeshStandardMaterial({ color: 0x2858a0, metalness: 0.0, roughness: 0.7, side: THREE.DoubleSide }),
+  skyCapeTrim:    new THREE.MeshStandardMaterial({ color: 0xe8b048, metalness: 0.95, roughness: 0.22, side: THREE.DoubleSide }),
+  sunRune:        new THREE.MeshStandardMaterial({ color: 0xffd860, emissive: 0xffb830, emissiveIntensity: 2.6, metalness: 0, roughness: 0.4 }),
+  palEye:         new THREE.MeshStandardMaterial({ color: 0xffe48a, emissive: 0xffc830, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
 
   // Shared materials (bone, fur, wood used widely; leather/blade/etc. are universals)
   bone:      new THREE.MeshStandardMaterial({ color: 0xc8c0a8, metalness: 0.0, roughness: 0.8 }),
@@ -1467,6 +1515,2387 @@ const berserkerAnimations = {
 };
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  GLADIATOR — Fighter II/VI                                               ║
+// ║  Crowd-pleaser · Brief Taunt · Plumed centurion crest, lorica musculata ║
+// ║  bronze cuirass, asymmetric pauldron, manica armguard, trident & net,   ║
+// ║  pteruges skirt, hot copper-red eye glow                                ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Gladiator extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = gladiatorAnimations;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — bronze greaves over tan leather pants
+    const legPalette = { dark: M.bronzeDark, mid: M.bronze, accent: M.bronzeHi, trim: M.bronzeHi, leather: M.gladTan };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis — leather wrap with pteruges (leather/bronze strip skirt)
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.gladTan));
+    // Bronze belt buckle — laurel oval
+    const buckle = mesh(new THREE.SphereGeometry(0.07, 14, 10), M.bronzeHi);
+    buckle.position.set(0, 0, 0.31); buckle.scale.set(1.2, 0.7, 0.5);
+    pelvis.add(buckle);
+    // Pteruges — 9 hanging strips alternating tan/crimson around the front/sides
+    for (let i = 0; i < 9; i++) {
+      const angle = -Math.PI * 0.65 + (i / 8) * Math.PI * 1.3;
+      const strip = mesh(new THREE.BoxGeometry(0.11, 0.36, 0.022), i % 2 === 0 ? M.gladTan : M.crimson);
+      strip.position.set(Math.cos(angle) * 0.28, -0.22, Math.sin(angle) * 0.28);
+      strip.lookAt(Math.cos(angle) * 2, -0.22, Math.sin(angle) * 2);
+      strip.rotateX(0.06);
+      pelvis.add(strip);
+      // Bronze stud at top of each strip
+      const stud = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.bronzeHi);
+      stud.position.set(Math.cos(angle) * 0.31, -0.06, Math.sin(angle) * 0.31);
+      pelvis.add(stud);
+    }
+    root.add(pelvis);
+
+    // TORSO — lorica musculata (sculpted bronze cuirass)
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Main cuirass shell
+    const cuirass = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.72, 18), M.bronze);
+    cuirass.scale.set(1.05, 1, 0.85);
+    torso.add(cuirass);
+
+    // Sculpted pec mounds (bronze swells on the chest)
+    const pecL = mesh(new THREE.SphereGeometry(0.18, 14, 12), M.bronzeHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // Sculpted ab ridges (3 horizontal channels across the lower cuirass)
+    for (let i = 0; i < 3; i++) {
+      const groove = mesh(new THREE.TorusGeometry(0.36, 0.012, 8, 24, Math.PI * 0.7), M.bronzeDark);
+      groove.position.set(0, -0.0 - i * 0.1, 0);
+      groove.rotation.y = -Math.PI / 2;
+      groove.rotation.x = Math.PI / 2;
+      groove.scale.set(1.05, 1, 0.85);
+      torso.add(groove);
+    }
+
+    // Central chest medallion — bronze laurel circle (crowd-pleaser emblem)
+    const medBack = mesh(new THREE.CircleGeometry(0.075, 24), M.bronzeDark);
+    medBack.position.set(0, 0.05, 0.36); torso.add(medBack);
+    const medRing = mesh(new THREE.TorusGeometry(0.072, 0.014, 10, 24), M.bronzeHi);
+    medRing.position.set(0, 0.05, 0.37); torso.add(medRing);
+    // Crossed swords inside the medallion
+    const swordA = mesh(new THREE.BoxGeometry(0.012, 0.085, 0.005), M.bronzeHi);
+    swordA.position.set(0, 0.05, 0.38); swordA.rotation.z = Math.PI / 4;
+    torso.add(swordA);
+    const swordB = swordA.clone(); swordB.rotation.z = -Math.PI / 4;
+    torso.add(swordB);
+    // Tiny laurel leaves around the medallion
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const leaf = mesh(new THREE.ConeGeometry(0.01, 0.022, 4), M.bronzeHi);
+      leaf.position.set(Math.cos(a) * 0.085, 0.05 + Math.sin(a) * 0.085, 0.38);
+      leaf.rotation.z = a + Math.PI / 2;
+      torso.add(leaf);
+    }
+
+    // Crimson sash around the waist (decorative, not a cape)
+    const sashFront = mesh(new THREE.BoxGeometry(0.55, 0.18, 0.04), M.crimson);
+    sashFront.position.set(0, -0.28, 0.3); sashFront.rotation.z = 0.1;
+    torso.add(sashFront);
+    const sashBack = mesh(new THREE.BoxGeometry(0.55, 0.18, 0.04), M.crimson);
+    sashBack.position.set(0, -0.28, -0.3); sashBack.rotation.z = -0.1;
+    torso.add(sashBack);
+
+    // Neck collar — bronze ring
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.1, 16), M.bronzeDark);
+    collar.position.y = 0.4; torso.add(collar);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // ASYMMETRIC PAULDRONS — large bronze on right (sword arm), bare strap on left
+    // Right pauldron (large bronze pauldron with bronze stud spikes)
+    const rightPauldron = new THREE.Group();
+    const rPauldBase = mesh(new THREE.SphereGeometry(0.2, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.6), M.bronze);
+    rPauldBase.scale.set(1.1, 0.85, 1);
+    rightPauldron.add(rPauldBase);
+    const rPauldTrim = mesh(new THREE.TorusGeometry(0.2, 0.018, 10, 20), M.bronzeHi);
+    rPauldTrim.rotation.x = Math.PI / 2; rPauldTrim.position.y = -0.04;
+    rightPauldron.add(rPauldTrim);
+    // Three stud spikes on top of right pauldron
+    for (let i = 0; i < 3; i++) {
+      const spike = mesh(new THREE.ConeGeometry(0.025, 0.07, 6), M.bronzeHi);
+      spike.position.set((i - 1) * 0.07, 0.1, 0);
+      rightPauldron.add(spike);
+    }
+    rightPauldron.position.set(0.42, 2.2, 0);
+    root.add(rightPauldron);
+
+    // Left bare shoulder with cross-strap (showcasing the gladiator's bare-arm tradition)
+    const leftStrap = mesh(new THREE.BoxGeometry(0.12, 0.55, 0.05), M.gladTan);
+    leftStrap.position.set(-0.32, 1.95, 0.18); leftStrap.rotation.z = -0.35;
+    root.add(leftStrap);
+    const leftStrapBack = leftStrap.clone(); leftStrapBack.position.z = -0.18;
+    root.add(leftStrapBack);
+
+    // ARMS
+    // Right arm (sword arm) — bronze manica armguard (segmented bronze plates)
+    const rightArmPalette = { cloth: M.gladTan, mid: M.bronzeHi, dark: M.bronze, hi: M.bronzeHi, accent: M.bronzeDark };
+    const rightArm = buildArm(1, 0.18, rightArmPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Manica plate strips along upper arm (segmented look)
+    for (let i = 0; i < 4; i++) {
+      const strip = mesh(new THREE.TorusGeometry(0.087, 0.012, 8, 16), M.bronzeHi);
+      strip.rotation.x = Math.PI / 2;
+      strip.position.y = -0.1 - i * 0.07;
+      rightArm.add(strip);
+    }
+
+    // Left arm (net-arm) — bare skin with simple leather wraps
+    const leftArm = new THREE.Group();
+    const lUpper = mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.4, 12), M.skin);
+    lUpper.position.y = -0.2; leftArm.add(lUpper);
+    // Leather armband mid-upper
+    const lBand = mesh(new THREE.TorusGeometry(0.085, 0.014, 8, 14), M.gladTan);
+    lBand.rotation.x = Math.PI / 2; lBand.position.y = -0.15; leftArm.add(lBand);
+    const lElbow = mesh(new THREE.SphereGeometry(0.09, 12, 10), M.skin);
+    lElbow.position.y = -0.42; lElbow.scale.set(1, 0.8, 1); leftArm.add(lElbow);
+    const lForearm = mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.4, 12), M.skin);
+    lForearm.position.y = -0.62; leftArm.add(lForearm);
+    // Leather forearm wraps
+    for (let i = 0; i < 4; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.078, 0.01, 6, 14), M.gladTan);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = -0.5 - i * 0.08;
+      leftArm.add(wrap);
+    }
+    const lWristGuard = mesh(new THREE.CylinderGeometry(0.088, 0.082, 0.1, 14), M.bronze);
+    lWristGuard.position.y = -0.86; leftArm.add(lWristGuard);
+    const lHandMesh = mesh(new THREE.BoxGeometry(0.13, 0.16, 0.1), M.skin);
+    lHandMesh.position.y = -0.95; leftArm.add(lHandMesh);
+    const lHand = new THREE.Group(); lHand.position.y = -0.96;
+    leftArm.add(lHand); leftArm.userData.hand = lHand;
+    leftArm.position.set(-0.42, 2.18, 0);
+    leftArm.rotation.z = -0.18;
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+
+    // TRIDENT — held in right hand, points up
+    const trident = this._buildTrident();
+    rightArm.userData.hand.add(trident);
+    trident.position.set(0, 0.04, 0.06);
+    trident.rotation.set(Math.PI * 0.5, 0, 0);
+    this.parts.weapon = trident;
+
+    // NET — coiled, held in left hand
+    const net = this._buildNet();
+    leftArm.userData.hand.add(net);
+    net.position.set(0, 0.0, 0.04);
+    net.rotation.set(0, 0, 0);
+    this.parts.net = net;
+
+    // Neck (bare skin)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HELM — bronze galea with tall red horsehair crest
+    const helm = this._buildGalea();
+    helm.position.y = 2.56;
+    root.add(helm);
+    this.parts.head = helm;
+
+    this.cape = null;
+
+    M.gladEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.gladEye;
+  }
+
+  _buildTrident() {
+    const trident = new THREE.Group();
+    // Pommel (bronze cap)
+    const pommel = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.bronzeHi);
+    trident.add(pommel);
+    // Wood haft (long, like a polearm)
+    const haft = mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.0, 12), M.wood);
+    haft.position.y = 0.55; trident.add(haft);
+    // Bronze grip wrap
+    for (let i = 0; i < 6; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.028, 0.005, 6, 12), M.bronzeDark);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = 0.12 + i * 0.05;
+      trident.add(wrap);
+    }
+    // Mid-haft bronze collar
+    const midCollar = mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.04, 10), M.bronzeHi);
+    midCollar.position.y = 0.45; trident.add(midCollar);
+    // Top collar where prongs meet haft
+    const topCollar = mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.08, 10), M.bronzeHi);
+    topCollar.position.y = 1.1; trident.add(topCollar);
+    // Three prongs — center long, sides curving outward
+    const centerProng = mesh(new THREE.ConeGeometry(0.025, 0.36, 8), M.bronzeHi);
+    centerProng.position.y = 1.32; trident.add(centerProng);
+    // Side prongs (curved outward)
+    for (let side = -1; side <= 1; side += 2) {
+      const sideProng = new THREE.Group();
+      const stem = mesh(new THREE.CylinderGeometry(0.018, 0.012, 0.32, 8), M.bronzeHi);
+      stem.position.set(side * 0.07, 0.08, 0);
+      stem.rotation.z = -side * 0.35;
+      sideProng.add(stem);
+      const tip = mesh(new THREE.ConeGeometry(0.018, 0.16, 8), M.bronzeHi);
+      tip.position.set(side * 0.13, 0.22, 0);
+      tip.rotation.z = -side * 0.35;
+      sideProng.add(tip);
+      // Inward-curving barb at tip
+      const barb = mesh(new THREE.ConeGeometry(0.012, 0.06, 5), M.bronzeDark);
+      barb.position.set(side * 0.11, 0.14, 0);
+      barb.rotation.z = side * 0.6;
+      sideProng.add(barb);
+      sideProng.position.y = 1.2;
+      trident.add(sideProng);
+    }
+    return trident;
+  }
+
+  _buildNet() {
+    const net = new THREE.Group();
+    // Coiled net — represented as a torus knot
+    const coil = mesh(new THREE.TorusGeometry(0.085, 0.025, 8, 18), M.gladTan);
+    coil.rotation.x = Math.PI / 2;
+    net.add(coil);
+    // Cross-fiber strands across the coil
+    for (let i = 0; i < 4; i++) {
+      const strand = mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.18, 4), M.gladTan);
+      strand.rotation.z = (i / 4) * Math.PI;
+      strand.position.y = 0.0;
+      net.add(strand);
+    }
+    // Lead weights at the rim (3 small bronze beads)
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const weight = mesh(new THREE.SphereGeometry(0.018, 8, 6), M.bronzeDark);
+      weight.position.set(Math.cos(a) * 0.085, -0.02, Math.sin(a) * 0.085);
+      net.add(weight);
+    }
+    return net;
+  }
+
+  _buildGalea() {
+    const helm = new THREE.Group();
+
+    // Main bronze dome
+    const dome = mesh(new THREE.SphereGeometry(0.22, 20, 16, 0, Math.PI * 2, 0, Math.PI / 1.7), M.bronze);
+    dome.scale.set(1, 1.05, 1.05);
+    helm.add(dome);
+
+    // Brow band (highlight bronze)
+    const browBand = mesh(new THREE.TorusGeometry(0.225, 0.022, 10, 24), M.bronzeHi);
+    browBand.rotation.x = Math.PI / 2;
+    browBand.position.y = 0.0;
+    helm.add(browBand);
+
+    // T-shaped face guard (vertical nose-piece + brow ridge)
+    const noseGuard = mesh(new THREE.BoxGeometry(0.04, 0.18, 0.04), M.bronzeHi);
+    noseGuard.position.set(0, 0.0, 0.21); helm.add(noseGuard);
+    // Brow ridge above eyes
+    const browRidge = mesh(new THREE.BoxGeometry(0.34, 0.04, 0.04), M.bronzeHi);
+    browRidge.position.set(0, 0.07, 0.21); helm.add(browRidge);
+
+    // Eye apertures — visible glowing eyes
+    const eyeL = mesh(new THREE.SphereGeometry(0.024, 10, 8), M.gladEye);
+    eyeL.position.set(-0.085, 0.0, 0.21); helm.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.085; helm.add(eyeR);
+
+    // Cheek guards (hinged bronze plates)
+    for (let side = -1; side <= 1; side += 2) {
+      const cheekShape = new THREE.Shape();
+      cheekShape.moveTo(0, 0); cheekShape.lineTo(0.1, 0);
+      cheekShape.lineTo(0.09, -0.18); cheekShape.lineTo(-0.02, -0.2); cheekShape.closePath();
+      const cheek = mesh(new THREE.ExtrudeGeometry(cheekShape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.008, bevelSegments: 2 }), M.bronze);
+      cheek.position.set(side * 0.18, -0.05, 0.06);
+      cheek.rotation.y = side > 0 ? -0.4 : Math.PI + 0.4;
+      helm.add(cheek);
+      // Bronze rivet on cheek
+      const rivet = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.bronzeHi);
+      rivet.position.set(side * 0.21, -0.02, 0.18);
+      helm.add(rivet);
+    }
+
+    // Neck guard at back (bronze flare)
+    const neckGuard = mesh(new THREE.BoxGeometry(0.36, 0.14, 0.04), M.bronze);
+    neckGuard.position.set(0, -0.16, -0.18);
+    neckGuard.rotation.x = -0.4;
+    helm.add(neckGuard);
+
+    // ===== CRESTED MOUNT — base for the horsehair plume =====
+    // Bronze crest mount (a long fin running front-to-back along the helm)
+    const crestMount = mesh(new THREE.BoxGeometry(0.04, 0.12, 0.5), M.bronzeHi);
+    crestMount.position.set(0, 0.27, 0); helm.add(crestMount);
+    // Decorative crest cap (front and rear)
+    const crestFrontCap = mesh(new THREE.SphereGeometry(0.03, 10, 8), M.bronzeHi);
+    crestFrontCap.position.set(0, 0.32, 0.25); helm.add(crestFrontCap);
+    const crestRearCap = mesh(new THREE.SphereGeometry(0.03, 10, 8), M.bronzeHi);
+    crestRearCap.position.set(0, 0.32, -0.25); helm.add(crestRearCap);
+
+    // RED HORSEHAIR CREST — the marquee feature, tall plume of vertical strands
+    const PLUME_COUNT = 32;
+    for (let i = 0; i < PLUME_COUNT; i++) {
+      const t = i / (PLUME_COUNT - 1);
+      const z = -0.22 + t * 0.44;
+      const wobble = (Math.random() - 0.5) * 0.02;
+      const len = 0.22 + Math.sin(t * Math.PI) * 0.06;
+      const strand = mesh(new THREE.CylinderGeometry(0.008, 0.005, len, 5), i % 2 === 0 ? M.crimsonHi : M.crimson);
+      strand.position.set(wobble, 0.32 + len / 2, z);
+      strand.rotation.z = (Math.random() - 0.5) * 0.08;
+      strand.rotation.x = (Math.random() - 0.5) * 0.06;
+      helm.add(strand);
+    }
+    // Crest tips (bristled ends)
+    for (let i = 0; i < 16; i++) {
+      const t = i / 15;
+      const z = -0.2 + t * 0.4;
+      const tip = mesh(new THREE.ConeGeometry(0.012, 0.04, 4), M.crimsonHi);
+      tip.position.set((Math.random() - 0.5) * 0.04, 0.55 + Math.random() * 0.04, z);
+      helm.add(tip);
+    }
+
+    // Bottom rim of helm
+    const helmRim = mesh(new THREE.TorusGeometry(0.21, 0.014, 8, 24), M.bronzeDark);
+    helmRim.rotation.x = Math.PI / 2;
+    helmRim.position.y = -0.21;
+    helm.add(helmRim);
+
+    return helm;
+  }
+}
+
+const gladiatorAnimations = {
+  // CROWD STRIKE — wide horizontal trident sweep, taunts hit target
+  attack: {
+    duration: 0.85,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // wind right arm back, twist body
+        rightArm: { rx: 0.4, rz: -0.7 },
+        body:     { ry: -0.22 },
+      }, ease: ease.out },
+      { t: 0.5,  values: {                                          // sweep across — trident slashes wide
+        rightArm: { rx: -0.35, rz: 0.55 },
+        body:     { ry: 0.28, rz: 0.05 },
+      }, ease: ease.out },
+      { t: 0.72, values: {                                          // overshoot flourish (crowd-pleaser)
+        rightArm: { rx: -0.45, rz: 0.7 },
+        body:     { ry: 0.3, rz: 0.06 },
+      }, ease: ease.outBack },
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.4, 0.5, champPos.z + 1.0);
+        // Wide sweep shockwave
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff5018, maxRadius: 1.6, duration: 0.55 }), time);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0xff8040, maxScale: 0.7, duration: 0.28 }), time);
+        // Bronze sparks
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xff8040, count: 28, speed: 4.5, duration: 0.7, upwardBias: 1.0, gravity: -3.0 }), time);
+        // Brief taunt rune (small ring at target — represents the taunt effect)
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xff5018, maxRadius: 0.9, duration: 0.7, runeCount: 6, rotateSpeed: 1.4 }), time);
+      }},
+    ],
+  },
+  // NET CAST — forward arm-throw with a hand-gesture, ground capture rune
+  spell1: {
+    duration: 1.2,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.25, values: {                                          // wind left arm back (net-throwing pose)
+        leftArm:  { rx: 0.65, rz: -0.55 },
+        body:     { ry: 0.18 },
+      }, ease: ease.out },
+      { t: 0.5,  values: {                                          // throw forward
+        leftArm:  { rx: -0.85, rz: 0.35 },
+        body:     { ry: -0.2 },
+      }, ease: ease.out },
+      { t: 0.75, values: {                                          // hold the extended pose
+        leftArm:  { rx: -0.7, rz: 0.3 },
+        body:     { ry: -0.15 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 0.12, champPos.z + 1.6);
+        // Net trap rune at target
+        mgr.spawn(new RuneRing(champ.scene, targetPos, { color: 0xff8040, maxRadius: 1.4, duration: 1.1, runeCount: 8, rotateSpeed: 1.0 }), time);
+        // Capture lattice (energy dome implies the net mesh)
+        mgr.spawn(new EnergyDome(champ.scene, targetPos, { color: 0xff5018, radius: 1.0, duration: 1.0 }), time);
+        // Bronze particle burst (the net snapping closed)
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xff8040, count: 36, speed: 2.5, duration: 0.9, upwardBias: 0.4, gravity: -2.0 }), time);
+        // Throw flash from hand
+        const handPos = new THREE.Vector3(); champ.parts.leftArm.userData.hand.getWorldPosition(handPos);
+        mgr.spawn(new ImpactFlash(champ.scene, handPos, { color: 0xffaa50, maxScale: 0.45, duration: 0.3 }), time);
+      }},
+    ],
+  },
+  // SHOWMANSHIP — theatrical crest-raise, party crit-damage buff aura
+  spell2: {
+    duration: 1.8,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // dramatic raise — both arms up, head back
+        leftArm:  { rx: 0.85, rz: -0.85 },
+        rightArm: { rx: 0.85, rz: 0.85 },
+        body:     { rx: -0.12 },
+        head:     { rx: -0.18 },
+      }, ease: ease.outBack },
+      { t: 0.78, values: {                                          // hold the salute pose
+        leftArm:  { rx: 0.85, rz: -0.85 },
+        rightArm: { rx: 0.85, rz: 0.85 },
+        body:     { rx: -0.12 },
+        head:     { rx: -0.18 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Big bronze party-buff rune ring on the floor
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xff8040, maxRadius: 2.4, duration: 1.6, runeCount: 12, rotateSpeed: 0.8 }), time);
+        // Holy-circle-style ground emblem (laurels + sun)
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xffaa50, radius: 2.0, duration: 1.6 }), time);
+        // Crowd-pleasing pillar (the spotlight on the showman)
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xff8040, height: 4.0, radius: 0.6, duration: 0.8 }), time);
+        // Plume of celebration particles
+        const chestPos = pos.clone(); chestPos.y = 1.9;
+        mgr.spawn(new ParticleBurst(champ.scene, chestPos, { color: 0xffaa50, count: 70, speed: 3.5, duration: 1.6, upwardBias: 3.5, gravity: -1.0 }), time);
+      }},
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Secondary bronze shockwave
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff5018, maxRadius: 2.6, duration: 0.85 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  SAMURAI — Fighter III/VI                                                ║
+// ║  Crit & Parry · Curved kuwagata horns on kabuto, lacquered do-maru with ║
+// ║  crimson lacing, floating sode shoulder plates, mempo face mask,        ║
+// ║  drawn katana, sheathed wakizashi at hip, cold steel-white eye glow     ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Samurai extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = samuraiAnimations;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — lacquered greaves over dark hakama
+    const legPalette = { dark: M.lacquerDark, mid: M.lacquer, accent: M.samGold, trim: M.samGold, leather: M.lacquerHi };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis with kasazuri (lacquered hanging plate skirt panels, crimson laced)
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.lacquer));
+    // Crimson cord belt (obi)
+    const obi = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.13, 18), M.samCord);
+    obi.position.y = 0.04; pelvis.add(obi);
+    // Gold mon (family crest) on the front of obi
+    const mon = mesh(new THREE.CircleGeometry(0.04, 16), M.samGold);
+    mon.position.set(0, 0.04, 0.32); pelvis.add(mon);
+    const monRing = mesh(new THREE.TorusGeometry(0.04, 0.005, 8, 16), M.samGold);
+    monRing.position.set(0, 0.04, 0.33); pelvis.add(monRing);
+    // Kasazuri — 7 lacquered plate panels around the front/sides
+    for (let i = 0; i < 7; i++) {
+      const angle = -Math.PI * 0.55 + (i / 6) * Math.PI * 1.1;
+      // Lacquered plate
+      const plate = mesh(new THREE.BoxGeometry(0.13, 0.32, 0.025), M.lacquerHi);
+      plate.position.set(Math.cos(angle) * 0.3, -0.2, Math.sin(angle) * 0.3);
+      plate.lookAt(Math.cos(angle) * 2, -0.2, Math.sin(angle) * 2);
+      plate.rotateX(0.06);
+      pelvis.add(plate);
+      // Crimson lacing across each plate (3 horizontal bands)
+      for (let j = 0; j < 3; j++) {
+        const lace = mesh(new THREE.BoxGeometry(0.115, 0.012, 0.005), M.samCord);
+        lace.position.set(Math.cos(angle) * 0.31, -0.13 - j * 0.09, Math.sin(angle) * 0.31);
+        lace.lookAt(Math.cos(angle) * 2, -0.13 - j * 0.09, Math.sin(angle) * 2);
+        pelvis.add(lace);
+      }
+    }
+    root.add(pelvis);
+
+    // TORSO — do-maru (lacquered chest cuirass with hexagonal plate look)
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Main chest cuirass — lacquered black
+    const chest = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 16), M.lacquer);
+    chest.scale.set(1.0, 1, 0.85);
+    torso.add(chest);
+
+    // Front chest plate (lacquerHi for highlight)
+    const chestFront = mesh(new THREE.BoxGeometry(0.5, 0.65, 0.06), M.lacquerHi);
+    chestFront.position.set(0, 0.0, 0.31);
+    torso.add(chestFront);
+
+    // Crimson lacing across the chest (multiple horizontal bands — kebiki-odoshi style)
+    for (let i = 0; i < 6; i++) {
+      const lace = mesh(new THREE.BoxGeometry(0.48, 0.014, 0.008), M.samCord);
+      lace.position.set(0, 0.22 - i * 0.09, 0.35);
+      torso.add(lace);
+    }
+    // Vertical lacing bands (3 bands across front)
+    for (let i = -1; i <= 1; i++) {
+      const v = mesh(new THREE.BoxGeometry(0.014, 0.6, 0.008), M.samCord);
+      v.position.set(i * 0.16, 0.0, 0.36);
+      torso.add(v);
+    }
+
+    // Gold mon on chest (family crest — sun-and-cherry stylized)
+    const chestMon = mesh(new THREE.CircleGeometry(0.06, 16), M.samGold);
+    chestMon.position.set(0, 0.18, 0.39); torso.add(chestMon);
+    const chestMonRing = mesh(new THREE.TorusGeometry(0.058, 0.008, 10, 18), M.samGold);
+    chestMonRing.position.set(0, 0.18, 0.4); torso.add(chestMonRing);
+    // 5-petal cherry blossom inside the mon
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + Math.PI / 2;
+      const petal = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.samGold);
+      petal.position.set(Math.cos(a) * 0.025, 0.18 + Math.sin(a) * 0.025, 0.41);
+      petal.scale.set(1, 1.4, 0.4);
+      torso.add(petal);
+    }
+
+    // Side ribbing (lacquered curved plates on the sides of the cuirass)
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 4; i++) {
+        const rib = mesh(new THREE.BoxGeometry(0.08, 0.06, 0.05), M.lacquerHi);
+        rib.position.set(side * 0.34, 0.18 - i * 0.13, 0.06);
+        rib.rotation.z = side * 0.12;
+        torso.add(rib);
+      }
+    }
+
+    // Neck collar — lacquered ring with gold trim
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.1, 16), M.lacquerHi);
+    collar.position.y = 0.4; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18), M.samGold);
+    collarTrim.rotation.x = Math.PI / 2; collarTrim.position.y = 0.46;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // SODE (large rectangular shoulder plates that hang down) — both sides
+    for (let side = -1; side <= 1; side += 2) {
+      const sode = new THREE.Group();
+      // Main rectangular plate (5 lacquered scales stacked)
+      for (let i = 0; i < 5; i++) {
+        const scale = mesh(new THREE.BoxGeometry(0.32, 0.07, 0.04), M.lacquerHi);
+        scale.position.set(side * 0.12, -i * 0.06, 0);
+        scale.rotation.z = side * (0.05 + i * 0.04);
+        sode.add(scale);
+        // Crimson lacing strip on each scale
+        const lacing = mesh(new THREE.BoxGeometry(0.3, 0.012, 0.005), M.samCord);
+        lacing.position.set(side * 0.12, -i * 0.06 - 0.025, 0.025);
+        lacing.rotation.z = side * (0.05 + i * 0.04);
+        sode.add(lacing);
+      }
+      // Gold trim at the top edge
+      const trim = mesh(new THREE.BoxGeometry(0.34, 0.018, 0.04), M.samGold);
+      trim.position.set(side * 0.12, 0.04, 0);
+      trim.rotation.z = side * 0.05;
+      sode.add(trim);
+      sode.position.set(side * 0.42, 2.32, 0);
+      root.add(sode);
+    }
+
+    // ARMS — lacquered kote (forearm armor) over dark cloth
+    const armPalette = { cloth: M.lacquerDark, mid: M.lacquer, dark: M.lacquerDark, hi: M.lacquerHi, accent: M.samGold };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.08;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.08;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+
+    // Crimson cord wraps on the upper arms
+    [leftArm, rightArm].forEach(arm => {
+      const wrap = mesh(new THREE.TorusGeometry(0.087, 0.012, 8, 16), M.samCord);
+      wrap.rotation.x = Math.PI / 2; wrap.position.y = -0.1;
+      arm.add(wrap);
+    });
+
+    // KATANA — drawn, held in right hand (forward two-handed kenjutsu grip)
+    const katana = this._buildKatana();
+    rightArm.userData.hand.add(katana);
+    katana.position.set(0, 0.04, 0.06);
+    katana.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = katana;
+
+    // SAYA (sheath) at left hip — empty (sword is drawn)
+    const saya = this._buildSaya();
+    saya.position.set(-0.32, 1.32, 0.05);
+    saya.rotation.set(0, 0, Math.PI / 2 - 0.15);
+    root.add(saya);
+    this.parts.saya = saya;
+
+    // WAKIZASHI (short blade) sheathed at left hip, slightly above saya
+    const wakizashi = this._buildSaya(0.7);
+    wakizashi.position.set(-0.3, 1.42, 0.08);
+    wakizashi.rotation.set(0, 0, Math.PI / 2 - 0.05);
+    root.add(wakizashi);
+
+    // Neck (lacquered base just above collar)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.lacquerHi);
+    neck.position.y = 2.32; root.add(neck);
+
+    // KABUTO HELM — lacquered with kuwagata (wide curved horns) + mempo face mask
+    const helm = this._buildKabuto();
+    helm.position.y = 2.56;
+    root.add(helm);
+    this.parts.head = helm;
+
+    this.cape = null;
+
+    M.samEye.userData.baseIntensity = 4.5;
+    this.eyeMaterial = M.samEye;
+  }
+
+  _buildKatana() {
+    const katana = new THREE.Group();
+    // Pommel (kashira) — small dark cap
+    const pommel = mesh(new THREE.CylinderGeometry(0.025, 0.022, 0.04, 10), M.lacquerHi);
+    katana.add(pommel);
+    // Tsuka (handle) — wrapped with crimson cord pattern
+    const tsuka = mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.24, 10), M.samCord);
+    tsuka.position.y = 0.13; katana.add(tsuka);
+    // Diamond-pattern wrap (cross-hatched cord)
+    for (let i = 0; i < 6; i++) {
+      const wrapA = mesh(new THREE.TorusGeometry(0.024, 0.005, 6, 12), M.samCordHi);
+      wrapA.rotation.x = Math.PI / 2;
+      wrapA.position.y = 0.04 + i * 0.04;
+      katana.add(wrapA);
+    }
+    // Tsuba (guard) — diamond-shaped gold disc
+    const tsuba = mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.018, 12), M.samGold);
+    tsuba.position.y = 0.25; katana.add(tsuba);
+    const tsubaInner = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.022, 12), M.lacquer);
+    tsubaInner.position.y = 0.25; katana.add(tsubaInner);
+    // Habaki (collar at base of blade)
+    const habaki = mesh(new THREE.CylinderGeometry(0.024, 0.026, 0.04, 10), M.samGold);
+    habaki.position.y = 0.275; katana.add(habaki);
+    // Blade — long, slightly curved (simulated with a slight z-offset on segments)
+    const bladeShape = new THREE.Shape();
+    bladeShape.moveTo(-0.018, 0); bladeShape.lineTo(0.018, 0);
+    bladeShape.lineTo(0.012, 0.85); bladeShape.lineTo(-0.005, 0.92);
+    bladeShape.closePath();
+    const blade = mesh(new THREE.ExtrudeGeometry(bladeShape, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 2 }), M.blade);
+    blade.position.set(0, 0.3, -0.006); katana.add(blade);
+    // Hamon (visible temper line — slightly different shade highlight)
+    const hamon = mesh(new THREE.BoxGeometry(0.005, 0.85, 0.002), M.bladeDark);
+    hamon.position.set(-0.005, 0.72, 0.008); katana.add(hamon);
+    return katana;
+  }
+
+  _buildSaya(scale = 1.0) {
+    const saya = new THREE.Group();
+    // Sheath body — lacquered black, slightly curved
+    const body = mesh(new THREE.CylinderGeometry(0.028, 0.024, 0.85 * scale, 10), M.lacquerHi);
+    body.position.y = 0.0; saya.add(body);
+    // Crimson cord wrap at the top
+    const cordWrap = mesh(new THREE.TorusGeometry(0.03, 0.008, 6, 14), M.samCord);
+    cordWrap.rotation.x = Math.PI / 2;
+    cordWrap.position.y = 0.4 * scale;
+    saya.add(cordWrap);
+    // Gold fittings (kojiri at bottom, koiguchi at top)
+    const koiguchi = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.025, 10), M.samGold);
+    koiguchi.position.y = 0.42 * scale; saya.add(koiguchi);
+    const kojiri = mesh(new THREE.CylinderGeometry(0.024, 0.026, 0.025, 10), M.samGold);
+    kojiri.position.y = -0.42 * scale; saya.add(kojiri);
+    return saya;
+  }
+
+  _buildKabuto() {
+    const helm = new THREE.Group();
+
+    // Hachi (main bowl) — lacquered black with prominent ridge
+    const bowl = mesh(new THREE.SphereGeometry(0.22, 20, 16, 0, Math.PI * 2, 0, Math.PI / 1.7), M.lacquer);
+    bowl.scale.set(1.05, 1.05, 1.1);
+    helm.add(bowl);
+    // Center ridge (front-to-back along the top)
+    const ridge = mesh(new THREE.BoxGeometry(0.025, 0.03, 0.42), M.samGold);
+    ridge.position.set(0, 0.18, 0); helm.add(ridge);
+
+    // Mabisashi (front brim — flared visor)
+    const brim = new THREE.Shape();
+    brim.moveTo(-0.16, 0); brim.lineTo(0.16, 0);
+    brim.lineTo(0.18, 0.05); brim.lineTo(-0.18, 0.05); brim.closePath();
+    const brimMesh = mesh(new THREE.ExtrudeGeometry(brim, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.008, bevelSegments: 2 }), M.lacquerHi);
+    brimMesh.position.set(0, 0.04, 0.18); brimMesh.rotation.x = -0.4;
+    helm.add(brimMesh);
+    // Gold trim along brim
+    const brimTrim = mesh(new THREE.BoxGeometry(0.36, 0.014, 0.02), M.samGold);
+    brimTrim.position.set(0, 0.12, 0.21); brimTrim.rotation.x = -0.4;
+    helm.add(brimTrim);
+
+    // ===== KUWAGATA — wide curved horns (the marquee feature) =====
+    // Each horn is a curved arc, swept outward from the front of the helm
+    for (let side = -1; side <= 1; side += 2) {
+      const horn = new THREE.Group();
+      // Horn base (gold socket on the brim)
+      const socket = mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.04, 8), M.samGold);
+      socket.position.set(side * 0.08, 0.14, 0.18);
+      socket.rotation.z = side * 0.4;
+      helm.add(socket);
+      // Stem — curving up and outward (use a 3-segment chain of cylinders to suggest curvature)
+      let prevPos = new THREE.Vector3(side * 0.08, 0.16, 0.18);
+      const segs = 5;
+      for (let i = 0; i < segs; i++) {
+        const t = i / segs;
+        const nextPos = new THREE.Vector3(
+          side * (0.08 + Math.sin((t + 1/segs) * Math.PI * 0.8) * 0.32),
+          0.16 + (t + 1/segs) * 0.32,
+          0.18 - (t + 1/segs) * 0.06
+        );
+        const seg = new THREE.Group();
+        const dir = nextPos.clone().sub(prevPos);
+        const len = dir.length();
+        const mid = prevPos.clone().add(nextPos).multiplyScalar(0.5);
+        const rod = mesh(new THREE.CylinderGeometry(0.022 - i * 0.003, 0.022 - (i + 1) * 0.003, len, 8), M.samGold);
+        seg.add(rod);
+        seg.position.copy(mid);
+        // Orient cylinder along dir
+        seg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+        helm.add(seg);
+        prevPos = nextPos;
+      }
+      // Pointed tip
+      const tip = mesh(new THREE.ConeGeometry(0.013, 0.08, 6), M.samGold);
+      tip.position.copy(prevPos);
+      tip.position.y += 0.04;
+      tip.rotation.z = side * 0.7;
+      helm.add(tip);
+    }
+
+    // Maedate (front decoration between horns) — gold sun-disc
+    const maedate = mesh(new THREE.CircleGeometry(0.05, 16), M.samGold);
+    maedate.position.set(0, 0.22, 0.21); helm.add(maedate);
+    const maedateRing = mesh(new THREE.TorusGeometry(0.05, 0.008, 8, 16), M.samGold);
+    maedateRing.position.set(0, 0.22, 0.215); helm.add(maedateRing);
+
+    // MEMPO (face mask) — covers nose/mouth, stylized snarl
+    const mempo = new THREE.Group();
+    // Main mask shell
+    const maskShape = new THREE.Shape();
+    maskShape.moveTo(-0.13, 0); maskShape.lineTo(0.13, 0);
+    maskShape.bezierCurveTo(0.16, -0.12, 0.08, -0.2, 0, -0.21);
+    maskShape.bezierCurveTo(-0.08, -0.2, -0.16, -0.12, -0.13, 0);
+    maskShape.closePath();
+    const mask = mesh(new THREE.ExtrudeGeometry(maskShape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.01, bevelSegments: 2 }), M.lacquerHi);
+    mask.position.set(0, -0.05, 0.13); mempo.add(mask);
+    // Gold mustache decoration (samurai sneer)
+    for (let side = -1; side <= 1; side += 2) {
+      const mustache = mesh(new THREE.BoxGeometry(0.08, 0.014, 0.005), M.samGold);
+      mustache.position.set(side * 0.06, -0.08, 0.215);
+      mustache.rotation.z = side * 0.3;
+      mempo.add(mustache);
+    }
+    // Bared teeth (gold ridges where the mouth-grimace would be)
+    for (let i = 0; i < 5; i++) {
+      const tooth = mesh(new THREE.BoxGeometry(0.012, 0.018, 0.005), M.samGold);
+      tooth.position.set((i - 2) * 0.022, -0.13, 0.215);
+      mempo.add(tooth);
+    }
+    helm.add(mempo);
+
+    // Eye apertures — visible glowing eyes (cool steel-white)
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.samEye);
+    eyeL.position.set(-0.08, 0.02, 0.21); helm.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.08; helm.add(eyeR);
+
+    // Shikoro (neck guard at back, lacquered scaled plates flared outward)
+    for (let i = 0; i < 4; i++) {
+      const plate = mesh(new THREE.BoxGeometry(0.36 + i * 0.02, 0.05, 0.04), M.lacquerHi);
+      plate.position.set(0, -0.18 - i * 0.04, -0.14 - i * 0.02);
+      plate.rotation.x = -0.5 + i * 0.05;
+      helm.add(plate);
+      // Crimson lacing on each plate
+      const lace = mesh(new THREE.BoxGeometry(0.34 + i * 0.02, 0.014, 0.005), M.samCord);
+      lace.position.set(0, -0.19 - i * 0.04, -0.13 - i * 0.02);
+      lace.rotation.x = -0.5 + i * 0.05;
+      helm.add(lace);
+    }
+
+    // Bottom rim of helm
+    const helmRim = mesh(new THREE.TorusGeometry(0.21, 0.014, 8, 24), M.samGold);
+    helmRim.rotation.x = Math.PI / 2;
+    helmRim.position.y = -0.21;
+    helm.add(helmRim);
+
+    return helm;
+  }
+}
+
+const samuraiAnimations = {
+  // IAIJUTSU — fast precise quick-draw slash, ease.out, lightning-quick
+  attack: {
+    duration: 0.7,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.18, values: {                                          // crouch slightly + pull right arm back
+        rightArm: { rx: 0.55, rz: -0.15 },
+        body:     { rx: 0.04, ry: -0.18, py: -0.04 },
+      }, ease: ease.out },
+      { t: 0.42, values: {                                          // explosive forward strike — diagonal slash
+        rightArm: { rx: -1.05, rz: 0.45 },
+        body:     { ry: 0.22, rz: 0.06 },
+      }, ease: ease.out },
+      { t: 0.62, values: {                                          // post-strike held pose — blade extended
+        rightArm: { rx: -0.85, rz: 0.4 },
+        body:     { ry: 0.18, rz: 0.05 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.42, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.2, 1.0, champPos.z + 1.0);
+        // Sharp slash — silver-blue impact
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0xeaf0ff, maxScale: 0.55, duration: 0.22 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xa0c0ff, maxRadius: 1.0, duration: 0.45 }), time);
+        // Steel-bright particle burst (sparks)
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xeaf0ff, count: 22, speed: 5.5, duration: 0.6, upwardBias: 0.5, gravity: -3.0 }), time);
+        // Crit-themed thin light pillar at the strike (the precision moment)
+        mgr.spawn(new LightPillar(champ.scene, new THREE.Vector3(pos.x, 0.12, pos.z), { color: 0xa0c0ff, height: 1.6, radius: 0.18, duration: 0.35 }), time);
+      }},
+    ],
+  },
+  // WAVE SLASH — wide horizontal arc, line AoE crescent
+  spell1: {
+    duration: 1.0,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // wind sword across body (right shoulder, low)
+        rightArm: { rx: 0.35, rz: -0.85 },
+        body:     { ry: -0.32 },
+      }, ease: ease.out },
+      { t: 0.55, values: {                                          // sweeping horizontal arc — full extension
+        rightArm: { rx: -0.2, rz: 0.85 },
+        body:     { ry: 0.32, rz: 0.04 },
+      }, ease: ease.out },
+      { t: 0.78, values: {                                          // hold the post-slash pose
+        rightArm: { rx: -0.2, rz: 0.85 },
+        body:     { ry: 0.32, rz: 0.04 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x, 0.12, champPos.z + 1.4);
+        // Crescent slash — wide thin shockwave + filled disc
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xa0c0ff, maxRadius: 2.4, duration: 0.7 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, pos, { color: 0xeaf0ff, maxRadius: 2.0, duration: 0.5 }), time);
+        // Multiple line-strike impacts along the arc (3 crescent points)
+        for (let i = -1; i <= 1; i++) {
+          const offset = new THREE.Vector3(i * 0.7, 0.5, 1.2 + Math.abs(i) * 0.2);
+          const p = champPos.clone().add(offset);
+          mgr.spawn(new ImpactFlash(champ.scene, p, { color: 0xeaf0ff, maxScale: 0.4, duration: 0.3 }), time);
+          mgr.spawn(new ParticleBurst(champ.scene, p, { color: 0xa0c0ff, count: 16, speed: 4.5, duration: 0.7, upwardBias: 0.8, gravity: -3.0 }), time);
+        }
+        // Steel rune ring trailing the slash
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xa0c0ff, maxRadius: 2.2, duration: 0.95, runeCount: 7, rotateSpeed: 0.8 }), time);
+      }},
+    ],
+  },
+  // MEDITATION — held still pose, ki gathers, then released as a guaranteed crit aura
+  spell2: {
+    duration: 2.4,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.18, values: {                                          // both arms in — sword held vertically before face
+        leftArm:  { rx: -0.85, rz: -0.25 },
+        rightArm: { rx: -0.85, rz: 0.25 },
+        body:     { rx: 0.05 },
+        head:     { rx: -0.06 },
+      }, ease: ease.out },
+      { t: 0.7,  values: {                                          // hold meditation — perfectly still
+        leftArm:  { rx: -0.85, rz: -0.25 },
+        rightArm: { rx: -0.85, rz: 0.25 },
+        body:     { rx: 0.05 },
+        head:     { rx: -0.06 },
+      }},
+      { t: 0.86, values: {                                          // release — sword extends into ready-strike pose
+        leftArm:  { rx: -0.4, rz: -0.15 },
+        rightArm: { rx: -0.45, rz: 0.55 },
+        body:     { ry: 0.2, rz: 0.04 },
+      }, ease: ease.out },
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.18, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Gathering ki — slow rune ring beneath the samurai
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xa0c0ff, maxRadius: 1.5, duration: 1.7, runeCount: 8, rotateSpeed: 0.4 }), time);
+        // Subtle dome of focus
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xa0c0ff, radius: 1.2, duration: 1.7 }), time);
+      }},
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 1.7;
+        // Mid-meditation — concentration particles drifting upward around the samurai
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xeaf0ff, count: 32, speed: 1.4, duration: 1.2, upwardBias: 1.6, gravity: -0.5 }), time);
+      }},
+      { time: 0.86, fn: (champ, mgr, time) => {
+        // Release — explosive crit flash + outward shockwave (the held breath unleashed)
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const strikePos = new THREE.Vector3(champPos.x + 0.3, 1.4, champPos.z + 1.2);
+        mgr.spawn(new ImpactFlash(champ.scene, strikePos, { color: 0xffffff, maxScale: 0.85, duration: 0.4 }), time);
+        const groundPos = new THREE.Vector3(champPos.x, 0.12, champPos.z);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xa0c0ff, maxRadius: 2.6, duration: 0.8 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xeaf0ff, maxRadius: 1.6, duration: 0.55 }), time);
+        // Vertical light pillar (the released ki)
+        mgr.spawn(new LightPillar(champ.scene, groundPos, { color: 0xeaf0ff, height: 4.2, radius: 0.5, duration: 0.7 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, strikePos, { color: 0xeaf0ff, count: 50, speed: 5, duration: 0.9, upwardBias: 1.4, gravity: -3.0 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  MONK — Fighter IV/VI                                                    ║
+// ║  Speed · Combo · Ki · Topknot, bare arms, saffron robe with one bare    ║
+// ║  shoulder, cream sash, jade prayer-bead bracelets, bo staff strapped    ║
+// ║  to back, jade pendant, jade-green ki eye glow                          ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Monk extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = monkAnimations;
+  }
+
+  // Override update to slowly rotate the prayer-bead bracelet on each wrist
+  // (a tiny living-detail flourish, like Shieldmage's orbital runes but smaller)
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.beadAnchorL) this.beadAnchorL.rotation.y = time * 0.6;
+    if (this.beadAnchorR) this.beadAnchorR.rotation.y = -time * 0.55;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — saffron wrapped trousers (no plate)
+    // Inline build (skip buildLeg since we want robe-wrap, not greaves)
+    const buildRobeLeg = (sx) => {
+      const leg = new THREE.Group();
+      // Upper thigh — saffron robe wrap
+      const thigh = mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.55, 14), M.saffron);
+      thigh.position.y = 0.95; leg.add(thigh);
+      // Knee — slightly highlighted
+      const knee = mesh(new THREE.SphereGeometry(0.135, 14, 10), M.saffronHi);
+      knee.position.y = 0.66; knee.scale.set(1, 0.7, 1.1); leg.add(knee);
+      // Lower shin — wrapped saffron + cream cord
+      const shin = mesh(new THREE.CylinderGeometry(0.13, 0.115, 0.45, 14), M.saffronHi);
+      shin.position.y = 0.39; leg.add(shin);
+      // Cream cord wraps along shin
+      for (let i = 0; i < 4; i++) {
+        const wrap = mesh(new THREE.TorusGeometry(0.13, 0.008, 6, 14), M.monkCream);
+        wrap.rotation.x = Math.PI / 2;
+        wrap.position.y = 0.5 - i * 0.07;
+        leg.add(wrap);
+      }
+      // Sandal — simple flat sole + thong
+      const sole = mesh(new THREE.BoxGeometry(0.22, 0.04, 0.34), M.leatherDark);
+      sole.position.set(0, 0.06, 0.05); leg.add(sole);
+      // Sandal thong (Y-strap)
+      const thong = mesh(new THREE.BoxGeometry(0.02, 0.05, 0.16), M.leather);
+      thong.position.set(0, 0.1, 0.1); leg.add(thong);
+      // Bare foot showing through
+      const foot = mesh(new THREE.BoxGeometry(0.18, 0.04, 0.28), M.skin);
+      foot.position.set(0, 0.1, 0.06); leg.add(foot);
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildRobeLeg(-1));
+    root.add(buildRobeLeg(1));
+
+    // Pelvis — cream sash with jade ornament
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.18, 16), M.saffron));
+    // Cream sash (thick belt)
+    const sash = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.16, 18), M.monkCream);
+    sash.position.y = 0.0; pelvis.add(sash);
+    // Sash knot at front (large bow-knot)
+    const sashKnot = mesh(new THREE.SphereGeometry(0.07, 12, 10), M.monkCream);
+    sashKnot.position.set(0, 0.0, 0.34); sashKnot.scale.set(1.4, 0.7, 0.7);
+    pelvis.add(sashKnot);
+    // Sash tails hanging from knot
+    for (let i = -1; i <= 1; i += 2) {
+      const tail = mesh(new THREE.BoxGeometry(0.06, 0.32, 0.018), M.monkCream);
+      tail.position.set(i * 0.07, -0.16, 0.34);
+      tail.rotation.z = i * 0.18;
+      pelvis.add(tail);
+    }
+    // Jade pendant hanging from sash knot
+    const jadePendant = mesh(new THREE.SphereGeometry(0.025, 12, 10), M.jade);
+    jadePendant.position.set(0, -0.08, 0.38); jadePendant.scale.set(1, 1.2, 0.5);
+    pelvis.add(jadePendant);
+    const pendantString = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.06, 4), M.leather);
+    pendantString.position.set(0, -0.04, 0.37); pelvis.add(pendantString);
+    root.add(pelvis);
+
+    // TORSO — saffron robe wrap with bare right shoulder/chest visible
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Bare skin underlayer (whole torso visible — robe wraps over it)
+    const bareTorso = mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.7, 16), M.skin);
+    bareTorso.scale.set(1.0, 1, 0.85);
+    torso.add(bareTorso);
+
+    // Pec mounds (bare skin)
+    const pecL = mesh(new THREE.SphereGeometry(0.17, 14, 12), M.skin);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // Saffron robe wrap — diagonal, covers left shoulder/torso, leaves right shoulder bare
+    // The wrap is built as a curved sheet from left shoulder down to right hip
+    const robePoints = [];
+    const robeRows = 16, robeCols = 12;
+    const robeVerts = [], robeIndices = [], robeUvs = [];
+    for (let y = 0; y <= robeRows; y++) {
+      const v = y / robeRows;
+      for (let x = 0; x <= robeCols; x++) {
+        const u = x / robeCols;
+        // The robe wraps diagonally — left shoulder (top) to right hip (bottom)
+        const angle = (u - 0.5) * Math.PI * 1.0 + Math.PI / 6;  // shifted so it covers left-front-back
+        const r = 0.36 + Math.sin(v * Math.PI) * 0.02;
+        const px = Math.cos(angle) * r;
+        const pz = Math.sin(angle) * r;
+        const py = 0.4 - v * 0.7;
+        robeVerts.push(px, py, pz);
+        robeUvs.push(u, 1 - v);
+      }
+    }
+    for (let y = 0; y < robeRows; y++) {
+      for (let x = 0; x < robeCols; x++) {
+        const a = y * (robeCols + 1) + x, b = a + 1, c = a + robeCols + 1, d = c + 1;
+        robeIndices.push(a, c, b, b, c, d);
+      }
+    }
+    const robeGeo = new THREE.BufferGeometry();
+    robeGeo.setAttribute('position', new THREE.Float32BufferAttribute(robeVerts, 3));
+    robeGeo.setAttribute('uv', new THREE.Float32BufferAttribute(robeUvs, 2));
+    robeGeo.setIndex(robeIndices);
+    robeGeo.computeVertexNormals();
+    const robe = mesh(robeGeo, M.saffron);
+    torso.add(robe);
+
+    // Robe trim — saffron-dark border along the wrap edge
+    const trimLeft = mesh(new THREE.BoxGeometry(0.04, 0.7, 0.012), M.saffronDark);
+    trimLeft.position.set(-0.32, 0.05, 0.18); trimLeft.rotation.y = -0.4;
+    torso.add(trimLeft);
+    const trimRight = mesh(new THREE.BoxGeometry(0.04, 0.7, 0.012), M.saffronDark);
+    trimRight.position.set(0.32, 0.05, -0.18); trimRight.rotation.y = -0.4;
+    torso.add(trimRight);
+
+    // Diagonal robe-front strip (visible across the chest)
+    const diagonalStrip = mesh(new THREE.BoxGeometry(0.5, 0.18, 0.04), M.saffronHi);
+    diagonalStrip.position.set(0, 0.08, 0.32); diagonalStrip.rotation.z = -0.4;
+    torso.add(diagonalStrip);
+
+    // Jade chest emblem — large round jade gem on the diagonal strip (chest-emblem requirement)
+    const jadeBack = mesh(new THREE.CircleGeometry(0.06, 16), M.saffronDark);
+    jadeBack.position.set(0.05, 0.12, 0.35); jadeBack.rotation.z = -0.4;
+    torso.add(jadeBack);
+    const jadeGem = mesh(new THREE.SphereGeometry(0.05, 16, 12), M.jade);
+    jadeGem.position.set(0.05, 0.12, 0.37); jadeGem.scale.set(1, 1, 0.5);
+    torso.add(jadeGem);
+    // Inscribed kanji-like marks on jade
+    for (let i = 0; i < 3; i++) {
+      const mark = mesh(new THREE.BoxGeometry(0.025, 0.005, 0.005), M.jadeHi);
+      mark.position.set(0.05, 0.135 - i * 0.012, 0.4);
+      mark.rotation.z = -0.4;
+      torso.add(mark);
+    }
+
+    // Right pec — bare and exposed (the marquee monk silhouette feature)
+    // No robe coverage on right side — chest skin shows through
+
+    // Neck collar (bare skin, no metal)
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Bare upper arms (inlined — like Berserker but cleaner, no tattoos, with prayer beads)
+    const buildMonkArm = (sx, shoulderAngle) => {
+      const arm = new THREE.Group();
+      // Bare upper arm
+      const upper = mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.4, 12), M.skin);
+      upper.position.y = -0.2; arm.add(upper);
+      // Saffron-cloth shoulder cap (only on left arm — right is fully bare)
+      if (sx === -1) {
+        const shoulderCap = mesh(new THREE.SphereGeometry(0.12, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), M.saffron);
+        shoulderCap.position.y = 0; shoulderCap.scale.set(1, 0.7, 1);
+        arm.add(shoulderCap);
+        // Saffron-dark trim
+        const capTrim = mesh(new THREE.TorusGeometry(0.115, 0.01, 8, 16), M.saffronDark);
+        capTrim.rotation.x = Math.PI / 2; capTrim.position.y = -0.04;
+        arm.add(capTrim);
+      }
+      // Bare elbow
+      const elbow = mesh(new THREE.SphereGeometry(0.09, 12, 10), M.skin);
+      elbow.position.y = -0.42; elbow.scale.set(1, 0.8, 1); arm.add(elbow);
+      // Bare forearm
+      const forearm = mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.4, 12), M.skin);
+      forearm.position.y = -0.62; arm.add(forearm);
+
+      // Prayer-bead bracelet at the wrist (rotating anchor — set parent on champion)
+      const beadAnchor = new THREE.Group();
+      beadAnchor.position.y = -0.8;
+      const BEAD_COUNT = 12;
+      for (let i = 0; i < BEAD_COUNT; i++) {
+        const a = (i / BEAD_COUNT) * Math.PI * 2;
+        const bead = mesh(new THREE.SphereGeometry(0.014, 8, 6), i % 4 === 0 ? M.jadeHi : M.jade);
+        bead.position.set(Math.cos(a) * 0.1, 0, Math.sin(a) * 0.1);
+        beadAnchor.add(bead);
+      }
+      // Center bead string (cord)
+      const cord = mesh(new THREE.TorusGeometry(0.1, 0.003, 6, 24), M.leather);
+      cord.rotation.x = Math.PI / 2;
+      beadAnchor.add(cord);
+      arm.add(beadAnchor);
+      arm.userData.beadAnchor = beadAnchor;
+
+      // Hand (bare skin, slim)
+      const handMesh = mesh(new THREE.BoxGeometry(0.12, 0.16, 0.1), M.skin);
+      handMesh.position.y = -0.95; arm.add(handMesh);
+      const hand = new THREE.Group();
+      hand.position.y = -0.96;
+      arm.add(hand);
+      arm.userData.hand = hand;
+      arm.position.set(sx * 0.42, 2.18, 0);
+      arm.rotation.z = sx * shoulderAngle;
+      return arm;
+    };
+
+    const leftArm = buildMonkArm(-1, 0.18);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    this.beadAnchorL = leftArm.userData.beadAnchor;
+
+    const rightArm = buildMonkArm(1, 0.18);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    this.beadAnchorR = rightArm.userData.beadAnchor;
+
+    // BO STAFF — strapped diagonally across the back (idle pose, ready to draw)
+    const boStaff = this._buildBoStaff();
+    boStaff.position.set(-0.05, 1.95, -0.32);
+    boStaff.rotation.set(0, 0, Math.PI / 6);
+    root.add(boStaff);
+    this.parts.staff = boStaff;
+
+    // Bare neck
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — no helm; bald with topknot, jade earrings, dot of vermilion on forehead
+    const head = this._buildMonkHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    this.cape = null;
+
+    M.monkEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.monkEye;
+  }
+
+  _buildBoStaff() {
+    const staff = new THREE.Group();
+    // Long wood haft
+    const haft = mesh(new THREE.CylinderGeometry(0.022, 0.022, 1.4, 12), M.wood);
+    staff.add(haft);
+    // Hand-grip wraps (cream cord at center)
+    for (let i = 0; i < 6; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.025, 0.005, 6, 12), M.monkCream);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = -0.15 + i * 0.06;
+      staff.add(wrap);
+    }
+    // Jade caps at both ends
+    const capTop = mesh(new THREE.CylinderGeometry(0.028, 0.024, 0.05, 10), M.jade);
+    capTop.position.y = 0.7; staff.add(capTop);
+    const capBot = mesh(new THREE.CylinderGeometry(0.024, 0.028, 0.05, 10), M.jade);
+    capBot.position.y = -0.7; staff.add(capBot);
+    // Brass bands flanking each jade cap
+    [0.66, -0.66].forEach(y => {
+      const band = mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.012, 10), M.brass);
+      band.position.y = y; staff.add(band);
+    });
+    return staff;
+  }
+
+  _buildMonkHead() {
+    const head = new THREE.Group();
+
+    // Bald scalp (skin)
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.skinDark);
+    scalp.scale.set(1, 1.1, 1.05);
+    head.add(scalp);
+
+    // Face shape (slightly forward shifted)
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skin);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // ===== TOPKNOT (the marquee feature) =====
+    // Tied bun on top of head
+    const bunBase = mesh(new THREE.SphereGeometry(0.07, 14, 12), M.stoneDark);
+    bunBase.position.set(0, 0.22, -0.02); head.add(bunBase);
+    // Cord wrap around the bun
+    const bunCord = mesh(new THREE.TorusGeometry(0.07, 0.012, 8, 16), M.crimson);
+    bunCord.rotation.x = Math.PI / 4;
+    bunCord.position.set(0, 0.2, -0.02); head.add(bunCord);
+    // Topknot tail (a small upward bristle of hair from the bun)
+    const tail = mesh(new THREE.ConeGeometry(0.04, 0.12, 8), M.stoneDark);
+    tail.position.set(0, 0.32, -0.04); tail.rotation.x = -0.2;
+    head.add(tail);
+    // Forehead tonsure line (visible head shave)
+    const tonsure = mesh(new THREE.TorusGeometry(0.18, 0.005, 6, 24), M.skinDark);
+    tonsure.rotation.x = Math.PI / 2.5;
+    tonsure.position.y = 0.08;
+    head.add(tonsure);
+
+    // Vermilion dot on forehead (third-eye mark, small)
+    const dot = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.crimsonHi);
+    dot.position.set(0, 0.06, 0.21); head.add(dot);
+
+    // Eyes — narrow horizontal strip with jade-green ki glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.025, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.02, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.monkEye);
+    eyeL.position.set(-0.075, -0.02, 0.2); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Subtle nose
+    const nose = mesh(new THREE.ConeGeometry(0.025, 0.06, 6), M.skin);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    head.add(nose);
+
+    // Mouth (calm closed line)
+    const mouth = mesh(new THREE.BoxGeometry(0.06, 0.008, 0.005), M.skinDark);
+    mouth.position.set(0, -0.13, 0.22); head.add(mouth);
+
+    // Jade earrings
+    for (let side = -1; side <= 1; side += 2) {
+      const earring = mesh(new THREE.SphereGeometry(0.018, 8, 6), M.jade);
+      earring.position.set(side * 0.21, -0.05, 0); head.add(earring);
+    }
+
+    return head;
+  }
+}
+
+const monkAnimations = {
+  // FLURRY — 3 fast palm strikes, alternating arms — quick, snappy, ease.out
+  attack: {
+    duration: 0.85,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.12, values: {                                          // first jab — left palm forward
+        leftArm:  { rx: -0.85, rz: 0.15 },
+        rightArm: { rx: 0.3, rz: 0.15 },
+        body:     { ry: -0.1 },
+      }, ease: ease.out },
+      { t: 0.32, values: {                                          // second jab — right palm forward
+        leftArm:  { rx: 0.3, rz: -0.15 },
+        rightArm: { rx: -0.95, rz: -0.15 },
+        body:     { ry: 0.12 },
+      }, ease: ease.out },
+      { t: 0.55, values: {                                          // third strike — combo cross, double-palm
+        leftArm:  { rx: -1.0, rz: 0.0 },
+        rightArm: { rx: -1.0, rz: 0.0 },
+        body:     { rx: -0.06, ry: 0.0 },
+      }, ease: ease.out },
+      { t: 0.72, values: {                                          // recoil
+        leftArm:  { rx: -0.5, rz: 0.05 },
+        rightArm: { rx: -0.5, rz: -0.05 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.12, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x - 0.25, 1.4, champPos.z + 0.9);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x80ffb0, maxScale: 0.42, duration: 0.22 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x40ff80, count: 14, speed: 3.5, duration: 0.5, upwardBias: 0.6, gravity: -2.5 }), time);
+      }},
+      { time: 0.32, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.25, 1.4, champPos.z + 0.9);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x80ffb0, maxScale: 0.42, duration: 0.22 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x40ff80, count: 14, speed: 3.5, duration: 0.5, upwardBias: 0.6, gravity: -2.5 }), time);
+      }},
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x, 1.4, champPos.z + 1.05);
+        // Combo finisher — bigger flash + ground rune (small)
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x80ffb0, maxScale: 0.65, duration: 0.3 }), time);
+        const groundPos = new THREE.Vector3(pos.x, 0.12, pos.z);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0x40ff80, maxRadius: 1.2, duration: 0.55 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x40ff80, count: 24, speed: 4, duration: 0.7, upwardBias: 1.4, gravity: -2.5 }), time);
+      }},
+    ],
+  },
+  // TIGER PALM — heavy single palm strike with ki gather + release
+  spell1: {
+    duration: 1.2,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.32, values: {                                          // gather ki — both palms drawn back to side
+        leftArm:  { rx: 0.3, rz: -0.5 },
+        rightArm: { rx: 0.3, rz: 0.5 },
+        body:     { rx: 0.05, py: -0.04 },
+      }, ease: ease.out },
+      { t: 0.6,  values: {                                          // explosive forward palm — right hand
+        leftArm:  { rx: 0.0, rz: -0.2 },
+        rightArm: { rx: -1.15, rz: 0.0 },
+        body:     { ry: 0.18 },
+      }, ease: ease.out },
+      { t: 0.8,  values: {                                          // hold post-strike — palm extended
+        leftArm:  { rx: 0.0, rz: -0.2 },
+        rightArm: { rx: -1.0, rz: 0.0 },
+        body:     { ry: 0.15 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.32, fn: (champ, mgr, time) => {
+        // Ki gather between hands — small green glow in front of chest
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x, 1.85, champPos.z + 0.4);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x40ff80, count: 24, speed: 1.0, duration: 0.5, upwardBias: -0.2, gravity: 0 }), time);
+      }},
+      { time: 0.6, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.4, 1.7, champPos.z + 1.2);
+        // Massive ki release — big flash + filled disc + outward tiger-shape shockwave
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x80ffb0, maxScale: 0.95, duration: 0.4 }), time);
+        const groundPos = new THREE.Vector3(pos.x, 0.12, pos.z);
+        mgr.spawn(new FilledShockwave(champ.scene, groundPos, { color: 0x40ff80, maxRadius: 1.6, duration: 0.5 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0x80ffb0, maxRadius: 2.2, duration: 0.7 }), time);
+        // Particle plume (the ki blast)
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x40ff80, count: 60, speed: 6, duration: 1.0, upwardBias: 1.0, gravity: -2.5 }), time);
+        // Light pillar at impact (the tiger's roar)
+        mgr.spawn(new LightPillar(champ.scene, groundPos, { color: 0x40ff80, height: 3.0, radius: 0.5, duration: 0.6 }), time);
+      }},
+    ],
+  },
+  // INNER PEACE — meditation pose, party HoT aura + cleanse, ease.inOut
+  spell2: {
+    duration: 2.6,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // hands-together prayer pose (gassho)
+        leftArm:  { rx: -0.95, rz: 0.6 },
+        rightArm: { rx: -0.95, rz: -0.6 },
+        body:     { rx: 0.08 },
+        head:     { rx: -0.05 },
+      }, ease: ease.inOut },
+      { t: 0.78, values: {                                          // hold the meditation
+        leftArm:  { rx: -0.95, rz: 0.6 },
+        rightArm: { rx: -0.95, rz: -0.6 },
+        body:     { rx: 0.08 },
+        head:     { rx: -0.05 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Big jade-green holy circle (HoT aura)
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0x40ff80, radius: 2.0, duration: 2.0 }), time);
+        // Outer rune ring
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0x80ffb0, maxRadius: 2.4, duration: 1.9, runeCount: 8, rotateSpeed: 0.5 }), time);
+        // Soft jade dome
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0x40ff80, radius: 1.5, duration: 1.9 }), time);
+      }},
+      { time: 0.6, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const handsPos = new THREE.Vector3(champPos.x, 2.0, champPos.z + 0.3);
+        // Gentle particles drifting upward from the prayer hands
+        mgr.spawn(new ParticleBurst(champ.scene, handsPos, { color: 0x80ffb0, count: 50, speed: 1.5, duration: 1.6, upwardBias: 1.8, gravity: -0.5 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  SPELLBLADE — Fighter V/VI                                               ║
+// ║  Hybrid Melee · Brief Taunt · Silver runic half-plate, indigo cloth,    ║
+// ║  arcane-blue rune trim on hood-cape, two floating runic shards          ║
+// ║  orbiting off-hand shoulder, glowing runed greatsword, hex-blue glow    ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Spellblade extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = spellbladeAnimations;
+  }
+
+  // Override update to spin the floating shoulder shards around their anchor
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.shardAnchor) this.shardAnchor.rotation.y = time * 0.8;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — silver greaves with indigo trim + arcane rune accent
+    const legPalette = { dark: M.silverPlateDark, mid: M.silverPlate, accent: M.arcaneRune, trim: M.silverPlateHi, leather: M.indigoTrim };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis — silver plate skirt with arcane-blue rune-engraved tassets
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.silverPlateDark));
+    // Indigo cloth underbelt
+    const underbelt = mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.08, 16), M.indigoTrim);
+    underbelt.position.y = 0.05; pelvis.add(underbelt);
+    // Front buckle — arcane rune gem
+    const buckleBack = mesh(new THREE.CircleGeometry(0.04, 16), M.silverPlateHi);
+    buckleBack.position.set(0, 0.05, 0.32); pelvis.add(buckleBack);
+    const buckleGem = mesh(new THREE.SphereGeometry(0.025, 12, 10), M.arcaneRune);
+    buckleGem.position.set(0, 0.05, 0.34); buckleGem.scale.set(1, 1, 0.5);
+    pelvis.add(buckleGem);
+    // Tassets — 6 silver plate panels with engraved rune lines
+    for (let i = 0; i < 6; i++) {
+      const angle = -Math.PI * 0.5 + (i / 5) * Math.PI * 1.0;
+      const tasset = mesh(new THREE.BoxGeometry(0.12, 0.32, 0.03), M.silverPlate);
+      tasset.position.set(Math.cos(angle) * 0.3, -0.2, Math.sin(angle) * 0.3);
+      tasset.lookAt(Math.cos(angle) * 2, -0.2, Math.sin(angle) * 2);
+      tasset.rotateX(0.06);
+      pelvis.add(tasset);
+      // Rune line along each tasset
+      const runeLine = mesh(new THREE.BoxGeometry(0.06, 0.22, 0.005), M.arcaneRune);
+      runeLine.position.set(Math.cos(angle) * 0.32, -0.18, Math.sin(angle) * 0.32);
+      runeLine.lookAt(Math.cos(angle) * 2, -0.18, Math.sin(angle) * 2);
+      runeLine.rotateX(0.06);
+      pelvis.add(runeLine);
+    }
+    root.add(pelvis);
+
+    // TORSO — silver half-plate over indigo cloth
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Indigo tunic underlayer
+    const tunic = mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.7, 16), M.indigoTrim);
+    tunic.scale.set(1.0, 1, 0.85);
+    torso.add(tunic);
+
+    // Silver chest cuirass (front plate only — partial coverage shows tunic at sides)
+    const cuirass = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.55, 16, 1, false, -Math.PI / 2.2, Math.PI * 1.3), M.silverPlate);
+    cuirass.scale.set(1.05, 1, 0.85);
+    cuirass.position.y = 0.04;
+    torso.add(cuirass);
+
+    // Pec mounds (silver swells)
+    const pecL = mesh(new THREE.SphereGeometry(0.18, 14, 12), M.silverPlateHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.6);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // CHEST EMBLEM — eight-pointed arcane star with central rune gem
+    const emblemBack = mesh(new THREE.CircleGeometry(0.085, 16), M.silverPlateDark);
+    emblemBack.position.set(0, 0.05, 0.36); torso.add(emblemBack);
+    // Eight-pointed star (two overlapping diamonds)
+    for (let rotIdx = 0; rotIdx < 2; rotIdx++) {
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2 + rotIdx * Math.PI / 4;
+        const ray = mesh(new THREE.ConeGeometry(0.012, 0.07, 4), M.silverPlateHi);
+        ray.position.set(Math.cos(angle) * 0.05, 0.05 + Math.sin(angle) * 0.05, 0.38);
+        ray.rotation.z = angle - Math.PI / 2;
+        torso.add(ray);
+      }
+    }
+    // Central arcane rune gem
+    const emblemGem = mesh(new THREE.SphereGeometry(0.035, 14, 12), M.arcaneRune);
+    emblemGem.position.set(0, 0.05, 0.4); emblemGem.scale.set(1, 1, 0.5);
+    torso.add(emblemGem);
+    const emblemRing = mesh(new THREE.TorusGeometry(0.04, 0.005, 8, 16), M.silverPlateHi);
+    emblemRing.position.set(0, 0.05, 0.41); torso.add(emblemRing);
+
+    // Engraved rune lines flowing across the chest plate (two diagonal arcane channels)
+    for (let side = -1; side <= 1; side += 2) {
+      const rune1 = mesh(new THREE.BoxGeometry(0.005, 0.32, 0.005), M.arcaneRune);
+      rune1.position.set(side * 0.18, 0.1, 0.36);
+      rune1.rotation.z = side * 0.4;
+      torso.add(rune1);
+      // Small rune sigils along the line
+      for (let i = 0; i < 3; i++) {
+        const sigil = mesh(new THREE.BoxGeometry(0.018, 0.012, 0.005), M.arcaneRune);
+        sigil.position.set(side * (0.13 + i * 0.05), 0.18 - i * 0.07, 0.37);
+        sigil.rotation.z = side * 0.4;
+        torso.add(sigil);
+      }
+    }
+
+    // Belt at base of cuirass — silver band with indigo cloth showing
+    const belt = mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.06, 18), M.silverPlateHi);
+    belt.position.y = -0.3; torso.add(belt);
+    const beltRune = mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.014, 18), M.arcaneRune);
+    beltRune.position.y = -0.3; torso.add(beltRune);
+
+    // Neck collar — silver high collar with arcane line
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 16), M.silverPlate);
+    collar.position.y = 0.4; torso.add(collar);
+    const collarRune = mesh(new THREE.TorusGeometry(0.21, 0.006, 6, 18), M.arcaneRune);
+    collarRune.rotation.x = Math.PI / 2; collarRune.position.y = 0.4;
+    torso.add(collarRune);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Pauldrons — silver, asymmetric (left has the floating shards above)
+    for (let side = -1; side <= 1; side += 2) {
+      const pauld = mesh(new THREE.SphereGeometry(0.18, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.7), M.silverPlate);
+      pauld.scale.set(1.1, 0.85, 1);
+      pauld.position.set(side * 0.42, 2.2, 0);
+      root.add(pauld);
+      // Silver-hi trim along the pauldron rim
+      const pauldTrim = mesh(new THREE.TorusGeometry(0.18, 0.012, 8, 20), M.silverPlateHi);
+      pauldTrim.rotation.x = Math.PI / 2; pauldTrim.position.set(side * 0.42, 2.16, 0);
+      root.add(pauldTrim);
+      // Arcane rune symbol on pauldron top
+      const pauldRune = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.arcaneRune);
+      pauldRune.position.set(side * 0.42, 2.32, 0); pauldRune.scale.set(1, 0.5, 1);
+      root.add(pauldRune);
+    }
+
+    // ===== FLOATING RUNIC SHARDS — orbiting the LEFT (off-hand) shoulder =====
+    this.shardAnchor = new THREE.Group();
+    this.shardAnchor.position.set(-0.42, 2.5, 0);
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const shardShape = new THREE.Shape();
+      shardShape.moveTo(0, -0.04); shardShape.lineTo(0.025, 0);
+      shardShape.lineTo(0, 0.06); shardShape.lineTo(-0.025, 0); shardShape.closePath();
+      const shard = mesh(new THREE.ExtrudeGeometry(shardShape, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 1 }), M.arcaneRune);
+      shard.position.set(Math.cos(a) * 0.18, Math.sin(a) * 0.04, Math.sin(a) * 0.18);
+      shard.rotation.set(0, -a + Math.PI / 2, 0);
+      this.shardAnchor.add(shard);
+    }
+    root.add(this.shardAnchor);
+
+    // ARMS — silver vambrace + indigo cloth upper
+    const armPalette = { cloth: M.indigoTrim, mid: M.silverPlate, dark: M.silverPlateDark, hi: M.silverPlateHi, accent: M.arcaneRune };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+
+    // Rune-line on each forearm vambrace
+    [leftArm, rightArm].forEach(arm => {
+      const runeLine = mesh(new THREE.BoxGeometry(0.005, 0.36, 0.005), M.arcaneRune);
+      runeLine.position.set(0, -0.62, 0.09);
+      arm.add(runeLine);
+    });
+
+    // RUNIC GREATSWORD — held in right hand (one-handed even though large — fantasy convention)
+    const sword = this._buildRunicGreatsword();
+    rightArm.userData.hand.add(sword);
+    sword.position.set(0, 0.04, 0.06);
+    sword.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = sword;
+
+    // Short hooded CAPE — drapes from collar, indigo with silver-rune trim
+    const cape = buildCape({ material: M.sbCape, width: 1.2, height: 1.2 });
+    cape.position.set(0, 2.36, -0.05);
+    root.add(cape);
+    this.cape = cape;
+
+    // Cape trim along the bottom (visible edge)
+    const capeTrim = mesh(new THREE.TorusGeometry(0.5, 0.015, 8, 24, Math.PI), M.arcaneRune);
+    capeTrim.rotation.x = Math.PI / 2;
+    capeTrim.position.set(0, 1.18, -0.15);
+    capeTrim.scale.set(1.1, 1, 0.5);
+    root.add(capeTrim);
+
+    // Neck (visible at the top of the collar — indigo cloth)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.indigoTrim);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HELM — circlet + low hood + arcane forehead gem (open face)
+    const helm = this._buildSpellbladeHelm();
+    helm.position.y = 2.56;
+    root.add(helm);
+    this.parts.head = helm;
+
+    M.sbEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.sbEye;
+  }
+
+  _buildRunicGreatsword() {
+    const sword = new THREE.Group();
+    // Pommel — large silver orb with arcane rune
+    const pommel = mesh(new THREE.SphereGeometry(0.045, 14, 12), M.silverPlateHi);
+    sword.add(pommel);
+    const pommelGem = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.arcaneRune);
+    pommelGem.position.y = 0.0; pommelGem.scale.set(1, 1, 0.5);
+    sword.add(pommelGem);
+    // Grip — long two-handed leather wrap with rune wraps
+    const grip = mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.32, 12), M.indigoTrim);
+    grip.position.y = 0.18; sword.add(grip);
+    for (let i = 0; i < 5; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.028, 0.005, 6, 12), M.silverPlateHi);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = 0.06 + i * 0.06;
+      sword.add(wrap);
+    }
+    // Crossguard — wide silver bar with arcane runes at each end
+    const cross = mesh(new THREE.BoxGeometry(0.32, 0.045, 0.045), M.silverPlate);
+    cross.position.y = 0.36; sword.add(cross);
+    // Crossguard runes (left and right gems)
+    for (let side = -1; side <= 1; side += 2) {
+      const runeGem = mesh(new THREE.SphereGeometry(0.028, 10, 8), M.arcaneRune);
+      runeGem.position.set(side * 0.16, 0.36, 0);
+      sword.add(runeGem);
+    }
+    // Central crossguard rune
+    const centralRune = mesh(new THREE.BoxGeometry(0.06, 0.04, 0.05), M.arcaneRune);
+    centralRune.position.set(0, 0.36, 0); sword.add(centralRune);
+    // BLADE — long with engraved rune line glowing down the center
+    const bladeShape = new THREE.Shape();
+    bladeShape.moveTo(-0.04, 0); bladeShape.lineTo(0.04, 0);
+    bladeShape.lineTo(0.024, 1.05); bladeShape.lineTo(0.0, 1.12); bladeShape.lineTo(-0.024, 1.05);
+    bladeShape.closePath();
+    const blade = mesh(new THREE.ExtrudeGeometry(bladeShape, { depth: 0.022, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.004, bevelSegments: 2 }), M.silverPlateHi);
+    blade.position.set(0, 0.4, -0.011); sword.add(blade);
+    // Glowing rune fuller (the central engraving)
+    const fuller = mesh(new THREE.BoxGeometry(0.012, 0.95, 0.005), M.arcaneRune);
+    fuller.position.set(0, 0.86, 0.012); sword.add(fuller);
+    // Three rune sigils along the fuller
+    for (let i = 0; i < 4; i++) {
+      const sigil = mesh(new THREE.BoxGeometry(0.024, 0.02, 0.006), M.arcaneRune);
+      sigil.position.set(0, 0.5 + i * 0.22, 0.013);
+      sword.add(sigil);
+    }
+    return sword;
+  }
+
+  _buildSpellbladeHelm() {
+    const helm = new THREE.Group();
+
+    // Open hood — drapes back over scalp (low-coverage hood)
+    const hood = mesh(new THREE.SphereGeometry(0.22, 20, 14, 0, Math.PI * 2, Math.PI * 0.15, Math.PI * 0.7), M.indigoTrim);
+    hood.scale.set(1.05, 1.0, 1.15);
+    hood.position.set(0, 0.04, -0.04);
+    helm.add(hood);
+
+    // Hood front edge (silver trim)
+    const hoodTrim = mesh(new THREE.TorusGeometry(0.22, 0.01, 8, 28, Math.PI * 1.2), M.silverPlateHi);
+    hoodTrim.rotation.x = Math.PI / 2;
+    hoodTrim.rotation.y = -Math.PI / 2;
+    hoodTrim.position.y = 0.06;
+    helm.add(hoodTrim);
+
+    // Face area — skin showing
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skin);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    helm.add(face);
+
+    // CIRCLET — silver band across the brow with central arcane gem
+    const circlet = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 24), M.silverPlateHi);
+    circlet.rotation.x = Math.PI / 2;
+    circlet.position.y = 0.04; helm.add(circlet);
+    // Forward-facing diamond gem (the marquee mage feature on the head)
+    const browGem = mesh(new THREE.SphereGeometry(0.034, 12, 10), M.arcaneRune);
+    browGem.position.set(0, 0.04, 0.21); browGem.scale.set(1, 1, 0.5);
+    helm.add(browGem);
+    const browGemRing = mesh(new THREE.TorusGeometry(0.04, 0.006, 8, 16), M.silverPlateHi);
+    browGemRing.position.set(0, 0.04, 0.215); helm.add(browGemRing);
+    // Two prongs flanking the central gem (regal/mage circlet)
+    for (let side = -1; side <= 1; side += 2) {
+      const prong = mesh(new THREE.ConeGeometry(0.014, 0.08, 4), M.silverPlateHi);
+      prong.position.set(side * 0.075, 0.1, 0.2);
+      prong.rotation.z = side * 0.15;
+      helm.add(prong);
+    }
+
+    // Eyes — bright hex-blue glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.025, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); helm.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.sbEye);
+    eyeL.position.set(-0.08, -0.02, 0.21); helm.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.08; helm.add(eyeR);
+
+    // Subtle nose
+    const nose = mesh(new THREE.ConeGeometry(0.025, 0.06, 6), M.skin);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    helm.add(nose);
+
+    // Mouth/jaw line
+    const jawLine = mesh(new THREE.BoxGeometry(0.18, 0.005, 0.005), M.skinDark);
+    jawLine.position.set(0, -0.14, 0.21); helm.add(jawLine);
+
+    return helm;
+  }
+}
+
+const spellbladeAnimations = {
+  // ENCHANTED EDGE — quick precise sword strike with rune trail
+  attack: {
+    duration: 0.85,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // wind right arm + slight body twist
+        rightArm: { rx: 0.5, rz: -0.55 },
+        body:     { ry: -0.18 },
+      }, ease: ease.out },
+      { t: 0.5,  values: {                                          // forward strike — diagonal slash
+        rightArm: { rx: -0.85, rz: 0.4 },
+        body:     { ry: 0.22, rz: 0.05 },
+      }, ease: ease.out },
+      { t: 0.7,  values: {                                          // hold the strike pose with rune trail visible
+        rightArm: { rx: -0.65, rz: 0.35 },
+        body:     { ry: 0.18, rz: 0.04 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.3, 0.7, champPos.z + 1.0);
+        // Hex-blue impact + rune ring trail
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x90c0ff, maxScale: 0.6, duration: 0.25 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0x4060ff, maxRadius: 1.3, duration: 0.55 }), time);
+        // Rune ring imprinted on the ground
+        mgr.spawn(new RuneRing(champ.scene, new THREE.Vector3(pos.x, 0.12, pos.z), { color: 0x4060ff, maxRadius: 1.1, duration: 0.7, runeCount: 6, rotateSpeed: 1.4 }), time);
+        // Arcane particles
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x90c0ff, count: 26, speed: 4, duration: 0.7, upwardBias: 1.0, gravity: -2.5 }), time);
+      }},
+    ],
+  },
+  // PHASE SLASH — fade out, particle teleport, reappear at slash point
+  spell1: {
+    duration: 1.4,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.18, values: {                                          // crouch + arcane gather
+        leftArm:  { rx: 0.3, rz: -0.4 },
+        rightArm: { rx: 0.3, rz: 0.3 },
+        body:     { rx: 0.05, py: -0.05 },
+      }, ease: ease.out },
+      { t: 0.42, values: {                                          // mid-phase — twisted body, arms swept (the teleport moment)
+        leftArm:  { rx: 0.6, rz: -0.6 },
+        rightArm: { rx: 0.6, rz: 0.6 },
+        body:     { rx: 0.05, ry: 0.2, py: -0.05 },
+      }, ease: ease.out },
+      { t: 0.65, values: {                                          // emerge from phase, sword forward in slash
+        rightArm: { rx: -1.0, rz: 0.5 },
+        leftArm:  { rx: -0.4, rz: -0.2 },
+        body:     { ry: 0.3, rz: 0.06 },
+      }, ease: ease.out },
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.18, fn: (champ, mgr, time) => {
+        // Phase-out — arcane particles erupting from the body, phase rune at feet
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos);
+        const groundPos = pos.clone(); groundPos.y = 0.12;
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0x4060ff, maxRadius: 1.4, duration: 1.2, runeCount: 8, rotateSpeed: 2.0 }), time);
+        const bodyPos = pos.clone(); bodyPos.y = 1.6;
+        mgr.spawn(new ParticleBurst(champ.scene, bodyPos, { color: 0x4060ff, count: 50, speed: 3, duration: 0.8, upwardBias: 0.5, gravity: 0 }), time);
+        mgr.spawn(new ImpactFlash(champ.scene, bodyPos, { color: 0x90c0ff, maxScale: 0.65, duration: 0.4 }), time);
+      }},
+      { time: 0.42, fn: (champ, mgr, time) => {
+        // Mid-phase — mid-air arcane streak
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const streakPos = new THREE.Vector3(champPos.x, 1.6, champPos.z + 0.6);
+        mgr.spawn(new LightPillar(champ.scene, new THREE.Vector3(streakPos.x, 0.12, streakPos.z), { color: 0x4060ff, height: 3.2, radius: 0.3, duration: 0.45 }), time);
+      }},
+      { time: 0.65, fn: (champ, mgr, time) => {
+        // Phase-in slash impact
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.4, 1.0, champPos.z + 1.4);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0x90c0ff, maxScale: 0.8, duration: 0.4 }), time);
+        const groundPos = new THREE.Vector3(pos.x, 0.12, pos.z);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0x4060ff, maxRadius: 2.0, duration: 0.7 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, groundPos, { color: 0x90c0ff, maxRadius: 1.4, duration: 0.5 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0x4060ff, count: 50, speed: 5.5, duration: 0.9, upwardBias: 1.4, gravity: -2.5 }), time);
+      }},
+    ],
+  },
+  // AETHERIC CHALLENGE — taunt + mag damage, sword pointed forward, arcane challenge ring
+  spell2: {
+    duration: 1.6,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // raise sword skyward (challenge gesture)
+        rightArm: { rx: -0.95, rz: 0.0 },
+        body:     { rx: -0.06 },
+        head:     { rx: -0.1 },
+      }, ease: ease.outBack },
+      { t: 0.55, values: {                                          // point sword forward at enemy (challenge)
+        rightArm: { rx: -1.4, rz: 0.0 },
+        body:     { rx: 0.0, ry: 0.0 },
+        head:     { rx: 0.0 },
+      }, ease: ease.out },
+      { t: 0.85, values: {                                          // hold the pointed-sword challenge pose
+        rightArm: { rx: -1.4, rz: 0.0 },
+        body:     { rx: 0.0 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        // Sword raised — burst of arcane energy at the tip
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const swordTip = new THREE.Vector3(champPos.x + 0.4, 3.4, champPos.z);
+        mgr.spawn(new ImpactFlash(champ.scene, swordTip, { color: 0x90c0ff, maxScale: 0.55, duration: 0.5 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, swordTip, { color: 0x4060ff, count: 32, speed: 2.5, duration: 0.9, upwardBias: 1.5, gravity: -1.0 }), time);
+        // Light pillar above the spellblade (the challenge beacon)
+        const groundPos = new THREE.Vector3(champPos.x, 0.12, champPos.z);
+        mgr.spawn(new LightPillar(champ.scene, groundPos, { color: 0x4060ff, height: 4.5, radius: 0.4, duration: 0.9 }), time);
+      }},
+      { time: 0.55, fn: (champ, mgr, time) => {
+        // Point forward — arcane challenge ring at enemy + ground rune
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 0.12, champPos.z + 1.6);
+        mgr.spawn(new RuneRing(champ.scene, targetPos, { color: 0x4060ff, maxRadius: 1.6, duration: 1.0, runeCount: 10, rotateSpeed: 1.2 }), time);
+        // Self-buff dome (taunt aura)
+        const selfPos = new THREE.Vector3(champPos.x, 0.12, champPos.z);
+        mgr.spawn(new EnergyDome(champ.scene, selfPos, { color: 0x90c0ff, radius: 1.2, duration: 1.0 }), time);
+        // Bolt impact at target
+        mgr.spawn(new ImpactFlash(champ.scene, new THREE.Vector3(targetPos.x, 1.4, targetPos.z), { color: 0x90c0ff, maxScale: 0.7, duration: 0.4 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(targetPos.x, 1.4, targetPos.z), { color: 0x4060ff, count: 36, speed: 4, duration: 0.8, upwardBias: 1.0, gravity: -2.5 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  PALADIN — Fighter VI/VI                                                 ║
+// ║  Holy Fighter · Brief Group Taunt · Gilded sun-gold plate over steel,   ║
+// ║  long sky-blue tabard with 12-rayed sun emblem, cross-aperture          ║
+// ║  greathelm, cross-headed warhammer, sky-blue cape, warm sun-yellow eye  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Paladin extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = paladinAnimations;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — polished steel greaves with sun-gold trim
+    const legPalette = { dark: M.palSteelDark, mid: M.palSteel, accent: M.sunGold, trim: M.sunGoldHi, leather: M.leather };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis — steel plate with gilded tassets
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.palSteelDark));
+    // Gold belt
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.1, 18), M.sunGold);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Belt buckle — sun emblem
+    const buckleBack = mesh(new THREE.CircleGeometry(0.06, 16), M.sunGoldHi);
+    buckleBack.position.set(0, 0.04, 0.32); pelvis.add(buckleBack);
+    const buckleSun = mesh(new THREE.SphereGeometry(0.025, 12, 10), M.sunRune);
+    buckleSun.position.set(0, 0.04, 0.34); buckleSun.scale.set(1, 1, 0.5);
+    pelvis.add(buckleSun);
+    // 8 rays around the buckle sun
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const ray = mesh(new THREE.ConeGeometry(0.006, 0.025, 4), M.sunGoldHi);
+      ray.position.set(Math.cos(a) * 0.04, 0.04 + Math.sin(a) * 0.04, 0.35);
+      ray.rotation.z = a - Math.PI / 2;
+      pelvis.add(ray);
+    }
+    // Tassets — 6 gilded plates around the front/sides
+    for (let i = 0; i < 6; i++) {
+      const angle = -Math.PI * 0.5 + (i / 5) * Math.PI * 1.0;
+      const tasset = mesh(new THREE.BoxGeometry(0.13, 0.36, 0.03), M.sunGold);
+      tasset.position.set(Math.cos(angle) * 0.3, -0.22, Math.sin(angle) * 0.3);
+      tasset.lookAt(Math.cos(angle) * 2, -0.22, Math.sin(angle) * 2);
+      tasset.rotateX(0.06);
+      pelvis.add(tasset);
+      // Small cross emboss on each tasset
+      const crossV = mesh(new THREE.BoxGeometry(0.012, 0.06, 0.005), M.sunGoldHi);
+      crossV.position.set(Math.cos(angle) * 0.32, -0.22, Math.sin(angle) * 0.32);
+      crossV.lookAt(Math.cos(angle) * 2, -0.22, Math.sin(angle) * 2);
+      crossV.rotateX(0.06);
+      pelvis.add(crossV);
+      const crossH = mesh(new THREE.BoxGeometry(0.04, 0.012, 0.005), M.sunGoldHi);
+      crossH.position.set(Math.cos(angle) * 0.32, -0.22, Math.sin(angle) * 0.32);
+      crossH.lookAt(Math.cos(angle) * 2, -0.22, Math.sin(angle) * 2);
+      crossH.rotateX(0.06);
+      pelvis.add(crossH);
+    }
+    root.add(pelvis);
+
+    // TORSO — gilded plate over polished steel underlayer
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Steel underchest
+    const chestSteel = mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.7, 16), M.palSteel);
+    chestSteel.scale.set(1.0, 1, 0.85);
+    torso.add(chestSteel);
+
+    // Sun-gold front cuirass (highlighted)
+    const chestGold = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.6, 16, 1, false, -Math.PI / 2.3, Math.PI * 1.25), M.sunGold);
+    chestGold.scale.set(1.05, 1, 0.85);
+    chestGold.position.y = 0.04;
+    torso.add(chestGold);
+
+    // Pec mounds — sun-gold
+    const pecL = mesh(new THREE.SphereGeometry(0.18, 14, 12), M.sunGoldHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.6);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // SKY-BLUE TABARD — long, drapes from collarbone to mid-thigh, with sun emblem
+    const tabardFront = mesh(new THREE.BoxGeometry(0.42, 0.95, 0.012), M.skyCape);
+    tabardFront.position.set(0, -0.05, 0.36);
+    torso.add(tabardFront);
+    // Tabard back
+    const tabardBack = mesh(new THREE.BoxGeometry(0.42, 0.95, 0.012), M.skyCape);
+    tabardBack.position.set(0, -0.05, -0.36);
+    torso.add(tabardBack);
+    // Gold trim along tabard edges
+    const trimL = mesh(new THREE.BoxGeometry(0.018, 0.95, 0.014), M.sunGoldHi);
+    trimL.position.set(-0.21, -0.05, 0.37); torso.add(trimL);
+    const trimR = mesh(new THREE.BoxGeometry(0.018, 0.95, 0.014), M.sunGoldHi);
+    trimR.position.set(0.21, -0.05, 0.37); torso.add(trimR);
+
+    // CHEST EMBLEM — 12-rayed sun on the tabard front (the marquee Paladin emblem)
+    const sunBack = mesh(new THREE.CircleGeometry(0.13, 24), M.sunRune);
+    sunBack.position.set(0, 0.1, 0.37); torso.add(sunBack);
+    // Inner sun disc
+    const sunDisc = mesh(new THREE.CircleGeometry(0.08, 24), M.sunGoldHi);
+    sunDisc.position.set(0, 0.1, 0.375); torso.add(sunDisc);
+    // 12 rays radiating outward
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const long = i % 2 === 0;
+      const len = long ? 0.08 : 0.05;
+      const wid = long ? 0.018 : 0.012;
+      const ray = mesh(new THREE.BoxGeometry(wid, len, 0.005), M.sunGoldHi);
+      ray.position.set(Math.cos(a) * (0.13 + len / 2), 0.1 + Math.sin(a) * (0.13 + len / 2), 0.38);
+      ray.rotation.z = a - Math.PI / 2;
+      torso.add(ray);
+    }
+    // Central cross within the sun (the core symbol)
+    const crossV = mesh(new THREE.BoxGeometry(0.02, 0.1, 0.008), M.sunRune);
+    crossV.position.set(0, 0.1, 0.385); torso.add(crossV);
+    const crossH = mesh(new THREE.BoxGeometry(0.07, 0.02, 0.008), M.sunRune);
+    crossH.position.set(0, 0.1, 0.385); torso.add(crossH);
+
+    // Side ribbing (gold curved plates on sides)
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 3; i++) {
+        const rib = mesh(new THREE.BoxGeometry(0.08, 0.06, 0.05), M.sunGoldHi);
+        rib.position.set(side * 0.34, 0.18 - i * 0.16, 0.06);
+        rib.rotation.z = side * 0.12;
+        torso.add(rib);
+      }
+    }
+
+    // High collar with cross emblem at the throat
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16), M.sunGold);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.014, 8, 18), M.sunGoldHi);
+    collarTrim.rotation.x = Math.PI / 2; collarTrim.position.y = 0.49;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // PAULDRONS — large sun-gold with radial sun-ray spikes
+    for (let side = -1; side <= 1; side += 2) {
+      const pauld = mesh(new THREE.SphereGeometry(0.2, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.6), M.sunGold);
+      pauld.scale.set(1.1, 0.9, 1);
+      pauld.position.set(side * 0.42, 2.2, 0);
+      root.add(pauld);
+      // Sun-ray spikes around the pauldron rim (5 short cones)
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI * 0.45 + (i / 4) * Math.PI * 0.9;
+        const spike = mesh(new THREE.ConeGeometry(0.022, 0.08, 5), M.sunGoldHi);
+        spike.position.set(side * 0.42 + Math.cos(a) * 0.15, 2.2 + Math.sin(a) * 0.05, Math.sin(a) * 0.18);
+        spike.rotation.z = a + Math.PI / 2;
+        root.add(spike);
+      }
+      // Pauldron center sun-rune disc
+      const pauldDisc = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.sunRune);
+      pauldDisc.position.set(side * 0.42, 2.32, 0); pauldDisc.scale.set(1, 0.4, 1);
+      root.add(pauldDisc);
+    }
+
+    // ARMS — steel + gold trim
+    const armPalette = { cloth: M.skyCape, mid: M.palSteel, dark: M.palSteelDark, hi: M.palSteelHi, accent: M.sunGold };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+
+    // Gold rings around forearm vambraces
+    [leftArm, rightArm].forEach(arm => {
+      for (let i = 0; i < 3; i++) {
+        const ring = mesh(new THREE.TorusGeometry(0.088, 0.012, 8, 16), M.sunGold);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = -0.5 - i * 0.13;
+        arm.add(ring);
+      }
+    });
+
+    // CROSS-HEADED WARHAMMER — two-handed, held in right hand (forward grip)
+    const hammer = this._buildCrossHammer();
+    rightArm.userData.hand.add(hammer);
+    hammer.position.set(0, 0.04, 0.06);
+    hammer.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = hammer;
+
+    // SKY-BLUE CAPE — flowing behind, gold trim
+    const cape = buildCape({ material: M.skyCape, width: 1.45, height: 1.95 });
+    cape.position.set(0, 2.36, -0.05);
+    root.add(cape);
+    this.cape = cape;
+
+    // Cape gold trim along the bottom
+    const capeBottomTrim = mesh(new THREE.TorusGeometry(0.55, 0.02, 8, 28, Math.PI), M.sunGoldHi);
+    capeBottomTrim.rotation.x = Math.PI / 2;
+    capeBottomTrim.position.set(0, 0.6, -0.1);
+    capeBottomTrim.scale.set(1.3, 1, 0.5);
+    root.add(capeBottomTrim);
+
+    // Neck — steel
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.palSteelDark);
+    neck.position.y = 2.32; root.add(neck);
+
+    // GREATHELM with cross-aperture visor
+    const helm = this._buildPaladinHelm();
+    helm.position.y = 2.56;
+    root.add(helm);
+    this.parts.head = helm;
+
+    M.palEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.palEye;
+  }
+
+  _buildCrossHammer() {
+    const hammer = new THREE.Group();
+    // Pommel — gold sphere with cross
+    const pommel = mesh(new THREE.SphereGeometry(0.045, 14, 12), M.sunGoldHi);
+    hammer.add(pommel);
+    // Tiny cross on pommel
+    const pomCrossV = mesh(new THREE.BoxGeometry(0.008, 0.04, 0.008), M.sunGold);
+    pomCrossV.position.y = 0.0; hammer.add(pomCrossV);
+    const pomCrossH = mesh(new THREE.BoxGeometry(0.025, 0.008, 0.008), M.sunGold);
+    pomCrossH.position.y = 0.0; hammer.add(pomCrossH);
+    // Long haft with gold-trim wraps
+    const haft = mesh(new THREE.CylinderGeometry(0.028, 0.026, 0.95, 12), M.palSteelDark);
+    haft.position.y = 0.5; hammer.add(haft);
+    // Sky-blue cloth grip wrap
+    const grip = mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.32, 12), M.skyCape);
+    grip.position.y = 0.18; hammer.add(grip);
+    // Gold rings spaced along the haft
+    for (let i = 0; i < 5; i++) {
+      const ring = mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.012, 12), M.sunGoldHi);
+      ring.position.y = 0.06 + i * 0.064;
+      hammer.add(ring);
+    }
+    // Mid-haft gold collar
+    const midCollar = mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.04, 10), M.sunGoldHi);
+    midCollar.position.y = 0.5; hammer.add(midCollar);
+    // Top collar where head meets haft
+    const topCollar = mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.08, 12), M.sunGoldHi);
+    topCollar.position.y = 0.95; hammer.add(topCollar);
+
+    // CROSS-SHAPED HAMMER HEAD — vertical bar + horizontal bar, gold-trim steel
+    // Vertical bar (the long axis of the cross)
+    const headV = mesh(new THREE.BoxGeometry(0.13, 0.28, 0.16), M.palSteelHi);
+    headV.position.y = 1.12; hammer.add(headV);
+    // Horizontal bar (the cross arms)
+    const headH = mesh(new THREE.BoxGeometry(0.32, 0.13, 0.16), M.palSteelHi);
+    headH.position.y = 1.12; hammer.add(headH);
+    // Gold trim caps on the four cross-arm ends
+    const arms = [
+      [0, 0.18 + 1.12, 0],     // top
+      [0, -0.18 + 1.12, 0],    // bottom
+      [0.21, 1.12, 0],         // right
+      [-0.21, 1.12, 0],        // left
+    ];
+    arms.forEach((p, idx) => {
+      const cap = mesh(new THREE.BoxGeometry(idx < 2 ? 0.13 : 0.06, idx < 2 ? 0.06 : 0.13, 0.18), M.sunGoldHi);
+      cap.position.set(p[0], p[1], p[2]); hammer.add(cap);
+      // Decorative sun-rune dot on each cap
+      const dot = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.sunRune);
+      dot.position.set(p[0], p[1], p[2] + 0.1);
+      hammer.add(dot);
+    });
+    // Central sun-rune gem at the cross intersection
+    const centralGem = mesh(new THREE.SphereGeometry(0.04, 14, 12), M.sunRune);
+    centralGem.position.set(0, 1.12, 0.09); centralGem.scale.set(1, 1, 0.5);
+    hammer.add(centralGem);
+    // Spike at the top of the hammer head
+    const topSpike = mesh(new THREE.ConeGeometry(0.04, 0.1, 8), M.sunGoldHi);
+    topSpike.position.y = 1.36; hammer.add(topSpike);
+    return hammer;
+  }
+
+  _buildPaladinHelm() {
+    const helm = new THREE.Group();
+
+    // Gilded greathelm dome — barrel-style closed helm
+    const dome = mesh(new THREE.CylinderGeometry(0.22, 0.21, 0.38, 18), M.sunGold);
+    dome.position.y = 0.0;
+    helm.add(dome);
+    // Top dome cap (rounded)
+    const domeTop = mesh(new THREE.SphereGeometry(0.22, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.sunGold);
+    domeTop.position.y = 0.18;
+    helm.add(domeTop);
+
+    // CROSS-APERTURE VISOR — slot in the front shaped like a cross (vertical + horizontal)
+    // We achieve this by drawing a black recess + the cross shape revealing eye glow
+    // Black recess panel covering the front
+    const visorPanel = mesh(new THREE.BoxGeometry(0.24, 0.22, 0.04), M.stoneDark);
+    visorPanel.position.set(0, 0.0, 0.21); helm.add(visorPanel);
+    // Vertical slot of the cross
+    const vSlot = mesh(new THREE.BoxGeometry(0.04, 0.2, 0.05), M.palEye);
+    vSlot.position.set(0, 0.0, 0.225); helm.add(vSlot);
+    // Horizontal slot of the cross
+    const hSlot = mesh(new THREE.BoxGeometry(0.22, 0.04, 0.05), M.palEye);
+    hSlot.position.set(0, 0.0, 0.225); helm.add(hSlot);
+    // Gold cross-frame (raised gilded edge around the cross slot)
+    const crossFrameV = mesh(new THREE.BoxGeometry(0.06, 0.24, 0.02), M.sunGoldHi);
+    crossFrameV.position.set(0, 0.0, 0.235); helm.add(crossFrameV);
+    const crossFrameH = mesh(new THREE.BoxGeometry(0.26, 0.06, 0.02), M.sunGoldHi);
+    crossFrameH.position.set(0, 0.0, 0.235); helm.add(crossFrameH);
+    // Eye-glow center (where vertical and horizontal cross meet)
+    const eyeCenter = mesh(new THREE.SphereGeometry(0.026, 12, 10), M.palEye);
+    eyeCenter.position.set(0, 0.0, 0.245); eyeCenter.scale.set(1, 1, 0.4);
+    helm.add(eyeCenter);
+
+    // Decorative gold rivets along the helm sides
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 4; i++) {
+        const rivet = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.sunGoldHi);
+        rivet.position.set(side * 0.215, -0.14 + i * 0.1, 0.04);
+        helm.add(rivet);
+      }
+    }
+
+    // Top crown ridge — gold ridge running front-to-back
+    const ridge = mesh(new THREE.BoxGeometry(0.05, 0.05, 0.46), M.sunGoldHi);
+    ridge.position.set(0, 0.36, 0); helm.add(ridge);
+
+    // Top finial — small spike with cross
+    const finial = mesh(new THREE.ConeGeometry(0.025, 0.08, 6), M.sunGoldHi);
+    finial.position.set(0, 0.46, 0); helm.add(finial);
+    // Tiny cross on finial
+    const finCrossV = mesh(new THREE.BoxGeometry(0.008, 0.04, 0.008), M.sunGold);
+    finCrossV.position.set(0, 0.52, 0); helm.add(finCrossV);
+    const finCrossH = mesh(new THREE.BoxGeometry(0.025, 0.008, 0.008), M.sunGold);
+    finCrossH.position.set(0, 0.52, 0); helm.add(finCrossH);
+
+    // Forehead crown band — gold with sun-rune disc
+    const browBand = mesh(new THREE.TorusGeometry(0.225, 0.018, 10, 24), M.sunGoldHi);
+    browBand.rotation.x = Math.PI / 2;
+    browBand.position.y = 0.16;
+    helm.add(browBand);
+    // Forehead sun-disc emblem
+    const browSun = mesh(new THREE.CircleGeometry(0.04, 16), M.sunRune);
+    browSun.position.set(0, 0.18, 0.215); helm.add(browSun);
+    const browSunRing = mesh(new THREE.TorusGeometry(0.04, 0.005, 8, 16), M.sunGoldHi);
+    browSunRing.position.set(0, 0.18, 0.22); helm.add(browSunRing);
+    // 6 rays around the forehead sun
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const ray = mesh(new THREE.ConeGeometry(0.005, 0.018, 4), M.sunGoldHi);
+      ray.position.set(Math.cos(a) * 0.05, 0.18 + Math.sin(a) * 0.05, 0.22);
+      ray.rotation.z = a - Math.PI / 2;
+      helm.add(ray);
+    }
+
+    // Bottom rim — gold band
+    const helmRim = mesh(new THREE.TorusGeometry(0.21, 0.015, 8, 24), M.sunGoldHi);
+    helmRim.rotation.x = Math.PI / 2;
+    helmRim.position.y = -0.21;
+    helm.add(helmRim);
+
+    return helm;
+  }
+}
+
+const paladinAnimations = {
+  // SMITE — overhand hammer strike with light pillar (phys + mag)
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: {                                          // long windup — hammer raised high overhead
+        rightArm: { rx: 1.1, rz: -0.4 },
+        body:     { rx: -0.1 },
+      }, ease: ease.out },
+      { t: 0.55, values: {                                          // explosive forward smash — straight down arc
+        rightArm: { rx: -1.1, rz: -0.05 },
+        body:     { rx: 0.1, ry: 0.0 },
+      }, ease: ease.in },                                            // ease.in feels heavy (per Juggernaut convention)
+      { t: 0.72, values: {                                          // hold the post-impact pose
+        rightArm: { rx: -0.95, rz: 0.0 },
+        body:     { rx: 0.08 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.2, 0.12, champPos.z + 1.0);
+        // Big gold impact + light pillar (the holy strike)
+        mgr.spawn(new ImpactFlash(champ.scene, new THREE.Vector3(pos.x, 0.6, pos.z), { color: 0xffe48a, maxScale: 0.85, duration: 0.4 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, pos, { color: 0xffd860, maxRadius: 1.4, duration: 0.5 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xffc830, maxRadius: 2.2, duration: 0.7 }), time);
+        // Vertical light pillar (the divine smite descent)
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffe48a, height: 4.0, radius: 0.55, duration: 0.55 }), time);
+        // Sun-yellow particles
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(pos.x, 0.6, pos.z), { color: 0xffd860, count: 36, speed: 4.5, duration: 0.85, upwardBias: 1.6, gravity: -3.0 }), time);
+      }},
+    ],
+  },
+  // WORD OF GLORY — small party heal + 2s aura-taunt around self, big holy circle
+  spell1: {
+    duration: 1.8,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: {                                          // raise hammer high, free hand outstretched
+        rightArm: { rx: 1.0, rz: -0.2 },
+        leftArm:  { rx: -0.85, rz: -0.55 },
+        body:     { rx: -0.12 },
+        head:     { rx: -0.12 },
+      }, ease: ease.outBack },
+      { t: 0.78, values: {                                          // hold the proclamation pose
+        rightArm: { rx: 1.0, rz: -0.2 },
+        leftArm:  { rx: -0.85, rz: -0.55 },
+        body:     { rx: -0.12 },
+        head:     { rx: -0.12 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Massive sun-gold holy circle (taunt aura + heal)
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xffd860, radius: 2.4, duration: 1.7 }), time);
+        // Outer rune ring
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xffc830, maxRadius: 2.8, duration: 1.7, runeCount: 12, rotateSpeed: 0.6 }), time);
+        // Protective dome (the aura-taunt)
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xffe48a, radius: 1.8, duration: 1.6 }), time);
+        // Holy pillar from the paladin (the proclamation beacon)
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffe48a, height: 5.0, radius: 0.7, duration: 1.0 }), time);
+      }},
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const auraPos = new THREE.Vector3(champPos.x, 1.9, champPos.z);
+        // Healing particles drifting upward (the heal effect)
+        mgr.spawn(new ParticleBurst(champ.scene, auraPos, { color: 0xffe48a, count: 60, speed: 1.8, duration: 1.2, upwardBias: 2.0, gravity: -0.5 }), time);
+      }},
+    ],
+  },
+  // HAMMER OF JUSTICE — downward smash with stun shockwave
+  spell2: {
+    duration: 1.4,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.32, values: {                                          // long windup — hammer way back over shoulder, slight crouch
+        rightArm: { rx: 1.4, rz: -0.55 },
+        body:     { rx: -0.18, ry: -0.18, py: -0.06 },
+      }, ease: ease.out },
+      { t: 0.6,  values: {                                          // explosive overhead smash forward — full body commit
+        rightArm: { rx: -1.3, rz: 0.05 },
+        body:     { rx: 0.18, ry: 0.12, py: -0.08 },
+      }, ease: ease.in },
+      { t: 0.78, values: {                                          // post-impact held heavy pose
+        rightArm: { rx: -1.1, rz: 0.0 },
+        body:     { rx: 0.15, py: -0.06 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.6, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.3, 0.12, champPos.z + 1.2);
+        // Massive impact — multiple cascading shockwaves (the stun)
+        mgr.spawn(new ImpactFlash(champ.scene, new THREE.Vector3(pos.x, 0.5, pos.z), { color: 0xffffff, maxScale: 1.0, duration: 0.4 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, pos, { color: 0xffe48a, maxRadius: 1.8, duration: 0.55 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xffc830, maxRadius: 2.6, duration: 0.75 }), time);
+        // Big light pillar at impact
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffe48a, height: 4.5, radius: 0.7, duration: 0.7 }), time);
+        // Stun-rune ring (smaller, hex ring)
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xffd860, maxRadius: 1.4, duration: 1.0, runeCount: 6, rotateSpeed: 1.6 }), time);
+        // Heavy gold particles
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(pos.x, 0.5, pos.z), { color: 0xffd860, count: 60, speed: 6, duration: 1.0, upwardBias: 2.2, gravity: -3.0 }), time);
+      }},
+      { time: 0.78, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.3, 0.12, champPos.z + 1.2);
+        // Secondary delayed shockwave (the stun cascade)
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xffe48a, maxRadius: 3.4, duration: 0.85 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  VIEWER — preview-only setup                                             ║
 // ║  CC: ignore everything below this line — game runtime doesn't need it.  ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
@@ -1622,8 +4051,6 @@ composer.addPass(new OutputPass());
 const effectMgr = new EffectManager(scene);
 
 // ─── Class registry ───────────────────────────────────────────────────────
-// Other 5 fighters get added here as they're built. Until then they're disabled
-// in the dropdown above and absent from this registry.
 const classRegistry = {
   berserker: {
     name: 'Berserker',
@@ -1635,6 +4062,61 @@ const classRegistry = {
     emberColor: new THREE.Color(0.95, 0.7, 0.3),
     abilities: { attack: 'Reaving Strike', spell1: 'Bloodthirst', spell2: 'Whirlwind' },
     factory: () => new Berserker(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  gladiator: {
+    name: 'Gladiator',
+    family: 'Fighter · II/VI',
+    role: 'Crowd-Pleaser · Brief Taunt',
+    accent: '#ff7030',
+    accentGlow: 'rgba(255, 112, 48, 0.5)',
+    auraColor: 0xff5018,
+    emberColor: new THREE.Color(1.0, 0.55, 0.25),
+    abilities: { attack: 'Crowd Strike', spell1: 'Net Cast', spell2: 'Showmanship' },
+    factory: () => new Gladiator(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  samurai: {
+    name: 'Samurai',
+    family: 'Fighter · III/VI',
+    role: 'Crit · Parry · Iaijutsu',
+    accent: '#a0c0ff',
+    accentGlow: 'rgba(160, 192, 255, 0.5)',
+    auraColor: 0xa0c0ff,
+    emberColor: new THREE.Color(0.7, 0.82, 1.0),
+    abilities: { attack: 'Iaijutsu', spell1: 'Wave Slash', spell2: 'Meditation' },
+    factory: () => new Samurai(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  monk: {
+    name: 'Monk',
+    family: 'Fighter · IV/VI',
+    role: 'Speed · Combo · Ki',
+    accent: '#60ff90',
+    accentGlow: 'rgba(96, 255, 144, 0.5)',
+    auraColor: 0x40ff80,
+    emberColor: new THREE.Color(0.4, 1.0, 0.6),
+    abilities: { attack: 'Flurry', spell1: 'Tiger Palm', spell2: 'Inner Peace' },
+    factory: () => new Monk(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  spellblade: {
+    name: 'Spellblade',
+    family: 'Fighter · V/VI',
+    role: 'Hybrid Melee · Brief Taunt',
+    accent: '#90c0ff',
+    accentGlow: 'rgba(144, 192, 255, 0.5)',
+    auraColor: 0x4060ff,
+    emberColor: new THREE.Color(0.5, 0.7, 1.0),
+    abilities: { attack: 'Enchanted Edge', spell1: 'Phase Slash', spell2: 'Aetheric Challenge' },
+    factory: () => new Spellblade(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  paladin: {
+    name: 'Paladin',
+    family: 'Fighter · VI/VI',
+    role: 'Holy Fighter · Brief Group Taunt',
+    accent: '#ffd860',
+    accentGlow: 'rgba(255, 216, 96, 0.5)',
+    auraColor: 0xffc830,
+    emberColor: new THREE.Color(1.0, 0.85, 0.4),
+    abilities: { attack: 'Smite', spell1: 'Word of Glory', spell2: 'Hammer of Justice' },
+    factory: () => new Paladin(scene, new THREE.Vector3(0, 0, 0)),
   },
 };
 
