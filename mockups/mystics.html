@@ -1,0 +1,4172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mystic Class Library — Crucible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #05060c; }
+  body { font-family: 'Sora', sans-serif; color: #e8e6d8; user-select: none; }
+  #app { width: 100vw; height: 100vh; position: relative; }
+  canvas { display: block; }
+  .ui { position: absolute; pointer-events: none; z-index: 10; }
+  .interactive { pointer-events: auto; }
+
+  .label { top: 36px; left: 50%; transform: translateX(-50%); text-align: center; }
+  .label .family { font-size: 11px; color: #6a6b7a; letter-spacing: 0.5em; text-transform: uppercase; }
+  .label .name {
+    font-family: 'Cinzel', serif; font-size: 52px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent, #ffaa30);
+    text-shadow: 0 0 30px var(--accent-glow, rgba(255, 170, 48, 0.45));
+    margin: 8px 0 6px;
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+  .label .role { font-size: 12px; color: #8a8b9a; letter-spacing: 0.4em; text-transform: uppercase; }
+  .label .divider {
+    width: 220px; height: 1px; margin: 10px auto 0;
+    background: linear-gradient(90deg, transparent, var(--accent, #ffaa30), transparent);
+    transition: background 0.5s;
+  }
+
+  .selector {
+    top: 40px; right: 40px;
+    background: linear-gradient(135deg, rgba(20, 21, 42, 0.7), rgba(10, 11, 20, 0.5));
+    border: 1px solid rgba(200, 152, 96, 0.22);
+    padding: 14px 18px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    min-width: 200px;
+  }
+  .selector label {
+    display: block; font-size: 9px; color: #6a6b7a;
+    letter-spacing: 0.5em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .selector select {
+    width: 100%; background: transparent; color: var(--accent, #ffaa30);
+    border: none; outline: none;
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+    padding-right: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23c89860' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0 center;
+    transition: color 0.5s;
+  }
+  .selector select option { background: #14152a; color: #e8e6d8; }
+  .selector select option:disabled { color: #4a4b5a; }
+
+  .abilities {
+    bottom: 60px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px;
+  }
+  .ab-btn {
+    pointer-events: auto; cursor: pointer;
+    background: linear-gradient(180deg, rgba(20, 21, 42, 0.8), rgba(10, 11, 20, 0.65));
+    border: 1px solid rgba(200, 152, 96, 0.28);
+    padding: 11px 18px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: #e8e6d8; font-family: 'Sora', sans-serif;
+    display: flex; align-items: center; gap: 12px;
+    min-width: 180px;
+    transition: all 0.18s ease;
+    position: relative; overflow: hidden;
+  }
+  .ab-btn:hover {
+    border-color: var(--accent, rgba(227, 184, 120, 0.7));
+    background: linear-gradient(180deg, rgba(35, 30, 50, 0.9), rgba(15, 16, 28, 0.8));
+    transform: translateY(-2px);
+  }
+  .ab-btn:active { transform: translateY(0); }
+  .ab-btn.cooling { pointer-events: none; opacity: 0.55; }
+  .ab-btn .icon {
+    font-family: 'Cinzel', serif; font-weight: 700; font-size: 16px;
+    color: var(--accent, #ffaa30);
+    width: 30px; height: 30px;
+    border: 1px solid rgba(200, 152, 96, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.5s, border-color 0.5s;
+  }
+  .ab-btn .text { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+  .ab-btn .name {
+    font-family: 'Cinzel', serif; font-size: 13px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .ab-btn .key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: #6a6b7a; letter-spacing: 0.2em;
+  }
+
+  .demo-row {
+    bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 14px; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #3a3b4a;
+    letter-spacing: 0.3em; text-transform: uppercase;
+  }
+  .demo-btn {
+    pointer-events: auto; cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(200, 152, 96, 0.3);
+    color: #c89860;
+    padding: 6px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+    transition: all 0.18s;
+  }
+  .demo-btn:hover { border-color: #e3b878; color: #e3b878; }
+
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .loading {
+    position: fixed; inset: 0; background: #05060c; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.8s; pointer-events: none;
+  }
+  .loading.hidden { opacity: 0; }
+  .loading .spinner {
+    font-family: 'Cinzel', serif; color: #c89860;
+    letter-spacing: 0.4em; font-size: 14px; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="vignette"></div>
+
+  <div class="ui label">
+    <div class="family" id="familyLabel">Mystic · I/VI</div>
+    <div class="name" id="nameLabel">Bard</div>
+    <div class="divider"></div>
+    <div class="role" id="roleLabel">Buff Songs · Inspiring Presence</div>
+  </div>
+
+  <div class="ui selector interactive">
+    <label>Mystic Class</label>
+    <select id="classSelect">
+      <option value="bard">Bard</option>
+      <option value="witch">Witch</option>
+      <option value="shaman">Shaman</option>
+      <option value="inquisitor">Inquisitor</option>
+      <option value="spiritualist">Spiritualist</option>
+      <option value="geomancer">Geomancer</option>
+    </select>
+  </div>
+
+  <div class="ui abilities interactive">
+    <button class="ab-btn" data-anim="attack">
+      <div class="icon">A</div>
+      <div class="text">
+        <div class="name" id="ab-attack-name">Sound Wave</div>
+        <div class="key">ATTACK</div>
+      </div>
+    </button>
+    <button class="ab-btn" data-anim="spell1">
+      <div class="icon">I</div>
+      <div class="text">
+        <div class="name" id="ab-spell1-name">Song of Valor</div>
+        <div class="key">SPELL I</div>
+      </div>
+    </button>
+    <button class="ab-btn" data-anim="spell2">
+      <div class="icon">II</div>
+      <div class="text">
+        <div class="name" id="ab-spell2-name">Crescendo</div>
+        <div class="key">SPELL II</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="ui demo-row interactive">
+    <button class="demo-btn" id="demoBtn">▶ Cycle Animations</button>
+    <span>· Drag to Rotate · Scroll to Zoom</span>
+  </div>
+
+  <div class="loading" id="loading"><div class="spinner">FORGING ⋯</div></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  GAME LIBRARY — MYSTIC FAMILY                                            ║
+// ║                                                                          ║
+// ║  Everything from here to the "VIEWER" marker is the importable runtime  ║
+// ║  for the actual game. CC: extract this section into classes/mystics.js. ║
+// ║                                                                          ║
+// ║  Lifecycle:                                                              ║
+// ║    const champ = new Bard(scene, position);                              ║
+// ║    champ.playAnimation('attack', time, effectManager);                   ║
+// ║    champ.update(time, dt);  // call every frame                          ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ─── Math ──────────────────────────────────────────────────────────────────
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = {
+  linear: t => t,
+  inOut: t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2,
+  out: t => 1 - Math.pow(1 - t, 3),
+  outBack: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  in: t => t * t * t,
+};
+
+// ─── Materials (palette dictionary) ────────────────────────────────────────
+const M = {
+  // Shared skin tones (used by all classes with visible faces)
+  skin:        new THREE.MeshStandardMaterial({ color: 0xc09680, metalness: 0.0, roughness: 0.85 }),
+  skinDark:    new THREE.MeshStandardMaterial({ color: 0x8a6a55, metalness: 0.0, roughness: 0.9 }),
+  skinPale:    new THREE.MeshStandardMaterial({ color: 0xe6cdb4, metalness: 0.0, roughness: 0.85 }),
+
+  // Bard palette — burgundy + cream + brass, rose-gold eye glow
+  bardBurgundy:   new THREE.MeshStandardMaterial({ color: 0x6a1830, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  bardBurgundyHi: new THREE.MeshStandardMaterial({ color: 0x9a2848, metalness: 0.0, roughness: 0.7, side: THREE.DoubleSide }),
+  bardCream:      new THREE.MeshStandardMaterial({ color: 0xf0e0c8, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  bardBrass:      new THREE.MeshStandardMaterial({ color: 0xc89858, metalness: 0.92, roughness: 0.25, emissive: 0x3a2810, emissiveIntensity: 0.2 }),
+  bardBrassHi:    new THREE.MeshStandardMaterial({ color: 0xeac070, metalness: 0.95, roughness: 0.15 }),
+  bardScarf:      new THREE.MeshStandardMaterial({ color: 0xc04060, metalness: 0.0, roughness: 0.7, side: THREE.DoubleSide }),
+  bardWood:       new THREE.MeshStandardMaterial({ color: 0x8a5828, metalness: 0.0, roughness: 0.7 }),
+  bardNote:       new THREE.MeshStandardMaterial({ color: 0xffb088, emissive: 0xff9870, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  bardEye:        new THREE.MeshStandardMaterial({ color: 0xffb088, emissive: 0xff9870, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Witch palette — deep mossy purple + black hat + green hex, murky-green glow
+  witchPurple:    new THREE.MeshStandardMaterial({ color: 0x3a1840, metalness: 0.0, roughness: 0.9, side: THREE.DoubleSide }),
+  witchPurpleHi:  new THREE.MeshStandardMaterial({ color: 0x582858, metalness: 0.0, roughness: 0.8, side: THREE.DoubleSide }),
+  witchBlack:     new THREE.MeshStandardMaterial({ color: 0x101012, metalness: 0.05, roughness: 0.95 }),
+  witchBlackHi:   new THREE.MeshStandardMaterial({ color: 0x1c1c20, metalness: 0.05, roughness: 0.88, side: THREE.DoubleSide }),
+  witchGreen:     new THREE.MeshStandardMaterial({ color: 0x4a6a30, metalness: 0.0, roughness: 0.85 }),
+  witchHex:       new THREE.MeshStandardMaterial({ color: 0x80a050, emissive: 0x4a6a30, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  witchSilver:    new THREE.MeshStandardMaterial({ color: 0xa0a8b0, metalness: 0.92, roughness: 0.32 }),
+  witchEye:       new THREE.MeshStandardMaterial({ color: 0x80a050, emissive: 0x4a6a30, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Shaman palette — ochre + bone + tribal red, earth-ochre eye glow
+  shamOchre:      new THREE.MeshStandardMaterial({ color: 0x885028, metalness: 0.0, roughness: 0.92, side: THREE.DoubleSide }),
+  shamOchreHi:    new THREE.MeshStandardMaterial({ color: 0xa86838, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  shamOchreDark:  new THREE.MeshStandardMaterial({ color: 0x4a2818, metalness: 0.0, roughness: 0.95, side: THREE.DoubleSide }),
+  shamBone:       new THREE.MeshStandardMaterial({ color: 0xe0d0a8, metalness: 0.0, roughness: 0.78 }),
+  shamBoneHi:     new THREE.MeshStandardMaterial({ color: 0xf0e0c0, metalness: 0.0, roughness: 0.7 }),
+  shamRed:        new THREE.MeshStandardMaterial({ color: 0x9a3818, metalness: 0.0, roughness: 0.85 }),
+  shamFur:        new THREE.MeshStandardMaterial({ color: 0x4a3018, metalness: 0.0, roughness: 1.0 }),
+  shamSpirit:     new THREE.MeshStandardMaterial({ color: 0xffc060, emissive: 0xe8a040, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  shamEye:        new THREE.MeshStandardMaterial({ color: 0xffc060, emissive: 0xe8a040, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Inquisitor palette — pure white robes + gold trim + silver chain, holy-white eye glow
+  inqWhite:       new THREE.MeshStandardMaterial({ color: 0xeae8d8, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  inqWhiteHi:     new THREE.MeshStandardMaterial({ color: 0xfaf8e8, metalness: 0.0, roughness: 0.7, side: THREE.DoubleSide }),
+  inqGold:        new THREE.MeshStandardMaterial({ color: 0xd8b048, metalness: 0.95, roughness: 0.22, emissive: 0x4a3408, emissiveIntensity: 0.25 }),
+  inqGoldHi:      new THREE.MeshStandardMaterial({ color: 0xffd068, metalness: 0.95, roughness: 0.15 }),
+  inqSilver:      new THREE.MeshStandardMaterial({ color: 0xc0c8d0, metalness: 0.95, roughness: 0.22 }),
+  inqSilverHi:    new THREE.MeshStandardMaterial({ color: 0xe0e8ee, metalness: 0.95, roughness: 0.15 }),
+  inqHoly:        new THREE.MeshStandardMaterial({ color: 0xfff8e8, emissive: 0xffffff, emissiveIntensity: 2.4, metalness: 0, roughness: 0.4 }),
+  inqEye:         new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfaf8ff, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Spiritualist palette — pale-grey robes + silver + ghost-blue glow
+  spiritGrey:     new THREE.MeshStandardMaterial({ color: 0x6a7080, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  spiritGreyHi:   new THREE.MeshStandardMaterial({ color: 0x8a90a0, metalness: 0.0, roughness: 0.7, side: THREE.DoubleSide }),
+  spiritGreyDark: new THREE.MeshStandardMaterial({ color: 0x383e48, metalness: 0.0, roughness: 0.9, side: THREE.DoubleSide }),
+  spiritSilver:   new THREE.MeshStandardMaterial({ color: 0xb8c0d0, metalness: 0.92, roughness: 0.25 }),
+  spiritSilverHi: new THREE.MeshStandardMaterial({ color: 0xd8e0ec, metalness: 0.95, roughness: 0.15 }),
+  spiritEthereal: new THREE.MeshStandardMaterial({ color: 0xe0e8ff, emissive: 0xb0c8ff, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  spiritWisp:     new THREE.MeshStandardMaterial({ color: 0xe0e8ff, emissive: 0xb0c8ff, emissiveIntensity: 1.6, metalness: 0, roughness: 0.5, transparent: true, opacity: 0.7 }),
+  spiritEye:      new THREE.MeshStandardMaterial({ color: 0xe0e8ff, emissive: 0xb0c8ff, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Geomancer palette — dark stone + bronze + earth-amber glow
+  geoStone:       new THREE.MeshStandardMaterial({ color: 0x584830, metalness: 0.0, roughness: 0.95 }),
+  geoStoneHi:     new THREE.MeshStandardMaterial({ color: 0x786040, metalness: 0.0, roughness: 0.88 }),
+  geoStoneDark:   new THREE.MeshStandardMaterial({ color: 0x2a2018, metalness: 0.0, roughness: 1.0 }),
+  geoBronze:      new THREE.MeshStandardMaterial({ color: 0x9a6838, metalness: 0.92, roughness: 0.32, emissive: 0x2a1808, emissiveIntensity: 0.2 }),
+  geoBronzeHi:    new THREE.MeshStandardMaterial({ color: 0xc88c4c, metalness: 0.95, roughness: 0.22 }),
+  geoEarth:       new THREE.MeshStandardMaterial({ color: 0x4a3820, metalness: 0.0, roughness: 0.95, side: THREE.DoubleSide }),
+  geoMoss:        new THREE.MeshStandardMaterial({ color: 0x5a6830, metalness: 0.0, roughness: 0.92 }),
+  geoRune:        new THREE.MeshStandardMaterial({ color: 0xc8783c, emissive: 0x8a6028, emissiveIntensity: 2.4, metalness: 0, roughness: 0.5 }),
+  geoEye:         new THREE.MeshStandardMaterial({ color: 0xc8783c, emissive: 0x8a6028, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+
+  // Shared materials (bone, fur, wood used widely; leather/blade/etc. are universals)
+  bone:      new THREE.MeshStandardMaterial({ color: 0xc8c0a8, metalness: 0.0, roughness: 0.8 }),
+  boneHi:    new THREE.MeshStandardMaterial({ color: 0xe0d8c0, metalness: 0.0, roughness: 0.7 }),
+  fur:       new THREE.MeshStandardMaterial({ color: 0x3a2a18, metalness: 0.0, roughness: 1.0 }),
+  furHi:     new THREE.MeshStandardMaterial({ color: 0x6a5238, metalness: 0.0, roughness: 1.0 }),
+  wood:      new THREE.MeshStandardMaterial({ color: 0x4a3018, metalness: 0.05, roughness: 0.92 }),
+  woodHi:    new THREE.MeshStandardMaterial({ color: 0x6a4828, metalness: 0.05, roughness: 0.85 }),
+
+  leather:   new THREE.MeshStandardMaterial({ color: 0x2a1810, metalness: 0.05, roughness: 0.92 }),
+  leatherHi: new THREE.MeshStandardMaterial({ color: 0x4a2a18, metalness: 0.05, roughness: 0.85 }),
+  leatherDark: new THREE.MeshStandardMaterial({ color: 0x18120a, metalness: 0.05, roughness: 0.95 }),
+  cloth:     new THREE.MeshStandardMaterial({ color: 0x161624, metalness: 0.0, roughness: 0.95 }),
+  blade:     new THREE.MeshStandardMaterial({ color: 0xc8d4e0, metalness: 0.95, roughness: 0.15 }),
+  bladeDark: new THREE.MeshStandardMaterial({ color: 0x6a7280, metalness: 0.92, roughness: 0.32 }),
+  iron:      new THREE.MeshStandardMaterial({ color: 0x252a32, metalness: 0.92, roughness: 0.45 }),
+  ironHi:    new THREE.MeshStandardMaterial({ color: 0x4a4e58, metalness: 0.95, roughness: 0.32 }),
+  stone:     new THREE.MeshStandardMaterial({ color: 0x252830, metalness: 0.0, roughness: 0.95 }),
+  stoneDark: new THREE.MeshStandardMaterial({ color: 0x14161c, metalness: 0.0, roughness: 1.0 }),
+  stoneRune: new THREE.MeshStandardMaterial({ color: 0xc89860, emissive: 0xc89860, emissiveIntensity: 1.4, metalness: 0, roughness: 1 }),
+  brass:     new THREE.MeshStandardMaterial({ color: 0xc89860, metalness: 0.95, roughness: 0.22, emissive: 0x3a2410, emissiveIntensity: 0.25 }),
+  brassDark: new THREE.MeshStandardMaterial({ color: 0x8a6840, metalness: 0.95, roughness: 0.35 }),
+};
+
+// ─── Geometry helper ───────────────────────────────────────────────────────
+function mesh(geo, mat, opts = {}) {
+  const m = new THREE.Mesh(geo, mat);
+  if (opts.cast !== false) m.castShadow = true;
+  if (opts.receive) m.receiveShadow = true;
+  if (opts.pos) m.position.set(...opts.pos);
+  if (opts.rot) m.rotation.set(...opts.rot);
+  if (opts.scale) {
+    if (Array.isArray(opts.scale)) m.scale.set(...opts.scale);
+    else m.scale.setScalar(opts.scale);
+  }
+  return m;
+}
+
+// ─── Effect base class + concrete VFX ──────────────────────────────────────
+class Effect {
+  constructor(scene) { this.scene = scene; this.alive = true; this.duration = 1; this.startTime = 0; }
+  init(t) { this.startTime = t; }
+  update(time, dt) {
+    const t01 = (time - this.startTime) / this.duration;
+    if (t01 >= 1) { this.alive = false; return; }
+    this.tick(Math.max(0, t01), dt);
+  }
+  tick(t01, dt) {}
+  dispose() {}
+}
+
+class ShockwaveRing extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.8;
+    this.maxRadius = opts.maxRadius ?? 1.8;
+    this.startRadius = opts.startRadius ?? 0.15;
+    const geo = new THREE.RingGeometry(0.94, 1.0, 64);
+    const mat = new THREE.MeshBasicMaterial({
+      color: opts.color ?? 0xc89860, transparent: true, opacity: 1,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(this.startRadius);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(this.startRadius, this.maxRadius, ease.out(t01)));
+    this.mesh.material.opacity = (1 - t01) * 0.95;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class FilledShockwave extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.55;
+    this.maxRadius = opts.maxRadius ?? 1.4;
+    const geo = new THREE.CircleGeometry(1.0, 48);
+    const mat = new THREE.MeshBasicMaterial({
+      color: opts.color ?? 0xffe080, transparent: true, opacity: 0.7,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.015;
+    this.mesh.scale.setScalar(0.2);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(0.2, this.maxRadius, ease.out(t01)));
+    this.mesh.material.opacity = (1 - t01) * 0.55;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class RuneRing extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 1.4;
+    this.maxRadius = opts.maxRadius ?? 1.7;
+    this.startRadius = opts.startRadius ?? 0.4;
+    this.rotateSpeed = opts.rotateSpeed ?? 0.7;
+    this.runeCount = opts.runeCount ?? 8;
+    const geo = new THREE.RingGeometry(0.85, 1.0, 96, 1);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xe3b878) },
+        uOpacity: { value: 1.0 }, uRunes: { value: this.runeCount }, uRotate: { value: 0 },
+      },
+      vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        uniform float uRunes; uniform float uRotate;
+        varying vec3 vPos;
+        void main() {
+          float r = length(vPos.xy);
+          float a = atan(vPos.y, vPos.x) + uRotate;
+          float seg = mod(a / (2.0 * 3.14159265) * uRunes, 1.0);
+          float rune = smoothstep(0.30, 0.50, seg) * smoothstep(0.70, 0.50, seg);
+          float pulse = 0.6 + 0.4 * sin(uTime * 4.0);
+          float band = smoothstep(0.85, 0.92, r) * smoothstep(1.0, 0.95, r);
+          float outer = smoothstep(0.97, 0.99, r) * smoothstep(1.0, 0.98, r);
+          float glow = band * (rune * 0.85 + 0.15) * pulse + outer * 1.4;
+          gl_FragColor = vec4(uColor * glow * 1.5, uOpacity * glow);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(this.startRadius);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(this.startRadius, this.maxRadius, ease.out(t01)));
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (1 - t01) * 0.95;
+    this.mesh.material.uniforms.uRotate.value = t01 * this.rotateSpeed * Math.PI;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class EnergyDome extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 2.4;
+    this.radius = opts.radius ?? 1.5;
+    const geo = new THREE.SphereGeometry(this.radius, 32, 24, 0, Math.PI * 2, 0, Math.PI / 2);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xc89860) }, uOpacity: { value: 1.0 } },
+      vertexShader: `
+        varying vec3 vNormal; varying vec3 vPos;
+        void main() {
+          vNormal = normalize(normalMatrix * normal); vPos = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec3 vNormal; varying vec3 vPos;
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - (modelMatrix * vec4(vPos, 1.0)).xyz);
+          float fres = 1.0 - max(dot(normalize((modelMatrix * vec4(vNormal, 0.0)).xyz), viewDir), 0.0);
+          fres = pow(fres, 2.0);
+          float hex = sin(vPos.y * 6.0 + uTime * 1.5) * 0.5 + 0.5;
+          float lines = pow(hex, 6.0);
+          float sweep = abs(sin(vPos.y * 3.0 - uTime * 2.0));
+          sweep = smoothstep(0.7, 1.0, sweep) * 0.4;
+          float intensity = fres * 0.7 + lines * 0.3 + sweep;
+          gl_FragColor = vec4(uColor * intensity * 1.6, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.05;
+    this.mesh.scale.setScalar(0.1);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.15 ? lerp(0.1, 1.0, ease.outBack(t01 / 0.15)) : 1.0;
+    this.mesh.scale.setScalar(s);
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (t01 < 0.7 ? 1.0 : 1.0 - (t01 - 0.7) / 0.3) * 0.85;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class HolyCircle extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 3.2;
+    this.radius = opts.radius ?? 1.8;
+    const geo = new THREE.RingGeometry(0.05, 1.0, 96, 1);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xfddc80) }, uOpacity: { value: 1.0 } },
+      vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec3 vPos;
+        void main() {
+          float r = length(vPos.xy);
+          float a = atan(vPos.y, vPos.x);
+          float outerRing = smoothstep(0.93, 0.97, r) * smoothstep(1.0, 0.97, r);
+          float midRing = smoothstep(0.65, 0.69, r) * smoothstep(0.72, 0.69, r);
+          float starAng = mod(a + uTime * 0.3, 6.28318 / 6.0) * 6.0;
+          float star = smoothstep(0.0, 0.6, sin(starAng * 1.0)) * smoothstep(0.3, 0.55, r) * smoothstep(0.65, 0.55, r);
+          float fill = smoothstep(0.97, 0.0, r) * 0.08;
+          float runeAng = mod(a + uTime * -0.5, 6.28318 / 12.0) * 12.0;
+          float runes = smoothstep(0.4, 0.5, sin(runeAng)) * smoothstep(0.78, 0.85, r) * smoothstep(0.92, 0.85, r);
+          float pulse = 0.7 + 0.3 * sin(uTime * 3.0);
+          float intensity = (outerRing + midRing * 0.7 + star * 0.9 + runes * 1.1) * pulse + fill;
+          gl_FragColor = vec4(uColor * intensity * 1.7, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(0.1);
+    this.targetScale = this.radius;
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.25 ? lerp(0.1, this.targetScale, ease.out(t01 / 0.25)) : this.targetScale;
+    this.mesh.scale.setScalar(s);
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = t01 < 0.85 ? 1.0 : 1.0 - (t01 - 0.85) / 0.15;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class LightPillar extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.6;
+    this.height = opts.height ?? 3.2;
+    this.radius = opts.radius ?? 0.5;
+    const geo = new THREE.CylinderGeometry(this.radius, this.radius * 0.7, this.height, 32, 1, true);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xfddc80) }, uOpacity: { value: 1.0 } },
+      vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          float vertical = smoothstep(1.0, 0.0, vUv.y) * smoothstep(0.0, 0.15, vUv.y);
+          float horizontal = 1.0 - abs(vUv.x - 0.5) * 2.0;
+          float pattern = sin(vUv.y * 30.0 - uTime * 8.0) * 0.5 + 0.5;
+          pattern = pow(pattern, 2.0) * 0.4;
+          float intensity = vertical * (0.7 + pattern * 0.5) * horizontal;
+          gl_FragColor = vec4(uColor * intensity * 2.0, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.position.y += this.height / 2;
+    this.mesh.scale.x = this.mesh.scale.z = 0.3;
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.2 ? lerp(0.3, 1.0, ease.outBack(t01 / 0.2)) : 1.0;
+    this.mesh.scale.x = this.mesh.scale.z = s;
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (1 - t01) * 1.2;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class ParticleBurst extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 1.2;
+    const count = opts.count ?? 50;
+    const speed = opts.speed ?? 3;
+    this.gravity = opts.gravity ?? -2.5;
+    this.upwardBias = opts.upwardBias ?? 1.5;
+    this.size = opts.size ?? 1.6;
+    this.count = count;
+    this.positions = new Float32Array(count * 3);
+    this.velocities = new Float32Array(count * 3);
+    this.life = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      this.positions[i*3 + 0] = position.x;
+      this.positions[i*3 + 1] = position.y;
+      this.positions[i*3 + 2] = position.z;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const v = (0.4 + Math.random() * 0.6) * speed;
+      this.velocities[i*3 + 0] = Math.sin(phi) * Math.cos(theta) * v;
+      this.velocities[i*3 + 1] = Math.abs(Math.cos(phi)) * v + this.upwardBias;
+      this.velocities[i*3 + 2] = Math.sin(phi) * Math.sin(theta) * v;
+      this.life[i] = 0.5 + Math.random() * 0.5;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
+    geo.setAttribute('life', new THREE.Float32BufferAttribute(this.life, 1));
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uDuration: { value: this.duration },
+        uColor: { value: new THREE.Color(opts.color ?? 0xe3b878) }, uSize: { value: this.size },
+      },
+      vertexShader: `
+        attribute float life;
+        uniform float uTime; uniform float uDuration; uniform float uSize;
+        varying float vLife;
+        void main() {
+          vLife = clamp(1.0 - uTime / (uDuration * life), 0.0, 1.0);
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = uSize * vLife * (300.0 / -mv.z);
+        }`,
+      fragmentShader: `
+        uniform vec3 uColor; varying float vLife;
+        void main() {
+          vec2 c = gl_PointCoord - 0.5;
+          float d = length(c);
+          if (d > 0.5) discard;
+          float a = pow(1.0 - d * 2.0, 1.5) * vLife;
+          gl_FragColor = vec4(uColor * (1.0 + vLife), a);
+        }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    this.points = new THREE.Points(geo, mat);
+    scene.add(this.points);
+  }
+  tick(t01, dt) {
+    for (let i = 0; i < this.count; i++) {
+      this.positions[i*3 + 0] += this.velocities[i*3 + 0] * dt;
+      this.positions[i*3 + 1] += this.velocities[i*3 + 1] * dt;
+      this.positions[i*3 + 2] += this.velocities[i*3 + 2] * dt;
+      this.velocities[i*3 + 1] += this.gravity * dt;
+    }
+    this.points.geometry.attributes.position.needsUpdate = true;
+    this.points.material.uniforms.uTime.value = t01 * this.duration;
+  }
+  dispose() { this.points.geometry.dispose(); this.points.material.dispose(); this.scene.remove(this.points); }
+}
+
+class ImpactFlash extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.3;
+    this.maxScale = opts.maxScale ?? 0.7;
+    const geo = new THREE.SphereGeometry(1, 16, 12);
+    const mat = new THREE.MeshBasicMaterial({ color: opts.color ?? 0xffffff, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.scale.setScalar(0.05);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(0.05, this.maxScale, ease.out(t01)));
+    this.mesh.material.opacity = 1 - t01;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class EffectManager {
+  constructor(scene) { this.scene = scene; this.effects = []; }
+  spawn(effect, time) { effect.init(time); this.effects.push(effect); }
+  update(time, dt) {
+    for (let i = this.effects.length - 1; i >= 0; i--) {
+      this.effects[i].update(time, dt);
+      if (!this.effects[i].alive) {
+        this.effects[i].dispose();
+        this.effects.splice(i, 1);
+      }
+    }
+  }
+  clear() {
+    for (const e of this.effects) e.dispose();
+    this.effects = [];
+  }
+}
+
+// ─── Shared part builders ──────────────────────────────────────────────────
+function buildLeg(side, palette = {}) {
+  const dark = palette.dark || M.iron;
+  const mid = palette.mid || M.ironHi;
+  const accent = palette.accent || M.brass;
+  const trim = palette.trim || M.brass;
+  const leather = palette.leather || M.leather;
+  const leg = new THREE.Group();
+  const sx = side;
+  const thigh = mesh(new THREE.CylinderGeometry(0.13, 0.115, 0.55, 14), dark);
+  thigh.position.y = 0.95; leg.add(thigh);
+  const kneeBase = mesh(new THREE.SphereGeometry(0.135, 14, 10), mid);
+  kneeBase.position.y = 0.66; kneeBase.scale.set(1, 0.7, 1.2); leg.add(kneeBase);
+  const kneeStud = mesh(new THREE.SphereGeometry(0.05, 10, 8), accent);
+  kneeStud.position.set(0, 0.66, 0.13); leg.add(kneeStud);
+  const greave = mesh(new THREE.CylinderGeometry(0.115, 0.13, 0.45, 14), mid);
+  greave.position.y = 0.39; leg.add(greave);
+  const greaveTrim = mesh(new THREE.TorusGeometry(0.118, 0.012, 8, 16), trim);
+  greaveTrim.position.y = 0.6; greaveTrim.rotation.x = Math.PI / 2; leg.add(greaveTrim);
+  const boot = mesh(new THREE.BoxGeometry(0.22, 0.13, 0.32), dark);
+  boot.position.set(0, 0.105, 0.06); leg.add(boot);
+  const toeShape = new THREE.Shape();
+  toeShape.moveTo(-0.11, 0); toeShape.lineTo(0.11, 0);
+  toeShape.lineTo(0.08, 0.12); toeShape.lineTo(-0.08, 0.12); toeShape.closePath();
+  const toe = mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 }), accent);
+  toe.position.set(0, 0.06, 0.18); leg.add(toe);
+  const heel = mesh(new THREE.BoxGeometry(0.22, 0.06, 0.08), leather);
+  heel.position.set(0, 0.04, -0.07); leg.add(heel);
+  leg.position.x = sx * 0.18;
+  return leg;
+}
+
+function buildCape(opts = {}) {
+  const widthSegs = 14, heightSegs = 22;
+  const width = opts.width || 1.3;
+  const height = opts.height || 1.85;
+  const mat = opts.material;
+  const verts = [], indices = [], uvs = [], original = [];
+  for (let y = 0; y <= heightSegs; y++) {
+    const v = y / heightSegs;
+    const w = width * (0.45 + v * 0.55);
+    for (let x = 0; x <= widthSegs; x++) {
+      const u = x / widthSegs;
+      const angle = (u - 0.5) * Math.PI * 0.55;
+      const px = Math.sin(angle) * w / 2;
+      const py = -v * height;
+      const sideFwd = (1 - Math.cos(angle)) * 0.14;
+      const bulge = Math.sin(v * Math.PI) * 0.07;
+      const pz = -0.04 + sideFwd - bulge;
+      verts.push(px, py, pz);
+      uvs.push(u, 1 - v);
+      original.push(px, py, pz);
+    }
+  }
+  for (let y = 0; y < heightSegs; y++) {
+    for (let x = 0; x < widthSegs; x++) {
+      const a = y * (widthSegs + 1) + x, b = a + 1, c = a + widthSegs + 1, d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  const cape = mesh(geo, mat);
+  cape.userData.original = original;
+  cape.userData.cols = widthSegs + 1;
+  cape.userData.rows = heightSegs + 1;
+  return cape;
+}
+
+function buildArm(sx, shoulderAngle, palette = {}) {
+  const cloth = palette.cloth || M.cloth;
+  const mid = palette.mid || M.iron;
+  const dark = palette.dark || M.iron;
+  const hi = palette.hi || M.ironHi;
+  const accent = palette.accent || M.brass;
+  const arm = new THREE.Group();
+  const upper = mesh(new THREE.CylinderGeometry(0.085, 0.08, 0.4, 12), cloth);
+  upper.position.y = -0.2; arm.add(upper);
+  const vambrace = mesh(new THREE.CylinderGeometry(0.085, 0.095, 0.42, 12), mid);
+  vambrace.position.y = -0.62; arm.add(vambrace);
+  const vTrim = mesh(new THREE.TorusGeometry(0.088, 0.01, 6, 16), accent);
+  vTrim.rotation.x = Math.PI / 2; vTrim.position.y = -0.42; arm.add(vTrim);
+  const elbow = mesh(new THREE.SphereGeometry(0.1, 12, 10), hi);
+  elbow.position.y = -0.42; elbow.scale.set(1, 0.8, 1); arm.add(elbow);
+  const gauntlet = mesh(new THREE.BoxGeometry(0.15, 0.18, 0.12), dark);
+  gauntlet.position.y = -0.92; arm.add(gauntlet);
+  const knuckle = mesh(new THREE.BoxGeometry(0.16, 0.05, 0.08), accent);
+  knuckle.position.set(0, -0.85, 0.05); arm.add(knuckle);
+  const hand = new THREE.Group();
+  hand.position.y = -0.96;
+  arm.add(hand);
+  arm.userData.hand = hand;
+  arm.position.set(sx * 0.42, 2.18, 0);
+  arm.rotation.z = sx * shoulderAngle;
+  return arm;
+}
+
+// ─── Champion base class ───────────────────────────────────────────────────
+class Champion {
+  constructor(scene, position) {
+    this.scene = scene;
+    this.group = new THREE.Group();
+    this.group.position.copy(position);
+    this.parts = {};
+    this.restPose = null;
+    this.animations = {};
+    this.activeAnim = null;
+    this.animStart = 0;
+    this.firedEffects = new Set();
+    this.cape = null;
+    this.eyeMaterial = null;
+    scene.add(this.group);
+  }
+  captureRestPose() {
+    this.restPose = {};
+    for (const name in this.parts) {
+      const p = this.parts[name];
+      this.restPose[name] = {
+        px: p.position.x, py: p.position.y, pz: p.position.z,
+        rx: p.rotation.x, ry: p.rotation.y, rz: p.rotation.z,
+      };
+    }
+  }
+  playAnimation(name, time, manager) {
+    if (!this.animations[name]) return;
+    this.activeAnim = name;
+    this.animStart = time;
+    this.animManager = manager;
+    this.firedEffects.clear();
+  }
+  isPlaying() { return !!this.activeAnim; }
+  stopAnimation() { this.activeAnim = null; this.resetPose(); }
+  resetPose() {
+    for (const name in this.parts) {
+      const rest = this.restPose[name];
+      const p = this.parts[name];
+      p.position.set(rest.px, rest.py, rest.pz);
+      p.rotation.set(rest.rx, rest.ry, rest.rz);
+    }
+  }
+  applyKeyframes(keyframes, t01) {
+    let prev = keyframes[0];
+    let next = keyframes[keyframes.length - 1];
+    for (let i = 0; i < keyframes.length - 1; i++) {
+      if (keyframes[i].t <= t01 && keyframes[i + 1].t >= t01) {
+        prev = keyframes[i]; next = keyframes[i + 1]; break;
+      }
+    }
+    const range = next.t - prev.t;
+    const local = range > 0 ? (t01 - prev.t) / range : 0;
+    const easedFn = next.ease || ease.inOut;
+    const eased = easedFn(local);
+    const partNames = new Set([...Object.keys(prev.values || {}), ...Object.keys(next.values || {})]);
+    for (const name of partNames) {
+      const part = this.parts[name];
+      if (!part) continue;
+      const rest = this.restPose[name];
+      const a = (prev.values || {})[name] || {};
+      const b = (next.values || {})[name] || {};
+      ['x','y','z'].forEach(axis => {
+        const pkey = 'p' + axis, rkey = 'r' + axis;
+        if (pkey in a || pkey in b) part.position[axis] = rest[pkey] + lerp(a[pkey] ?? 0, b[pkey] ?? 0, eased);
+        if (rkey in a || rkey in b) part.rotation[axis] = rest[rkey] + lerp(a[rkey] ?? 0, b[rkey] ?? 0, eased);
+      });
+    }
+  }
+  update(time, dt) {
+    const breathe = Math.sin(time * 1.2 + this.group.position.x) * 0.006;
+    this.group.scale.y = 1 + breathe;
+    if (this.cape) {
+      const pos = this.cape.geometry.attributes.position;
+      const orig = this.cape.userData.original;
+      const cols = this.cape.userData.cols;
+      const rows = this.cape.userData.rows;
+      for (let i = 0; i < pos.count; i++) {
+        const ix = i * 3;
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const u = col / (cols - 1);
+        const v = row / (rows - 1);
+        const wave = Math.sin(time * 0.9 + u * 3 + v * 5) * 0.025 * v;
+        const sway = Math.sin(time * 0.6 + v * 2) * 0.02 * v;
+        pos.array[ix + 0] = orig[ix + 0] + sway;
+        pos.array[ix + 2] = orig[ix + 2] + wave;
+      }
+      pos.needsUpdate = true;
+      this.cape.geometry.computeVertexNormals();
+    }
+    if (this.eyeMaterial) {
+      const base = this.eyeMaterial.userData.baseIntensity || 5;
+      this.eyeMaterial.emissiveIntensity = base + Math.sin(time * 2.5) * 1.0;
+    }
+    if (this.activeAnim) {
+      const anim = this.animations[this.activeAnim];
+      const elapsed = time - this.animStart;
+      const t01 = Math.min(1, elapsed / anim.duration);
+      this.resetPose();
+      this.applyKeyframes(anim.keyframes, t01);
+      if (anim.effects) {
+        for (let i = 0; i < anim.effects.length; i++) {
+          const fx = anim.effects[i];
+          if (t01 >= fx.time && !this.firedEffects.has(i)) {
+            this.firedEffects.add(i);
+            fx.fn(this, this.animManager, time);
+          }
+        }
+      }
+      if (t01 >= 1) { this.activeAnim = null; this.resetPose(); }
+    }
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  BARD — Mystic I/VI                                                      ║
+// ║  Buff Songs · Inspiring Presence · Burgundy doublet with cream sleeves, ║
+// ║  ★ long lute held across body ★, plumed troubadour hat, flowing rose-  ║
+// ║  scarf cape, ★ floating music-notes orbiting head ★, rose-gold glow    ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Bard extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = bardAnimations;
+  }
+
+  // Override update — orbit the music notes around the head
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.musicNotes) {
+      this.musicNotes.rotation.y = time * 0.4;
+      // Each note bobs vertically
+      this.musicNotes.children.forEach((n, i) => {
+        n.position.y = n.userData.baseY + Math.sin(time * 1.3 + i * 0.8) * 0.025;
+      });
+    }
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — burgundy breeches with cream stocking-lines
+    const buildBardLeg = (sx) => {
+      const leg = new THREE.Group();
+      const thigh = mesh(new THREE.CylinderGeometry(0.13, 0.115, 0.55, 14), M.bardBurgundy);
+      thigh.position.y = 0.95; leg.add(thigh);
+      const knee = mesh(new THREE.SphereGeometry(0.115, 12, 8), M.bardBurgundyHi);
+      knee.position.y = 0.66; knee.scale.set(1.05, 0.6, 1.1); leg.add(knee);
+      // Cream stocking-shin
+      const shin = mesh(new THREE.CylinderGeometry(0.115, 0.13, 0.5, 14), M.bardCream);
+      shin.position.y = 0.36; leg.add(shin);
+      // Brass buckle on the side
+      const trim = mesh(new THREE.TorusGeometry(0.13, 0.012, 8, 16), M.bardBrass);
+      trim.rotation.x = Math.PI / 2; trim.position.y = 0.6;
+      leg.add(trim);
+      // Boot — burgundy with brass cuff
+      const boot = mesh(new THREE.BoxGeometry(0.2, 0.13, 0.32), M.bardBurgundy);
+      boot.position.set(0, 0.105, 0.06); leg.add(boot);
+      const bootCuff = mesh(new THREE.CylinderGeometry(0.14, 0.135, 0.04, 14), M.bardBrass);
+      bootCuff.position.y = 0.18; leg.add(bootCuff);
+      const toe = mesh(new THREE.BoxGeometry(0.18, 0.08, 0.1), M.bardBurgundyHi);
+      toe.position.set(0, 0.06, 0.21); toe.rotation.x = -0.18;
+      leg.add(toe);
+      const bootBuckle = mesh(new THREE.BoxGeometry(0.04, 0.025, 0.018), M.bardBrassHi);
+      bootBuckle.position.set(0, 0.13, 0.22); leg.add(bootBuckle);
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildBardLeg(-1));
+    root.add(buildBardLeg(1));
+
+    // Pelvis — brass belt with hanging pouch + lute strap loop
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.16, 16), M.bardBurgundy));
+    const belt = mesh(new THREE.CylinderGeometry(0.295, 0.295, 0.1, 18), M.bardBrass);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Brass treble-clef-ish buckle
+    const buckle = mesh(new THREE.SphereGeometry(0.04, 14, 10), M.bardBrassHi);
+    buckle.position.set(0, 0.04, 0.31); buckle.scale.set(1.0, 1.4, 0.5);
+    pelvis.add(buckle);
+    // Coin pouch on right hip
+    const pouch = mesh(new THREE.SphereGeometry(0.06, 12, 10), M.bardBurgundyHi);
+    pouch.position.set(0.28, -0.06, 0.16); pouch.scale.set(0.9, 1.2, 0.7);
+    pelvis.add(pouch);
+    // Hanging coins
+    for (let i = -1; i <= 1; i++) {
+      const coin = mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.005, 8), M.bardBrassHi);
+      coin.position.set(0.28 + i * 0.018, -0.13, 0.18); coin.rotation.x = Math.PI / 2;
+      pelvis.add(coin);
+    }
+    // Lute strap loop on left hip
+    const strapLoop = mesh(new THREE.TorusGeometry(0.04, 0.008, 6, 14), M.bardCream);
+    strapLoop.position.set(-0.28, 0.0, 0.18); strapLoop.rotation.x = Math.PI / 2;
+    pelvis.add(strapLoop);
+    root.add(pelvis);
+
+    // TORSO — burgundy doublet with cream chest panel
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    const doublet = mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.7, 16), M.bardBurgundy);
+    doublet.scale.set(1.0, 1, 0.85);
+    torso.add(doublet);
+    // Cream front panel
+    const frontPanel = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.55, 16, 1, false, -Math.PI / 2.3, Math.PI * 1.25), M.bardCream);
+    frontPanel.scale.set(1.05, 1, 0.85);
+    frontPanel.position.y = 0.04;
+    torso.add(frontPanel);
+    // Pec mounds
+    const pecL = mesh(new THREE.SphereGeometry(0.16, 14, 12), M.bardBurgundyHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+    // Brass-button row down the cream front
+    for (let i = 0; i < 5; i++) {
+      const button = mesh(new THREE.SphereGeometry(0.016, 10, 8), M.bardBrassHi);
+      button.position.set(0, 0.2 - i * 0.1, 0.39); button.scale.set(1, 1, 0.5);
+      torso.add(button);
+    }
+
+    // ROSE-SCARF CAPE — wrapped diagonally across chest (the bard's signature)
+    const scarf = mesh(new THREE.BoxGeometry(0.12, 0.55, 0.022), M.bardScarf);
+    scarf.position.set(-0.04, 0.0, 0.36); scarf.rotation.z = 0.4;
+    torso.add(scarf);
+    // Scarf gold trim
+    for (let side = -1; side <= 1; side += 2) {
+      const scarfTrim = mesh(new THREE.BoxGeometry(0.005, 0.55, 0.024), M.bardBrassHi);
+      scarfTrim.position.set(-0.04 + side * 0.06, 0.0, 0.37); scarfTrim.rotation.z = 0.4;
+      torso.add(scarfTrim);
+    }
+    // Scarf knot at right hip
+    const scarfKnot = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.bardScarf);
+    scarfKnot.position.set(0.18, -0.22, 0.38); scarfKnot.scale.set(1.3, 0.8, 0.7);
+    torso.add(scarfKnot);
+    // Long scarf tails hanging from knot
+    for (let i = -1; i <= 1; i += 2) {
+      const tail = mesh(new THREE.BoxGeometry(0.07, 0.32, 0.018), M.bardScarf);
+      tail.position.set(0.18 + i * 0.04, -0.4, 0.38); tail.rotation.z = i * 0.18;
+      torso.add(tail);
+    }
+
+    // CHEST EMBLEM — musical note (the marquee Bard symbol)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.07, 16), M.bardBurgundyHi);
+    emblemBack.position.set(0.05, 0.22, 0.41); torso.add(emblemBack);
+    // Note head (filled circle)
+    const noteHead = mesh(new THREE.SphereGeometry(0.024, 14, 12), M.bardNote);
+    noteHead.position.set(0.04, 0.2, 0.42); noteHead.scale.set(1.0, 0.7, 0.5);
+    torso.add(noteHead);
+    // Note stem
+    const noteStem = mesh(new THREE.BoxGeometry(0.005, 0.07, 0.005), M.bardNote);
+    noteStem.position.set(0.06, 0.24, 0.42);
+    torso.add(noteStem);
+    // Note flag
+    const noteFlag = mesh(new THREE.BoxGeometry(0.025, 0.018, 0.005), M.bardNote);
+    noteFlag.position.set(0.075, 0.27, 0.42); noteFlag.rotation.z = 0.5;
+    torso.add(noteFlag);
+    // Curved gold flourish around the note (treble-clef-ish swirl)
+    const flourish = mesh(new THREE.TorusGeometry(0.05, 0.005, 6, 14, Math.PI * 1.2), M.bardBrassHi);
+    flourish.position.set(0.05, 0.22, 0.42); flourish.rotation.z = -0.4;
+    torso.add(flourish);
+
+    // High collar — cream with gold trim (popped-up musketeer style)
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16, 1, false, -Math.PI / 2.4, Math.PI * 1.2), M.bardCream);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18, Math.PI * 1.2), M.bardBrassHi);
+    collarTrim.rotation.x = Math.PI / 2;
+    collarTrim.rotation.y = -Math.PI / 2;
+    collarTrim.position.y = 0.49;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // PUFFED CREAM SLEEVES at shoulders (musketeer/bard signature)
+    for (let side = -1; side <= 1; side += 2) {
+      const puffSleeve = mesh(new THREE.SphereGeometry(0.18, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.6), M.bardCream);
+      puffSleeve.scale.set(1.15, 0.95, 1.1);
+      puffSleeve.position.set(side * 0.42, 2.18, 0);
+      root.add(puffSleeve);
+      // Brass shoulder cap
+      const shoulderCap = mesh(new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.2), M.bardBrass);
+      shoulderCap.position.set(side * 0.42, 2.27, 0); shoulderCap.scale.set(1, 0.5, 1);
+      root.add(shoulderCap);
+      const capBtn = mesh(new THREE.SphereGeometry(0.014, 10, 8), M.bardBrassHi);
+      capBtn.position.set(side * 0.42, 2.32, 0);
+      root.add(capBtn);
+    }
+
+    // ARMS — burgundy + cream
+    const armPalette = { cloth: M.bardBurgundy, mid: M.bardCream, dark: M.bardBurgundyHi, hi: M.bardBrass, accent: M.bardBrassHi };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Lace cuffs at wrists (cream)
+    [leftArm, rightArm].forEach(arm => {
+      const lace = mesh(new THREE.CylinderGeometry(0.115, 0.092, 0.08, 14), M.bardCream);
+      lace.position.y = -0.84; arm.add(lace);
+      const cuff = mesh(new THREE.CylinderGeometry(0.092, 0.092, 0.04, 14), M.bardBrass);
+      cuff.position.y = -0.78; arm.add(cuff);
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 3) * Math.PI * 2;
+        const btn = mesh(new THREE.SphereGeometry(0.01, 8, 6), M.bardBrassHi);
+        btn.position.set(Math.cos(a) * 0.092, -0.78, Math.sin(a) * 0.092);
+        arm.add(btn);
+      }
+    });
+
+    // LUTE — held across body, both hands suggested holding it
+    const lute = this._buildLute();
+    rightArm.userData.hand.add(lute);
+    lute.position.set(0, 0.04, 0.06);
+    lute.rotation.set(Math.PI * 0.3, 0, 0);
+    this.parts.weapon = lute;
+
+    // Half-cape (rose-pink) flowing from one shoulder
+    const cape = buildCape({ material: M.bardScarf, width: 1.2, height: 1.6 });
+    cape.position.set(0.2, 2.36, -0.04);
+    root.add(cape);
+    this.cape = cape;
+
+    // Neck (skin)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — plumed troubadour hat + clean-shaven minstrel face
+    const head = this._buildBardHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    // ===== FLOATING MUSIC NOTES — orbiting the bard's head =====
+    this.musicNotes = new THREE.Group();
+    this.musicNotes.position.set(0, 2.85, 0);
+    const noteCount = 4;
+    for (let i = 0; i < noteCount; i++) {
+      const a = (i / noteCount) * Math.PI * 2;
+      const noteGroup = new THREE.Group();
+      noteGroup.position.set(Math.cos(a) * 0.42, 0, Math.sin(a) * 0.42);
+      noteGroup.userData.baseY = 0;
+      // Note head
+      const nh = mesh(new THREE.SphereGeometry(0.022, 12, 10), M.bardNote);
+      nh.scale.set(1.0, 0.7, 0.5);
+      noteGroup.add(nh);
+      // Note stem
+      const ns = mesh(new THREE.BoxGeometry(0.005, 0.06, 0.005), M.bardNote);
+      ns.position.set(0.018, 0.04, 0);
+      noteGroup.add(ns);
+      // Note flag (every other note)
+      if (i % 2 === 0) {
+        const nf = mesh(new THREE.BoxGeometry(0.022, 0.014, 0.005), M.bardNote);
+        nf.position.set(0.03, 0.07, 0); nf.rotation.z = 0.5;
+        noteGroup.add(nf);
+      }
+      this.musicNotes.add(noteGroup);
+    }
+    root.add(this.musicNotes);
+
+    M.bardEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.bardEye;
+  }
+
+  _buildLute() {
+    const lute = new THREE.Group();
+    // Pear-shaped body (large rounded sphere flattened)
+    const body = mesh(new THREE.SphereGeometry(0.16, 16, 12), M.bardWood);
+    body.scale.set(1.0, 1.4, 0.5);
+    lute.add(body);
+    // Body's lighter rim
+    const bodyRim = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 24), M.bardBrass);
+    bodyRim.scale.set(1, 1.4, 0.6);
+    lute.add(bodyRim);
+    // Sound hole (decorated circle on the front of the body)
+    const soundHole = mesh(new THREE.CircleGeometry(0.04, 16), M.bardBurgundyHi);
+    soundHole.position.set(0, 0.0, 0.085);
+    lute.add(soundHole);
+    // Decorative gold ring around the sound hole
+    const soundRing = mesh(new THREE.TorusGeometry(0.045, 0.005, 8, 18), M.bardBrassHi);
+    soundRing.position.set(0, 0.0, 0.09);
+    lute.add(soundRing);
+    // 4 strings across the front of the body
+    for (let i = -1; i <= 2; i++) {
+      const string = mesh(new THREE.CylinderGeometry(0.001, 0.001, 0.5, 4), M.bardBrassHi);
+      string.position.set(i * 0.012, 0.05, 0.092);
+      lute.add(string);
+    }
+    // NECK — long thin extension
+    const neck = mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.55, 10), M.bardWood);
+    neck.position.y = 0.45; lute.add(neck);
+    // Frets on the neck (small metal bands)
+    for (let i = 0; i < 6; i++) {
+      const fret = mesh(new THREE.TorusGeometry(0.024, 0.002, 4, 10), M.bardBrassHi);
+      fret.rotation.x = Math.PI / 2;
+      fret.position.y = 0.25 + i * 0.08;
+      lute.add(fret);
+    }
+    // 4 strings continuing along the neck
+    for (let i = -1; i <= 2; i++) {
+      const string = mesh(new THREE.CylinderGeometry(0.0008, 0.0008, 0.55, 4), M.bardBrassHi);
+      string.position.set(i * 0.008, 0.45, 0.024);
+      lute.add(string);
+    }
+    // PEG HEAD at the top (with tuning pegs)
+    const pegHead = mesh(new THREE.BoxGeometry(0.06, 0.08, 0.04), M.bardWood);
+    pegHead.position.y = 0.78; pegHead.rotation.x = -0.4;
+    lute.add(pegHead);
+    // Brass pegs (4)
+    for (let i = 0; i < 4; i++) {
+      const peg = mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.025, 6), M.bardBrassHi);
+      peg.position.set(-0.018 + i * 0.012, 0.78, 0.025); peg.rotation.x = Math.PI / 2;
+      lute.add(peg);
+    }
+    // Decorative tassel hanging from the body
+    const tasselString = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.06, 4), M.bardCream);
+    tasselString.position.set(0.12, -0.18, 0.01);
+    lute.add(tasselString);
+    const tassel = mesh(new THREE.SphereGeometry(0.018, 8, 6), M.bardScarf);
+    tassel.position.set(0.12, -0.23, 0.01);
+    lute.add(tassel);
+    return lute;
+  }
+
+  _buildBardHead() {
+    const head = new THREE.Group();
+
+    // Hair — wavy brown
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.bardBurgundyHi);
+    scalp.scale.set(1, 1.0, 1.05);
+    head.add(scalp);
+
+    // Face skin
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skin);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // Wavy side hair
+    for (let side = -1; side <= 1; side += 2) {
+      const sideHair = mesh(new THREE.SphereGeometry(0.1, 12, 10), M.bardBurgundyHi);
+      sideHair.position.set(side * 0.18, -0.05, 0.0); sideHair.scale.set(0.7, 1.2, 0.8);
+      head.add(sideHair);
+    }
+
+    // Eyes — rose-gold glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.022, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.bardEye);
+    eyeL.position.set(-0.075, -0.02, 0.21); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Brows
+    for (let side = -1; side <= 1; side += 2) {
+      const brow = mesh(new THREE.BoxGeometry(0.04, 0.008, 0.005), M.bardBurgundyHi);
+      brow.position.set(side * 0.075, 0.025, 0.21); brow.rotation.z = side * 0.15;
+      head.add(brow);
+    }
+
+    // Nose
+    const nose = mesh(new THREE.ConeGeometry(0.022, 0.06, 6), M.skin);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    head.add(nose);
+
+    // Confident smile
+    const mouth = mesh(new THREE.BoxGeometry(0.06, 0.008, 0.005), M.skinDark);
+    mouth.position.set(0, -0.13, 0.22); mouth.rotation.z = 0.12;
+    head.add(mouth);
+
+    // ===== PLUMED TROUBADOUR HAT =====
+    // Brim
+    const brim = mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.024, 18), M.bardBurgundy);
+    brim.position.y = 0.13; head.add(brim);
+    // Brass trim
+    const brimTrim = mesh(new THREE.TorusGeometry(0.3, 0.012, 8, 24), M.bardBrassHi);
+    brimTrim.rotation.x = Math.PI / 2; brimTrim.position.y = 0.118;
+    head.add(brimTrim);
+    // Hat dome (round, like a beret-style cap)
+    const hatDome = mesh(new THREE.SphereGeometry(0.21, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.7), M.bardBurgundy);
+    hatDome.position.y = 0.18; hatDome.scale.set(1, 0.85, 1);
+    head.add(hatDome);
+    // Hat band (cream)
+    const hatBand = mesh(new THREE.CylinderGeometry(0.215, 0.215, 0.045, 16), M.bardCream);
+    hatBand.position.y = 0.18; head.add(hatBand);
+    // Brass buckle on the band (front)
+    const hatBuckle = mesh(new THREE.BoxGeometry(0.07, 0.04, 0.018), M.bardBrassHi);
+    hatBuckle.position.set(0, 0.18, 0.215); head.add(hatBuckle);
+    // FEATHER PLUME extending out the side (the marquee feature)
+    const plumeBase = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.bardBrass);
+    plumeBase.position.set(-0.15, 0.22, 0.05); head.add(plumeBase);
+    // Long feather (rose-colored)
+    const plumeShape = new THREE.Shape();
+    plumeShape.moveTo(-0.022, 0); plumeShape.lineTo(0.022, 0);
+    plumeShape.bezierCurveTo(0.04, 0.1, 0.025, 0.32, 0, 0.45);
+    plumeShape.bezierCurveTo(-0.025, 0.32, -0.04, 0.1, -0.022, 0);
+    plumeShape.closePath();
+    const plume = mesh(new THREE.ExtrudeGeometry(plumeShape, { depth: 0.005, bevelEnabled: false }), M.bardScarf);
+    plume.position.set(-0.15, 0.22, 0.05); plume.rotation.z = 0.6;
+    head.add(plume);
+    // Plume rachis (gold central spine)
+    const plumeRachis = mesh(new THREE.BoxGeometry(0.005, 0.45, 0.005), M.bardBrassHi);
+    plumeRachis.position.set(-0.32, 0.4, 0.06); plumeRachis.rotation.z = 0.6;
+    head.add(plumeRachis);
+
+    return head;
+  }
+}
+
+const bardAnimations = {
+  // SOUND WAVE — strum the lute, AoE sound
+  attack: {
+    duration: 0.85,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 0.15, rz: -0.55 }, leftArm: { rx: -0.55, rz: 0.55 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.45, values: { rightArm: { rx: -0.5, rz: 0.4 }, leftArm: { rx: -0.55, rz: 0.55 }, body: { ry: -0.04 } }, ease: ease.out },
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.45, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const lutePos = new THREE.Vector3(champPos.x, 1.85, champPos.z + 0.4);
+        // Sound wave radiates outward
+        const groundPos = new THREE.Vector3(champPos.x, 0.12, champPos.z);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xff9870, maxRadius: 2.6, duration: 0.85 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xffb088, maxRadius: 2.0, duration: 0.7 }), time + 0.1);
+        // Note particles flying outward
+        mgr.spawn(new ParticleBurst(champ.scene, lutePos, { color: 0xff9870, count: 30, speed: 4, duration: 0.9, upwardBias: 0.6, gravity: -1.0 }), time);
+        mgr.spawn(new ImpactFlash(champ.scene, lutePos, { color: 0xffb088, maxScale: 0.45, duration: 0.35 }), time);
+      }},
+    ],
+  },
+  // SONG OF VALOR — extended buff song
+  spell1: {
+    duration: 1.7,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 0.4, rz: -0.5 }, leftArm: { rx: -0.4, rz: 0.5 }, body: { rx: -0.04 }, head: { rx: -0.04 } }, ease: ease.outBack },
+      { t: 0.78, values: { rightArm: { rx: -0.5, rz: 0.4 }, leftArm: { rx: -0.45, rz: 0.5 }, body: { rx: -0.04 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Rose-gold buff aura
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xff9870, radius: 2.4, duration: 1.6 }), time);
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xffb088, maxRadius: 2.8, duration: 1.5, runeCount: 8, rotateSpeed: 0.6 }), time);
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xffb088, radius: 2.0, duration: 1.5 }), time);
+      }},
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        // Music notes flying outward in waves
+        const above = new THREE.Vector3(champPos.x, 2.0, champPos.z);
+        mgr.spawn(new ParticleBurst(champ.scene, above, { color: 0xff9870, count: 60, speed: 3, duration: 1.4, upwardBias: 1.4, gravity: -0.6 }), time);
+      }},
+    ],
+  },
+  // CRESCENDO — consume song, big party heal
+  spell2: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 1.0, rz: -0.45 }, leftArm: { rx: 1.0, rz: 0.45 }, body: { rx: -0.12 }, head: { rx: -0.16 } }, ease: ease.outBack },
+      { t: 0.78, values: { rightArm: { rx: 1.0, rz: -0.45 }, leftArm: { rx: 1.0, rz: 0.45 }, body: { rx: -0.12 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Big rose-gold heal aura
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xff9870, radius: 2.6, duration: 1.4 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xffb088, maxRadius: 3.0, duration: 0.85 }), time);
+        // Massive light pillar
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffb088, height: 5.0, radius: 0.6, duration: 1.0 }), time);
+        // Music notes erupting from chest
+        const chestPos = new THREE.Vector3(pos.x, 1.95, pos.z);
+        mgr.spawn(new ParticleBurst(champ.scene, chestPos, { color: 0xff9870, count: 80, speed: 4, duration: 1.4, upwardBias: 2.0, gravity: -0.8 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  WITCH — Mystic II/VI                                                    ║
+// ║  Curses · Hexes · Cackling · Mossy purple robes, ★ crooked black       ║
+// ║  pointed hat with bent tip ★, ★ gnarled hex-staff with murky-green orb║
+// ║  ★, cauldron pouch + bubbling vials, perched raven, murky-green glow   ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Witch extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = witchAnimations;
+  }
+
+  // Override update — bubble the cauldron pouches + sway the perched raven
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.cauldronBubbles) {
+      this.cauldronBubbles.forEach((b, i) => {
+        b.scale.y = 1 + Math.sin(time * 2.4 + i * 0.7) * 0.08;
+      });
+    }
+    if (this.raven) {
+      this.raven.rotation.y = Math.sin(time * 0.8) * 0.4;
+    }
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — purple robes
+    const buildWitchLeg = (sx) => {
+      const leg = new THREE.Group();
+      const thigh = mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.55, 14), M.witchPurple);
+      thigh.position.y = 0.95; leg.add(thigh);
+      const shin = mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.5, 14), M.witchPurpleHi);
+      shin.position.y = 0.36; leg.add(shin);
+      // Black trim band
+      const hemTrim = mesh(new THREE.TorusGeometry(0.24, 0.014, 8, 18), M.witchBlack);
+      hemTrim.rotation.x = Math.PI / 2; hemTrim.position.y = 0.12;
+      leg.add(hemTrim);
+      // Ragged hem (hex-rune sigils + jagged points)
+      for (let i = -1; i <= 1; i++) {
+        const point = mesh(new THREE.ConeGeometry(0.025, 0.08, 4), M.witchPurple);
+        point.position.set(i * 0.07, 0.16, 0.22);
+        point.rotation.x = Math.PI;
+        leg.add(point);
+      }
+      // Black slipper
+      const sole = mesh(new THREE.BoxGeometry(0.2, 0.05, 0.32), M.witchBlack);
+      sole.position.set(0, 0.06, 0.05); leg.add(sole);
+      // Curl-toed witch shoe (small upturned toe — distinct from Trickster's bell-toe)
+      const toeCurl = mesh(new THREE.ConeGeometry(0.028, 0.08, 6), M.witchBlackHi);
+      toeCurl.position.set(0, 0.13, 0.21); toeCurl.rotation.x = -0.4;
+      leg.add(toeCurl);
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildWitchLeg(-1));
+    root.add(buildWitchLeg(1));
+
+    // Pelvis — black belt with hanging cauldron pouches
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.18, 16), M.witchBlack));
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.1, 18), M.witchBlackHi);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Silver hex-buckle (5-pointed pentacle)
+    const buckleBack = mesh(new THREE.CircleGeometry(0.04, 16), M.witchSilver);
+    buckleBack.position.set(0, 0.04, 0.32); pelvis.add(buckleBack);
+    // 5 pentacle points
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + Math.PI / 2;
+      const point = mesh(new THREE.ConeGeometry(0.008, 0.025, 4), M.witchHex);
+      point.position.set(Math.cos(a) * 0.025, 0.04 + Math.sin(a) * 0.025, 0.34);
+      point.rotation.z = a - Math.PI / 2;
+      pelvis.add(point);
+    }
+    // CAULDRON POUCHES (3 across — the marquee accessory)
+    this.cauldronBubbles = [];
+    for (let i = -1; i <= 1; i++) {
+      // Cauldron body (black)
+      const cauldron = mesh(new THREE.CylinderGeometry(0.025, 0.022, 0.05, 10), M.witchBlack);
+      cauldron.position.set(i * 0.15, -0.08, 0.18);
+      pelvis.add(cauldron);
+      // Cauldron rim
+      const cauldronRim = mesh(new THREE.TorusGeometry(0.025, 0.005, 6, 12), M.witchBlackHi);
+      cauldronRim.rotation.x = Math.PI / 2; cauldronRim.position.set(i * 0.15, -0.06, 0.18);
+      pelvis.add(cauldronRim);
+      // Bubbling green liquid
+      const bubble = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.witchHex);
+      bubble.position.set(i * 0.15, -0.05, 0.18); bubble.scale.set(1, 0.6, 1);
+      pelvis.add(bubble);
+      this.cauldronBubbles.push(bubble);
+    }
+    // Robe drape continues
+    const robeDrape = mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.4, 16), M.witchPurple);
+    robeDrape.position.y = -0.24; pelvis.add(robeDrape);
+    // Ragged jagged hem (witch tatter)
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const tatter = mesh(new THREE.ConeGeometry(0.025, 0.08 + Math.random() * 0.05, 4), M.witchPurple);
+      tatter.position.set(Math.cos(a) * 0.4, -0.45, Math.sin(a) * 0.4);
+      tatter.rotation.x = Math.PI;
+      tatter.rotation.z = (Math.random() - 0.5) * 0.3;
+      pelvis.add(tatter);
+    }
+    root.add(pelvis);
+
+    // TORSO — purple robes with black trim
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    const robe = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 18), M.witchPurple);
+    robe.scale.set(1.0, 1, 0.85);
+    torso.add(robe);
+    // Vertical black stripe
+    const robeStripe = mesh(new THREE.BoxGeometry(0.13, 0.65, 0.018), M.witchBlackHi);
+    robeStripe.position.set(0, 0.0, 0.36); torso.add(robeStripe);
+    for (let side = -1; side <= 1; side += 2) {
+      const sideStripe = mesh(new THREE.BoxGeometry(0.012, 0.65, 0.022), M.witchHex);
+      sideStripe.position.set(side * 0.067, 0.0, 0.37);
+      torso.add(sideStripe);
+    }
+    // Pec mounds
+    const pecL = mesh(new THREE.SphereGeometry(0.16, 14, 12), M.witchPurpleHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // CHEST EMBLEM — pentacle (5-pointed star within a circle)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.075, 16), M.witchBlackHi);
+    emblemBack.position.set(0, 0.22, 0.41); torso.add(emblemBack);
+    // Outer ring
+    const pentaRing = mesh(new THREE.TorusGeometry(0.07, 0.008, 8, 18), M.witchHex);
+    pentaRing.position.set(0, 0.22, 0.42); torso.add(pentaRing);
+    // Pentacle (5-pointed star — drawn as 5 triangular points connected)
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + Math.PI / 2;
+      const point = mesh(new THREE.ConeGeometry(0.012, 0.05, 4), M.witchHex);
+      point.position.set(Math.cos(a) * 0.04, 0.22 + Math.sin(a) * 0.04, 0.42);
+      point.rotation.z = a - Math.PI / 2;
+      torso.add(point);
+    }
+    // Center hex-rune dot
+    const emblemRune = mesh(new THREE.SphereGeometry(0.014, 10, 8), M.witchHex);
+    emblemRune.position.set(0, 0.22, 0.43);
+    torso.add(emblemRune);
+
+    // Hex-rune sigils flanking
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 3; i++) {
+        const sigil = mesh(new THREE.BoxGeometry(0.012, 0.018, 0.005), M.witchHex);
+        sigil.position.set(side * 0.18, 0.12 - i * 0.1, 0.36);
+        sigil.rotation.z = i * 0.3;
+        torso.add(sigil);
+      }
+    }
+
+    // Collar (raised)
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.16, 16, 1, false, -Math.PI / 2.4, Math.PI * 1.2), M.witchBlackHi);
+    collar.position.y = 0.42; torso.add(collar);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Shoulder caps
+    for (let side = -1; side <= 1; side += 2) {
+      const cap = mesh(new THREE.SphereGeometry(0.16, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), M.witchPurpleHi);
+      cap.scale.set(1.05, 0.7, 1);
+      cap.position.set(side * 0.42, 2.18, 0);
+      root.add(cap);
+      const capTrim = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.witchBlackHi);
+      capTrim.rotation.x = Math.PI / 2; capTrim.position.set(side * 0.42, 2.13, 0);
+      root.add(capTrim);
+    }
+
+    // PERCHED RAVEN on left shoulder (the marquee living-detail feature)
+    this.raven = this._buildRaven();
+    this.raven.position.set(-0.42, 2.32, 0);
+    root.add(this.raven);
+
+    // Arms
+    const armPalette = { cloth: M.witchPurple, mid: M.witchPurpleHi, dark: M.witchBlack, hi: M.witchSilver, accent: M.witchHex };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Wide black-trim sleeves with bone-claw fingers
+    [leftArm, rightArm].forEach(arm => {
+      const sleeve = mesh(new THREE.CylinderGeometry(0.092, 0.16, 0.18, 14), M.witchPurple);
+      sleeve.position.y = -0.82; arm.add(sleeve);
+      const hemTrim3 = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.witchBlackHi);
+      hemTrim3.rotation.x = Math.PI / 2; hemTrim3.position.y = -0.91;
+      arm.add(hemTrim3);
+      // Hex-rune sigils on sleeve hem
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const sigil = mesh(new THREE.BoxGeometry(0.014, 0.018, 0.005), M.witchHex);
+        sigil.position.set(Math.cos(a) * 0.16, -0.96, Math.sin(a) * 0.16);
+        sigil.lookAt(Math.cos(a) * 2, -0.96, Math.sin(a) * 2);
+        arm.add(sigil);
+      }
+      // Bone-claw fingertips
+      for (let i = 0; i < 4; i++) {
+        const claw = mesh(new THREE.ConeGeometry(0.01, 0.04, 4), M.witchSilver);
+        claw.position.set((i - 1.5) * 0.025, -1.0, 0.04);
+        claw.rotation.x = Math.PI;
+        arm.add(claw);
+      }
+    });
+
+    // GNARLED HEX-STAFF
+    const staff = this._buildHexStaff();
+    rightArm.userData.hand.add(staff);
+    staff.position.set(0, 0.04, 0.06);
+    staff.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = staff;
+
+    // Tattered black cape
+    const cape = buildCape({ material: M.witchBlackHi, width: 1.4, height: 1.95 });
+    cape.position.set(0, 2.36, -0.05);
+    root.add(cape);
+    this.cape = cape;
+    // Hex-rune fringes on cape hem
+    for (let i = -2; i <= 2; i++) {
+      const sigil = mesh(new THREE.ConeGeometry(0.022, 0.08, 4), M.witchHex);
+      sigil.position.set(i * 0.18, 0.5, -0.13);
+      sigil.rotation.x = Math.PI;
+      root.add(sigil);
+    }
+
+    // Neck
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skinPale);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — crooked witch hat
+    const head = this._buildWitchHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    M.witchEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.witchEye;
+  }
+
+  _buildRaven() {
+    const raven = new THREE.Group();
+    // Body
+    const body = mesh(new THREE.SphereGeometry(0.07, 14, 10), M.witchBlack);
+    body.position.y = 0.0; body.scale.set(0.9, 1.1, 1.4);
+    raven.add(body);
+    // Head
+    const head = mesh(new THREE.SphereGeometry(0.045, 12, 10), M.witchBlackHi);
+    head.position.set(0, 0.085, 0.07);
+    raven.add(head);
+    // Beak (long pointed)
+    const beak = mesh(new THREE.ConeGeometry(0.012, 0.05, 6), M.witchSilver);
+    beak.position.set(0, 0.075, 0.115); beak.rotation.x = Math.PI / 2;
+    head.add(beak);
+    // Glowing green eyes
+    const eyeL = mesh(new THREE.SphereGeometry(0.008, 8, 6), M.witchHex);
+    eyeL.position.set(-0.018, 0.012, 0.04); raven.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.018; raven.add(eyeR);
+    // Folded wings
+    for (let side = -1; side <= 1; side += 2) {
+      const wing = mesh(new THREE.SphereGeometry(0.05, 12, 8), M.witchBlack);
+      wing.position.set(side * 0.05, 0.0, -0.02); wing.scale.set(0.7, 0.95, 1.5);
+      raven.add(wing);
+      const wingTip = mesh(new THREE.ConeGeometry(0.014, 0.06, 5), M.witchBlackHi);
+      wingTip.position.set(side * 0.06, -0.04, -0.07);
+      wingTip.rotation.x = Math.PI;
+      raven.add(wingTip);
+    }
+    // Tail feathers (fan)
+    for (let i = -1; i <= 1; i++) {
+      const tail = mesh(new THREE.BoxGeometry(0.012, 0.005, 0.07), M.witchBlackHi);
+      tail.position.set(i * 0.014, -0.02, -0.09); tail.rotation.y = i * 0.2;
+      raven.add(tail);
+    }
+    // Talons
+    for (let side = -1; side <= 1; side += 2) {
+      const talon = mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.04, 6), M.witchSilver);
+      talon.position.set(side * 0.025, -0.06, 0.0);
+      raven.add(talon);
+    }
+    return raven;
+  }
+
+  _buildHexStaff() {
+    const staff = new THREE.Group();
+    // Pommel — gnarled bone
+    const pommel = mesh(new THREE.SphereGeometry(0.03, 10, 8), M.witchSilver);
+    pommel.scale.set(1, 0.8, 1.2);
+    staff.add(pommel);
+    // GNARLED HAFT — rough/bumpy wood (suggested with knotted spheres along the way)
+    const haft = mesh(new THREE.CylinderGeometry(0.024, 0.028, 1.3, 12), M.witchBlackHi);
+    haft.position.y = 0.7; staff.add(haft);
+    // Knot bumps along the haft (gnarled witch-staff look)
+    for (let i = 0; i < 4; i++) {
+      const knot = mesh(new THREE.SphereGeometry(0.038, 10, 8), M.witchBlackHi);
+      knot.position.y = 0.25 + i * 0.28;
+      knot.scale.set(1.2, 0.7, 1.2);
+      staff.add(knot);
+    }
+    // Tied bone-charm hanging from mid-haft
+    const charmCord = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.08, 4), M.witchSilver);
+    charmCord.position.set(0.04, 0.74, 0); charmCord.rotation.z = 0.3;
+    staff.add(charmCord);
+    const charmBone = mesh(new THREE.ConeGeometry(0.014, 0.05, 5), M.witchSilver);
+    charmBone.position.set(0.07, 0.66, 0); charmBone.rotation.x = Math.PI;
+    staff.add(charmBone);
+    // Top section — twisted claws cradling the orb
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      // Claw: 2 segments to suggest twist
+      const claw1 = mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.1, 6), M.witchBlackHi);
+      claw1.position.set(Math.cos(a) * 0.04, 1.4, Math.sin(a) * 0.04);
+      claw1.rotation.z = -Math.cos(a) * 0.4;
+      claw1.rotation.x = -Math.sin(a) * 0.4;
+      staff.add(claw1);
+      const claw2 = mesh(new THREE.CylinderGeometry(0.008, 0.005, 0.1, 6), M.witchBlackHi);
+      claw2.position.set(Math.cos(a) * 0.06, 1.5, Math.sin(a) * 0.06);
+      claw2.rotation.z = -Math.cos(a) * 0.7;
+      claw2.rotation.x = -Math.sin(a) * 0.7;
+      staff.add(claw2);
+    }
+    // ===== HEX ORB at the top =====
+    const orb = mesh(new THREE.SphereGeometry(0.075, 16, 14), M.witchHex);
+    orb.position.y = 1.55; staff.add(orb);
+    // Inner core
+    const orbCore = mesh(new THREE.SphereGeometry(0.035, 12, 10), M.witchSilver);
+    orbCore.position.y = 1.55; staff.add(orbCore);
+    // Pentacle markings on the orb (5 small cones radiating outward)
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + Math.PI / 2;
+      const ray = mesh(new THREE.ConeGeometry(0.014, 0.05, 4), M.witchHex);
+      ray.position.set(Math.cos(a) * 0.085, 1.55 + Math.sin(a) * 0.085, 0);
+      ray.rotation.z = a - Math.PI / 2;
+      staff.add(ray);
+    }
+    return staff;
+  }
+
+  _buildWitchHead() {
+    const head = new THREE.Group();
+    // Pale gaunt face
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skinPale);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.92, 1.0, 0.95);
+    head.add(face);
+
+    // Long stringy black hair
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.witchBlackHi);
+    scalp.scale.set(1, 1.05, 1.05);
+    head.add(scalp);
+    const backHair = mesh(new THREE.SphereGeometry(0.24, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), M.witchBlackHi);
+    backHair.scale.set(1.05, 1.5, 1.1);
+    backHair.position.set(0, -0.05, -0.05);
+    head.add(backHair);
+    // Side hair tassels
+    for (let side = -1; side <= 1; side += 2) {
+      const sideHair = mesh(new THREE.CylinderGeometry(0.024, 0.018, 0.22, 8), M.witchBlackHi);
+      sideHair.position.set(side * 0.18, -0.1, 0.03); sideHair.rotation.z = side * 0.1;
+      head.add(sideHair);
+    }
+
+    // Eyes — murky-green hex glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.022, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.witchEye);
+    eyeL.position.set(-0.075, -0.02, 0.21); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Crooked nose (witch's hooked nose)
+    const nose = mesh(new THREE.ConeGeometry(0.022, 0.08, 6), M.skinPale);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2 + 0.2;
+    head.add(nose);
+    // Wart on nose (witchy detail)
+    const wart = mesh(new THREE.SphereGeometry(0.008, 6, 4), M.witchPurpleHi);
+    wart.position.set(0.014, -0.085, 0.232);
+    head.add(wart);
+
+    // Cackle grin
+    const mouth = mesh(new THREE.BoxGeometry(0.07, 0.01, 0.005), M.skinDark);
+    mouth.position.set(0, -0.13, 0.22); mouth.rotation.z = 0.15;
+    head.add(mouth);
+    // Visible single tooth
+    const tooth = mesh(new THREE.BoxGeometry(0.006, 0.015, 0.005), M.witchSilver);
+    tooth.position.set(0.015, -0.135, 0.225);
+    head.add(tooth);
+
+    // ===== CROOKED POINTED WITCH HAT (the marquee feature) =====
+    // Wide brim
+    const brim = mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.025, 22), M.witchBlack);
+    brim.position.y = 0.13; head.add(brim);
+    // Brim trim (silver)
+    const brimTrim = mesh(new THREE.TorusGeometry(0.36, 0.012, 8, 28), M.witchSilver);
+    brimTrim.rotation.x = Math.PI / 2; brimTrim.position.y = 0.118;
+    head.add(brimTrim);
+    // Hat body — first segment (straight cone)
+    const hatBase = mesh(new THREE.ConeGeometry(0.22, 0.4, 14), M.witchBlack);
+    hatBase.position.y = 0.34; head.add(hatBase);
+    // Second segment (BENT — angled to one side, the witch hat's signature crook)
+    const hatBent = mesh(new THREE.ConeGeometry(0.13, 0.4, 14), M.witchBlackHi);
+    hatBent.position.set(0.12, 0.6, -0.04); hatBent.rotation.z = -0.5;
+    head.add(hatBent);
+    // Third segment (curl at the very tip)
+    const hatTip = mesh(new THREE.ConeGeometry(0.05, 0.18, 10), M.witchBlack);
+    hatTip.position.set(0.28, 0.74, -0.06); hatTip.rotation.z = -0.9;
+    head.add(hatTip);
+    // Tip pompom (hex orb at the very end)
+    const tipPompom = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.witchHex);
+    tipPompom.position.set(0.36, 0.78, -0.06);
+    head.add(tipPompom);
+    // Hat band (silver)
+    const hatBand = mesh(new THREE.CylinderGeometry(0.225, 0.225, 0.045, 16), M.witchSilver);
+    hatBand.position.y = 0.18; head.add(hatBand);
+    // Pentacle decoration on the hat band (front)
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + Math.PI / 2;
+      const point = mesh(new THREE.ConeGeometry(0.005, 0.018, 4), M.witchHex);
+      point.position.set(Math.cos(a) * 0.018, 0.18 + Math.sin(a) * 0.018, 0.225);
+      point.rotation.z = a - Math.PI / 2;
+      head.add(point);
+    }
+    // Loose strands escaping from under the brim (spider web vibe)
+    for (let side = -1; side <= 1; side += 2) {
+      const strand = mesh(new THREE.CylinderGeometry(0.005, 0.003, 0.18, 4), M.witchBlackHi);
+      strand.position.set(side * 0.16, 0.05, 0.05); strand.rotation.z = side * 0.5;
+      head.add(strand);
+    }
+
+    return head;
+  }
+}
+
+const witchAnimations = {
+  // HEX BOLT — staff thrust, random curse particles
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: { rightArm: { rx: 0.55, rz: -0.25 }, body: { rx: -0.05 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -1.0, rz: 0.05 }, body: { ry: 0.12 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.8, rz: 0.0 }, body: { ry: 0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0x80a050, maxScale: 0.6, duration: 0.35 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0x4a6a30, maxRadius: 1.3, duration: 0.6 }), time);
+        // Hex rune (random curse)
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0x4a6a30, maxRadius: 0.9, duration: 1.2, runeCount: 5, rotateSpeed: 1.2 }), time);
+        // Sickly green + dark purple particles
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x80a050, count: 30, speed: 4, duration: 0.85, upwardBias: 0.6, gravity: -1.5 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x582858, count: 18, speed: 3, duration: 1.0, upwardBias: 0.4, gravity: -1.0 }), time);
+      }},
+    ],
+  },
+  // CURSE OF FRAILTY — major debuff on target, defenses crippled
+  spell1: {
+    duration: 1.4,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { leftArm: { rx: -0.55, rz: 0.55 }, rightArm: { rx: -0.55, rz: -0.55 }, body: { rx: -0.04 }, head: { rx: -0.06 } }, ease: ease.outBack },
+      { t: 0.55, values: { leftArm: { rx: -0.95, rz: 0.0 }, rightArm: { rx: -0.95, rz: 0.0 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.78, values: { leftArm: { rx: -0.85, rz: 0.0 }, rightArm: { rx: -0.85, rz: 0.0 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Curse impact
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0x80a050, maxScale: 0.7, duration: 0.4 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, groundPos, { color: 0x4a6a30, maxRadius: 1.4, duration: 0.5 }), time);
+        // Big curse rune (slow rotation = the lasting curse)
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0x80a050, maxRadius: 1.6, duration: 1.4, runeCount: 8, rotateSpeed: 0.4 }), time);
+        // Curse dome
+        mgr.spawn(new EnergyDome(champ.scene, groundPos, { color: 0x4a6a30, radius: 1.2, duration: 1.3 }), time);
+        // Spiraling particles (curse settling in)
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x80a050, count: 50, speed: 2.5, duration: 1.4, upwardBias: -0.4, gravity: 0.4 }), time);
+      }},
+    ],
+  },
+  // HEX TOAD — transform target into a pacifist
+  spell2: {
+    duration: 1.3,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: -0.4, rz: 0.55 }, leftArm: { rx: -0.4, rz: -0.55 }, body: { rx: -0.04 } }, ease: ease.outBack },
+      { t: 0.5,  values: { rightArm: { rx: -1.0, rz: 0.0 }, leftArm: { rx: -1.0, rz: 0.0 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.75, values: { rightArm: { rx: -0.85, rz: 0.0 }, leftArm: { rx: -0.85, rz: 0.0 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.4, champPos.z + 1.5);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Big swirl of green smoke
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0x80a050, maxScale: 0.8, duration: 0.4 }), time);
+        mgr.spawn(new EnergyDome(champ.scene, groundPos, { color: 0x4a6a30, radius: 1.2, duration: 1.0 }), time);
+        // Toad-circle rune
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0x80a050, maxRadius: 1.4, duration: 0.9, runeCount: 7, rotateSpeed: 1.6 }), time);
+        // Lots of green smoke
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x4a6a30, count: 60, speed: 3, duration: 1.2, upwardBias: 1.4, gravity: -0.8 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x80a050, count: 40, speed: 4, duration: 0.9, upwardBias: 0.8, gravity: -1.5 }), time);
+        // Brief light pillar
+        mgr.spawn(new LightPillar(champ.scene, groundPos, { color: 0x80a050, height: 2.5, radius: 0.4, duration: 0.5 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  SHAMAN — Mystic III/VI                                                  ║
+// ║  Totems · Spirit Link · Ochre robes with bone-fragment trim, ★ animal- ║
+// ║  skull mask ★, ★ tall bone-feather headdress ★, ★ totem-pole staff ★,  ║
+// ║  spirit-feather shoulder mantle, earth-ochre eye glow                  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Shaman extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = shamanAnimations;
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — ochre robes with bone-rib leg trim
+    const buildShamLeg = (sx) => {
+      const leg = new THREE.Group();
+      const thigh = mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.55, 14), M.shamOchre);
+      thigh.position.y = 0.95; leg.add(thigh);
+      const shin = mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.5, 14), M.shamOchreHi);
+      shin.position.y = 0.36; leg.add(shin);
+      // Bone-fragment trim on the hem
+      const hemTrim = mesh(new THREE.TorusGeometry(0.24, 0.014, 8, 18), M.shamOchreDark);
+      hemTrim.rotation.x = Math.PI / 2; hemTrim.position.y = 0.12;
+      leg.add(hemTrim);
+      // 3 bone-fragment ornaments around the hem
+      for (let i = -1; i <= 1; i++) {
+        const bone = mesh(new THREE.ConeGeometry(0.018, 0.05, 5), M.shamBoneHi);
+        bone.position.set(i * 0.07, 0.16, 0.22);
+        bone.rotation.x = Math.PI;
+        leg.add(bone);
+      }
+      // Tribal-red paint stripes across the shin
+      for (let i = 0; i < 3; i++) {
+        const paint = mesh(new THREE.BoxGeometry(0.12, 0.014, 0.005), M.shamRed);
+        paint.position.set(0, 0.55 - i * 0.13, 0.2);
+        leg.add(paint);
+      }
+      // Soft hide boot
+      const boot = mesh(new THREE.BoxGeometry(0.2, 0.13, 0.32), M.shamFur);
+      boot.position.set(0, 0.105, 0.06); leg.add(boot);
+      // Boot-thong wrap
+      for (let i = 0; i < 2; i++) {
+        const wrap = mesh(new THREE.TorusGeometry(0.105, 0.008, 6, 14), M.shamOchreDark);
+        wrap.rotation.x = Math.PI / 2;
+        wrap.position.y = 0.13 - i * 0.05;
+        leg.add(wrap);
+      }
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildShamLeg(-1));
+    root.add(buildShamLeg(1));
+
+    // Pelvis — bone belt with hanging bone-charm trinkets
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.18, 16), M.shamOchreDark));
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.12, 18), M.shamFur);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Bone buckle (with red paint)
+    const buckle = mesh(new THREE.SphereGeometry(0.045, 14, 10), M.shamBoneHi);
+    buckle.position.set(0, 0.04, 0.32); buckle.scale.set(1.2, 0.7, 0.5);
+    pelvis.add(buckle);
+    // Red mark on buckle
+    const buckleMark = mesh(new THREE.BoxGeometry(0.04, 0.014, 0.005), M.shamRed);
+    buckleMark.position.set(0, 0.04, 0.345); pelvis.add(buckleMark);
+    // Hanging bone-tooth charms (5 across)
+    for (let i = -2; i <= 2; i++) {
+      const cord = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.05, 4), M.shamOchreDark);
+      cord.position.set(i * 0.06, -0.04, 0.31);
+      pelvis.add(cord);
+      const tooth = mesh(new THREE.ConeGeometry(0.014, 0.05, 5), i % 2 === 0 ? M.shamBone : M.shamBoneHi);
+      tooth.position.set(i * 0.06, -0.1, 0.31);
+      tooth.rotation.x = Math.PI;
+      pelvis.add(tooth);
+    }
+    // Robe drape
+    const robeDrape = mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.4, 16), M.shamOchre);
+    robeDrape.position.y = -0.24; pelvis.add(robeDrape);
+    // Tribal red paint stripes around the robe drape
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const paint = mesh(new THREE.BoxGeometry(0.08, 0.018, 0.005), M.shamRed);
+      paint.position.set(Math.cos(a) * 0.4, -0.32, Math.sin(a) * 0.4);
+      paint.lookAt(Math.cos(a) * 2, -0.32, Math.sin(a) * 2);
+      pelvis.add(paint);
+    }
+    // Bone-fragment trim along the hem
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const bone = mesh(new THREE.ConeGeometry(0.022, 0.07, 5), M.shamBoneHi);
+      bone.position.set(Math.cos(a) * 0.4, -0.43, Math.sin(a) * 0.4);
+      bone.rotation.x = Math.PI;
+      pelvis.add(bone);
+    }
+    root.add(pelvis);
+
+    // TORSO — ochre robe with bone-rib chestpiece
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    const robe = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 18), M.shamOchre);
+    robe.scale.set(1.0, 1, 0.85);
+    torso.add(robe);
+
+    // Bone-rib chestpiece (rib bones laid across the torso)
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 4; i++) {
+        const yPos = 0.18 - i * 0.12;
+        const ribBone = mesh(new THREE.BoxGeometry(0.16, 0.02, 0.022), M.shamBoneHi);
+        ribBone.position.set(side * 0.16, yPos, 0.32);
+        ribBone.rotation.z = side * 0.18;
+        torso.add(ribBone);
+      }
+    }
+    // Central sternum bone
+    const sternum = mesh(new THREE.BoxGeometry(0.04, 0.5, 0.022), M.shamBoneHi);
+    sternum.position.set(0, -0.05, 0.34);
+    torso.add(sternum);
+
+    // Pec mounds
+    const pecL = mesh(new THREE.SphereGeometry(0.16, 14, 12), M.shamOchreHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // Tribal red paint stripes across the upper chest
+    for (let i = 0; i < 3; i++) {
+      const paint = mesh(new THREE.BoxGeometry(0.32, 0.014, 0.005), M.shamRed);
+      paint.position.set(0, 0.3 - i * 0.05, 0.28);
+      torso.add(paint);
+    }
+
+    // CHEST EMBLEM — animal totem (small skull at the top, three small animal-face carvings stacked below)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.07, 16), M.shamOchreDark);
+    emblemBack.position.set(0, -0.05, 0.41); torso.add(emblemBack);
+    // Top: bear face (round head)
+    const bearFace = mesh(new THREE.SphereGeometry(0.025, 12, 10), M.shamBoneHi);
+    bearFace.position.set(0, 0.0, 0.42); bearFace.scale.set(1, 1, 0.5);
+    torso.add(bearFace);
+    // Bear ears
+    for (let s = -1; s <= 1; s += 2) {
+      const ear = mesh(new THREE.SphereGeometry(0.01, 6, 4), M.shamBoneHi);
+      ear.position.set(s * 0.018, 0.018, 0.42);
+      torso.add(ear);
+    }
+    // Middle: wolf face (pointed snout)
+    const wolfFace = mesh(new THREE.ConeGeometry(0.02, 0.04, 5), M.shamBoneHi);
+    wolfFace.position.set(0, -0.05, 0.42); wolfFace.rotation.x = Math.PI / 2;
+    torso.add(wolfFace);
+    // Bottom: bird face (beak)
+    const birdFace = mesh(new THREE.ConeGeometry(0.014, 0.04, 4), M.shamBoneHi);
+    birdFace.position.set(0, -0.1, 0.42);
+    torso.add(birdFace);
+    // Tiny ochre eye-glows on each face
+    for (let i = 0; i < 3; i++) {
+      const eyeGlow = mesh(new THREE.SphereGeometry(0.005, 6, 4), M.shamSpirit);
+      eyeGlow.position.set(0, 0.0 - i * 0.05, 0.43);
+      torso.add(eyeGlow);
+    }
+
+    // Collar
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16), M.shamOchreDark);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarBone = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18), M.shamBoneHi);
+    collarBone.rotation.x = Math.PI / 2; collarBone.position.y = 0.49;
+    torso.add(collarBone);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // FUR-FEATHER MANTLE around the shoulders (similar pattern to Hunter but with more red feathers)
+    const mantle = new THREE.Group();
+    mantle.position.set(0, 2.32, 0);
+    const mantleBase = mesh(new THREE.TorusGeometry(0.36, 0.1, 12, 28, Math.PI * 0.95), M.shamFur);
+    mantleBase.rotation.x = Math.PI / 2;
+    mantleBase.rotation.z = Math.PI / 2;
+    mantle.add(mantleBase);
+    // Red-feather tufts (alternating bone + red feathers)
+    const TUFT_COUNT = 26;
+    for (let i = 0; i < TUFT_COUNT; i++) {
+      const t = i / (TUFT_COUNT - 1);
+      const angle = -Math.PI * 0.05 + t * Math.PI * 0.95;
+      const r = 0.36;
+      const feather = mesh(new THREE.ConeGeometry(0.022, 0.1 + Math.random() * 0.04, 5), Math.random() > 0.5 ? M.shamRed : M.shamBoneHi);
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      feather.position.set(cosA * r, sinA * r * 0.4 + (Math.random() - 0.5) * 0.04, -Math.abs(sinA) * 0.16 + (Math.random() - 0.5) * 0.05);
+      feather.lookAt(cosA * r * 3, sinA * r * 1.2, -Math.abs(sinA) * 0.5);
+      feather.rotation.x += Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+      mantle.add(feather);
+    }
+    // Bone clasp at the front
+    const clasp = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.shamBoneHi);
+    clasp.position.set(0, -0.06, 0.36); clasp.scale.set(1.4, 0.7, 0.7);
+    mantle.add(clasp);
+    root.add(mantle);
+
+    // Arms
+    const armPalette = { cloth: M.shamOchre, mid: M.shamOchreHi, dark: M.shamOchreDark, hi: M.shamBoneHi, accent: M.shamRed };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Bone-charm wraps + red paint
+    [leftArm, rightArm].forEach(arm => {
+      // Multiple cord wraps
+      for (let i = 0; i < 4; i++) {
+        const wrap = mesh(new THREE.TorusGeometry(0.094, 0.008, 6, 14), M.shamOchreDark);
+        wrap.rotation.x = Math.PI / 2;
+        wrap.position.y = -0.5 - i * 0.1;
+        arm.add(wrap);
+      }
+      // Red paint stripes on upper arm
+      for (let i = 0; i < 2; i++) {
+        const paint = mesh(new THREE.BoxGeometry(0.08, 0.014, 0.005), M.shamRed);
+        paint.position.set(0, -0.15 - i * 0.1, 0.085);
+        arm.add(paint);
+      }
+      // Bone-tooth necklace at the wrist
+      const wristCharm = mesh(new THREE.ConeGeometry(0.014, 0.05, 5), M.shamBoneHi);
+      wristCharm.position.set(0, -0.94, 0.085); wristCharm.rotation.x = Math.PI;
+      arm.add(wristCharm);
+    });
+
+    // TOTEM-POLE STAFF
+    const staff = this._buildTotemStaff();
+    rightArm.userData.hand.add(staff);
+    staff.position.set(0, 0.04, 0.06);
+    staff.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = staff;
+
+    // No flowing cape — fur mantle is the back garment
+    this.cape = null;
+
+    // Neck
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — animal-skull mask + tall bone-feather headdress
+    const head = this._buildShamanHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    M.shamEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.shamEye;
+  }
+
+  _buildTotemStaff() {
+    const staff = new THREE.Group();
+    // Pommel — bone tip
+    const pommel = mesh(new THREE.ConeGeometry(0.025, 0.05, 5), M.shamBoneHi);
+    pommel.rotation.x = Math.PI;
+    staff.add(pommel);
+    // Wood haft
+    const haft = mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 12), M.shamOchreDark);
+    haft.position.y = 0.7; staff.add(haft);
+    // Cord wraps
+    for (let i = 0; i < 5; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.028, 0.005, 6, 12), M.shamRed);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = 0.2 + i * 0.18;
+      staff.add(wrap);
+    }
+    // Hanging feather charm at mid-haft
+    const featherCharm = mesh(new THREE.BoxGeometry(0.012, 0.06, 0.005), M.shamRed);
+    featherCharm.position.set(0.04, 0.6, 0); featherCharm.rotation.z = 0.3;
+    staff.add(featherCharm);
+    // Hanging bone tooth
+    const toothCharm = mesh(new THREE.ConeGeometry(0.014, 0.05, 5), M.shamBoneHi);
+    toothCharm.position.set(0.04, 0.5, 0); toothCharm.rotation.x = Math.PI;
+    staff.add(toothCharm);
+    // ===== TOTEM-POLE TOP — 3 stacked animal-face carvings =====
+    // Bottom face (bear — round head with ears)
+    const bearHead = mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 10), M.shamOchreHi);
+    bearHead.position.y = 1.42; staff.add(bearHead);
+    for (let s = -1; s <= 1; s += 2) {
+      const ear = mesh(new THREE.SphereGeometry(0.018, 6, 4), M.shamOchreHi);
+      ear.position.set(s * 0.04, 1.48, 0); staff.add(ear);
+    }
+    // Bear eyes (glowing)
+    for (let s = -1; s <= 1; s += 2) {
+      const eye = mesh(new THREE.SphereGeometry(0.008, 6, 4), M.shamSpirit);
+      eye.position.set(s * 0.022, 1.43, 0.06); staff.add(eye);
+    }
+    // Bear snout
+    const bearSnout = mesh(new THREE.ConeGeometry(0.025, 0.05, 6), M.shamOchre);
+    bearSnout.position.set(0, 1.4, 0.07); bearSnout.rotation.x = Math.PI / 2;
+    staff.add(bearSnout);
+    // Middle face (wolf — pointed snout)
+    const wolfHead = mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.08, 10), M.shamOchre);
+    wolfHead.position.y = 1.54; staff.add(wolfHead);
+    // Wolf snout (long pointed)
+    const wolfSnout = mesh(new THREE.ConeGeometry(0.025, 0.08, 6), M.shamOchre);
+    wolfSnout.position.set(0, 1.54, 0.085); wolfSnout.rotation.x = Math.PI / 2;
+    staff.add(wolfSnout);
+    // Wolf ears (pointed)
+    for (let s = -1; s <= 1; s += 2) {
+      const ear = mesh(new THREE.ConeGeometry(0.014, 0.04, 4), M.shamOchre);
+      ear.position.set(s * 0.025, 1.6, 0); ear.rotation.x = -0.4;
+      staff.add(ear);
+    }
+    for (let s = -1; s <= 1; s += 2) {
+      const eye = mesh(new THREE.SphereGeometry(0.008, 6, 4), M.shamSpirit);
+      eye.position.set(s * 0.022, 1.55, 0.06); staff.add(eye);
+    }
+    // Top face (bird/eagle — beak)
+    const birdHead = mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.07, 10), M.shamOchreHi);
+    birdHead.position.y = 1.65; staff.add(birdHead);
+    // Beak
+    const beak = mesh(new THREE.ConeGeometry(0.018, 0.06, 4), M.shamRed);
+    beak.position.set(0, 1.65, 0.08); beak.rotation.x = Math.PI / 2;
+    staff.add(beak);
+    // Bird eyes
+    for (let s = -1; s <= 1; s += 2) {
+      const eye = mesh(new THREE.SphereGeometry(0.008, 6, 4), M.shamSpirit);
+      eye.position.set(s * 0.022, 1.66, 0.06); staff.add(eye);
+    }
+    // Crest atop the bird (3 small feathers fanning up)
+    for (let i = -1; i <= 1; i++) {
+      const crest = mesh(new THREE.ConeGeometry(0.014, 0.06, 4), M.shamRed);
+      crest.position.set(i * 0.014, 1.74, 0); crest.rotation.x = i * 0.2;
+      staff.add(crest);
+    }
+    // Hanging feathers from the totem (3 long feathers)
+    for (let i = -1; i <= 1; i++) {
+      const longFeather = mesh(new THREE.BoxGeometry(0.014, 0.18, 0.006), M.shamRed);
+      longFeather.position.set(i * 0.04, 1.32, -0.05); longFeather.rotation.x = 0.4;
+      staff.add(longFeather);
+    }
+    return staff;
+  }
+
+  _buildShamanHead() {
+    const head = new THREE.Group();
+
+    // Skin face (visible at the chin/lower portion only)
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skinDark);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // Dark scalp
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.shamFur);
+    scalp.scale.set(1, 1.0, 1.05);
+    head.add(scalp);
+
+    // ===== ANIMAL-SKULL MASK — covering upper face (bull/wolf-skull style) =====
+    // Main skull mass (covering forehead + upper cheeks)
+    const maskShape = new THREE.Shape();
+    maskShape.moveTo(-0.18, 0.06); maskShape.lineTo(0.18, 0.06);
+    maskShape.bezierCurveTo(0.2, -0.04, 0.16, -0.12, 0, -0.13);
+    maskShape.bezierCurveTo(-0.16, -0.12, -0.2, -0.04, -0.18, 0.06);
+    maskShape.closePath();
+    const mask = mesh(new THREE.ExtrudeGeometry(maskShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.01, bevelSegments: 2 }), M.shamBoneHi);
+    mask.position.set(0, 0.02, 0.16);
+    head.add(mask);
+    // Eye holes (dark recesses with glowing eyes inside)
+    for (let side = -1; side <= 1; side += 2) {
+      const eyeHole = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.shamOchreDark);
+      eyeHole.position.set(side * 0.075, 0.0, 0.21); eyeHole.scale.set(1, 0.9, 0.5);
+      head.add(eyeHole);
+      // Glowing ochre eye inside
+      const eye = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.shamEye);
+      eye.position.set(side * 0.075, 0.0, 0.225);
+      head.add(eye);
+    }
+    // Tribal red paint stripes on the mask (war paint)
+    for (let i = -1; i <= 1; i += 2) {
+      const paint = mesh(new THREE.BoxGeometry(0.025, 0.06, 0.005), M.shamRed);
+      paint.position.set(i * 0.04, 0.06, 0.225); paint.rotation.z = i * 0.2;
+      head.add(paint);
+    }
+    // BULL/RAM HORNS curving outward from the mask
+    for (let side = -1; side <= 1; side += 2) {
+      // Horn segments (curving outward and forward)
+      const hornBase = mesh(new THREE.CylinderGeometry(0.022, 0.018, 0.08, 6), M.shamBoneHi);
+      hornBase.position.set(side * 0.16, 0.1, 0.18); hornBase.rotation.z = side * 0.5;
+      head.add(hornBase);
+      const hornTip = mesh(new THREE.ConeGeometry(0.018, 0.12, 6), M.shamBoneHi);
+      hornTip.position.set(side * 0.22, 0.16, 0.22); hornTip.rotation.z = side * 0.8;
+      head.add(hornTip);
+    }
+
+    // Lower face skin (jaw exposed below the mask)
+    const jaw = mesh(new THREE.SphereGeometry(0.16, 14, 10), M.skinDark);
+    jaw.position.set(0, -0.12, 0.12); jaw.scale.set(0.9, 0.7, 0.9);
+    head.add(jaw);
+
+    // Mouth visible below the mask (small line)
+    const mouth = mesh(new THREE.BoxGeometry(0.06, 0.008, 0.005), M.skinDark);
+    mouth.position.set(0, -0.18, 0.22); head.add(mouth);
+
+    // ===== TALL BONE-FEATHER HEADDRESS atop the head =====
+    // Base band (red leather)
+    const bandHead = mesh(new THREE.TorusGeometry(0.21, 0.014, 8, 24), M.shamRed);
+    bandHead.rotation.x = Math.PI / 2;
+    bandHead.position.y = 0.18;
+    head.add(bandHead);
+    // 7 tall feathers radiating up + back from the band
+    for (let i = -3; i <= 3; i++) {
+      const t = (i + 3) / 6;
+      const angle = t * Math.PI * 0.7 - Math.PI * 0.35;
+      const featherLen = 0.32 - Math.abs(i) * 0.04;
+      const featherShape = new THREE.Shape();
+      featherShape.moveTo(-0.018, 0); featherShape.lineTo(0.018, 0);
+      featherShape.bezierCurveTo(0.025, featherLen * 0.4, 0.018, featherLen * 0.85, 0, featherLen);
+      featherShape.bezierCurveTo(-0.018, featherLen * 0.85, -0.025, featherLen * 0.4, -0.018, 0);
+      featherShape.closePath();
+      const feather = mesh(new THREE.ExtrudeGeometry(featherShape, { depth: 0.005, bevelEnabled: false }), i % 2 === 0 ? M.shamRed : M.shamBoneHi);
+      feather.position.set(0, 0.21, -0.05);
+      // Rotate based on position
+      feather.rotation.y = angle;
+      feather.rotation.x = -0.3;
+      head.add(feather);
+      // Rachis (gold central spine)
+      const rachis = mesh(new THREE.BoxGeometry(0.005, featherLen, 0.005), M.shamSpirit);
+      rachis.position.set(Math.sin(angle) * 0, 0.21 + featherLen * 0.5, -0.05 - Math.cos(angle) * featherLen * 0.5);
+      rachis.rotation.y = angle;
+      head.add(rachis);
+    }
+
+    return head;
+  }
+}
+
+const shamanAnimations = {
+  // TOTEMIC STRIKE — staff thrust forward, drops a small totem at the impact site
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: { rightArm: { rx: 0.65, rz: -0.25 }, body: { rx: -0.05 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -1.0, rz: 0.05 }, body: { ry: 0.12 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.8, rz: 0.0 }, body: { ry: 0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Earth-ochre impact
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0xffc060, maxScale: 0.65, duration: 0.32 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xe8a040, maxRadius: 1.3, duration: 0.6 }), time);
+        // Earth-totem rune at the impact (the dropped totem)
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0xe8a040, maxRadius: 0.8, duration: 1.4, runeCount: 6, rotateSpeed: 0.6 }), time);
+        // Ochre + bone particles
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xffc060, count: 26, speed: 4, duration: 0.85, upwardBias: 0.6, gravity: -2.0 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xe0d0a8, count: 16, speed: 3, duration: 1.0, upwardBias: 0.4, gravity: -1.5 }), time);
+      }},
+    ],
+  },
+  // EARTH TOTEM — slam staff into ground, AoE taunt totem
+  spell1: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 1.0, rz: -0.25 }, body: { rx: -0.1 }, head: { rx: -0.1 } }, ease: ease.out },
+      { t: 0.5,  values: { rightArm: { rx: -1.4, rz: -0.05 }, body: { rx: 0.18, py: -0.06 } }, ease: ease.in },
+      { t: 0.72, values: { rightArm: { rx: -1.2, rz: 0.0 }, body: { rx: 0.1, py: -0.04 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const slamPos = new THREE.Vector3(champPos.x + 0.3, 0.12, champPos.z + 0.6);
+        // Big earth slam shockwave
+        mgr.spawn(new FilledShockwave(champ.scene, slamPos, { color: 0x885028, maxRadius: 1.8, duration: 0.55 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, slamPos, { color: 0xe8a040, maxRadius: 2.6, duration: 0.75 }), time);
+        // Earth totem AoE taunt rune
+        mgr.spawn(new RuneRing(champ.scene, slamPos, { color: 0xffc060, maxRadius: 1.6, duration: 1.4, runeCount: 8, rotateSpeed: 0.5 }), time);
+        // Earth pillar (the totem rising)
+        mgr.spawn(new LightPillar(champ.scene, slamPos, { color: 0xe8a040, height: 3.0, radius: 0.4, duration: 1.0 }), time);
+        // Dirt + bone particle burst
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(slamPos.x, 0.4, slamPos.z), { color: 0x885028, count: 50, speed: 4, duration: 1.0, upwardBias: 1.4, gravity: -2.0 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(slamPos.x, 0.4, slamPos.z), { color: 0xe0d0a8, count: 30, speed: 3, duration: 1.2, upwardBias: 1.0, gravity: -1.5 }), time);
+      }},
+    ],
+  },
+  // HEALING TOTEM — plant glowing healing totem, party HoT
+  spell2: {
+    duration: 1.7,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 0.8, rz: -0.3 }, leftArm: { rx: 0.6, rz: 0.5 }, body: { rx: -0.08 }, head: { rx: -0.1 } }, ease: ease.outBack },
+      { t: 0.78, values: { rightArm: { rx: 0.8, rz: -0.3 }, leftArm: { rx: 0.6, rz: 0.5 }, body: { rx: -0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Big ochre holy circle (the totem's healing zone)
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xe8a040, radius: 2.4, duration: 1.6 }), time);
+        // Outer rune ring with totem-spirit faces
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xffc060, maxRadius: 2.8, duration: 1.5, runeCount: 9, rotateSpeed: 0.6 }), time);
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xffc060, radius: 1.8, duration: 1.5 }), time);
+        // Big light pillar (the totem)
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffc060, height: 4.5, radius: 0.5, duration: 1.0 }), time);
+      }},
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const above = new THREE.Vector3(champPos.x, 2.0, champPos.z);
+        // Healing spirit-feathers drifting outward
+        mgr.spawn(new ParticleBurst(champ.scene, above, { color: 0xffc060, count: 60, speed: 3, duration: 1.4, upwardBias: 1.4, gravity: -0.6 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  INQUISITOR — Mystic IV/VI                                               ║
+// ║  Anti-Magic · Sanctified · Pure-white robes with gold trim, ★ tall    ║
+// ║  cross-mitre helm ★, ★ silver chains crossing chest ★, holy book in   ║
+// ║  left hand, ceremonial bell, holy-white eye glow                       ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Inquisitor extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = inquisitorAnimations;
+  }
+
+  // Override update — gentle bell sway
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.bell) {
+      this.bell.rotation.z = Math.sin(time * 1.5) * 0.12;
+    }
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — pure white robes
+    const buildInqLeg = (sx) => {
+      const leg = new THREE.Group();
+      const thigh = mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.55, 14), M.inqWhite);
+      thigh.position.y = 0.95; leg.add(thigh);
+      const shin = mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.5, 14), M.inqWhiteHi);
+      shin.position.y = 0.36; leg.add(shin);
+      // Gold trim band
+      const hemTrim = mesh(new THREE.TorusGeometry(0.24, 0.014, 8, 18), M.inqGoldHi);
+      hemTrim.rotation.x = Math.PI / 2; hemTrim.position.y = 0.12;
+      leg.add(hemTrim);
+      // Cross-emblem on the trim
+      for (let i = -1; i <= 1; i++) {
+        const crossV = mesh(new THREE.BoxGeometry(0.008, 0.025, 0.005), M.inqGoldHi);
+        crossV.position.set(i * 0.07, 0.13, 0.22);
+        leg.add(crossV);
+        const crossH = mesh(new THREE.BoxGeometry(0.018, 0.008, 0.005), M.inqGoldHi);
+        crossH.position.set(i * 0.07, 0.135, 0.22);
+        leg.add(crossH);
+      }
+      // Boot
+      const sole = mesh(new THREE.BoxGeometry(0.2, 0.05, 0.32), M.inqGoldHi);
+      sole.position.set(0, 0.06, 0.05); leg.add(sole);
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildInqLeg(-1));
+    root.add(buildInqLeg(1));
+
+    // Pelvis — gold belt with hanging rosary chain + bell
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.18, 16), M.inqWhite));
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.1, 18), M.inqGoldHi);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Cross buckle
+    const buckleV = mesh(new THREE.BoxGeometry(0.014, 0.05, 0.018), M.inqWhiteHi);
+    buckleV.position.set(0, 0.04, 0.32); pelvis.add(buckleV);
+    const buckleH = mesh(new THREE.BoxGeometry(0.04, 0.014, 0.018), M.inqWhiteHi);
+    buckleH.position.set(0, 0.04, 0.32); pelvis.add(buckleH);
+    // Holy rune in the cross center
+    const buckleRune = mesh(new THREE.SphereGeometry(0.012, 10, 8), M.inqHoly);
+    buckleRune.position.set(0, 0.04, 0.335);
+    pelvis.add(buckleRune);
+    // BELL hanging from belt (the marquee accessory) — sways in update
+    this.bell = new THREE.Group();
+    this.bell.position.set(0.26, -0.04, 0.18);
+    // Bell body (truncated cone-shape)
+    const bellBody = mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.07, 12), M.inqGoldHi);
+    bellBody.position.y = -0.05; this.bell.add(bellBody);
+    // Bell rim
+    const bellRim = mesh(new THREE.TorusGeometry(0.06, 0.005, 6, 18), M.inqGold);
+    bellRim.rotation.x = Math.PI / 2; bellRim.position.y = -0.085;
+    this.bell.add(bellRim);
+    // Bell tip cap
+    const bellCap = mesh(new THREE.SphereGeometry(0.02, 10, 8), M.inqGoldHi);
+    bellCap.position.y = -0.014;
+    this.bell.add(bellCap);
+    // Bell clapper
+    const clapper = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.inqSilver);
+    clapper.position.y = -0.08;
+    this.bell.add(clapper);
+    // Bell hanging cord
+    const bellCord = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.06, 4), M.inqGold);
+    bellCord.position.y = 0.02;
+    this.bell.add(bellCord);
+    pelvis.add(this.bell);
+    // Rosary chain (left hip) — series of small beads on a chain
+    for (let i = 0; i < 5; i++) {
+      const bead = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.inqSilverHi);
+      bead.position.set(-0.28 + Math.sin(i * 0.6) * 0.02, -0.04 - i * 0.03, 0.18);
+      pelvis.add(bead);
+      // Connecting chain link
+      if (i < 4) {
+        const link = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.025, 4), M.inqSilver);
+        link.position.set(-0.28 + Math.sin((i + 0.5) * 0.6) * 0.02, -0.06 - i * 0.03, 0.18);
+        pelvis.add(link);
+      }
+    }
+    // Cross at end of rosary
+    const rosCrossV = mesh(new THREE.BoxGeometry(0.005, 0.04, 0.005), M.inqGoldHi);
+    rosCrossV.position.set(-0.27, -0.21, 0.18);
+    pelvis.add(rosCrossV);
+    const rosCrossH = mesh(new THREE.BoxGeometry(0.025, 0.005, 0.005), M.inqGoldHi);
+    rosCrossH.position.set(-0.27, -0.2, 0.18);
+    pelvis.add(rosCrossH);
+    // Long robe drape
+    const robeDrape = mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.4, 16), M.inqWhite);
+    robeDrape.position.y = -0.24; pelvis.add(robeDrape);
+    const hemTrim2 = mesh(new THREE.TorusGeometry(0.4, 0.012, 8, 24), M.inqGoldHi);
+    hemTrim2.rotation.x = Math.PI / 2; hemTrim2.position.y = -0.42;
+    pelvis.add(hemTrim2);
+    // 8 small crosses around the hem
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const crossV = mesh(new THREE.BoxGeometry(0.008, 0.04, 0.005), M.inqGoldHi);
+      crossV.position.set(Math.cos(a) * 0.4, -0.39, Math.sin(a) * 0.4);
+      crossV.lookAt(Math.cos(a) * 2, -0.39, Math.sin(a) * 2);
+      pelvis.add(crossV);
+      const crossH = mesh(new THREE.BoxGeometry(0.024, 0.008, 0.005), M.inqGoldHi);
+      crossH.position.set(Math.cos(a) * 0.4, -0.385, Math.sin(a) * 0.4);
+      crossH.lookAt(Math.cos(a) * 2, -0.385, Math.sin(a) * 2);
+      pelvis.add(crossH);
+    }
+    root.add(pelvis);
+
+    // TORSO — pure white robe
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    const robe = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 18), M.inqWhite);
+    robe.scale.set(1.0, 1, 0.85);
+    torso.add(robe);
+    // Vertical gold stripe
+    const robeStripe = mesh(new THREE.BoxGeometry(0.13, 0.65, 0.018), M.inqGoldHi);
+    robeStripe.position.set(0, 0.0, 0.36); torso.add(robeStripe);
+    // Pec mounds
+    const pecL = mesh(new THREE.SphereGeometry(0.16, 14, 12), M.inqWhiteHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // X-CROSSING SILVER CHAINS across the chest (the marquee feature)
+    for (let dir = -1; dir <= 1; dir += 2) {
+      // Build a chain as a series of small linked beads
+      const chainCount = 8;
+      for (let i = 0; i < chainCount; i++) {
+        const t = i / (chainCount - 1) - 0.5;
+        const x = dir * t * 0.5;
+        const y = -t * 0.5;
+        const link = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.inqSilverHi);
+        link.position.set(x, y, 0.36);
+        torso.add(link);
+        // Link connector
+        if (i < chainCount - 1) {
+          const tNext = (i + 1) / (chainCount - 1) - 0.5;
+          const xNext = dir * tNext * 0.5;
+          const yNext = -tNext * 0.5;
+          const connector = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.06, 4), M.inqSilver);
+          connector.position.set((x + xNext) / 2, (y + yNext) / 2, 0.36);
+          torso.add(connector);
+        }
+      }
+    }
+    // X-junction lock (silver cross at center where chains cross)
+    const xLock = mesh(new THREE.SphereGeometry(0.04, 14, 10), M.inqGoldHi);
+    xLock.position.set(0, 0, 0.39); xLock.scale.set(1, 1, 0.5);
+    torso.add(xLock);
+
+    // CHEST EMBLEM — large gold cross within a circle (above the X-chains)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.08, 16), M.inqWhiteHi);
+    emblemBack.position.set(0, 0.22, 0.41); torso.add(emblemBack);
+    const emblemRing = mesh(new THREE.TorusGeometry(0.075, 0.008, 8, 18), M.inqGoldHi);
+    emblemRing.position.set(0, 0.22, 0.42); torso.add(emblemRing);
+    // Cross (gold)
+    const crossEmblemV = mesh(new THREE.BoxGeometry(0.02, 0.1, 0.008), M.inqGoldHi);
+    crossEmblemV.position.set(0, 0.22, 0.43); torso.add(crossEmblemV);
+    const crossEmblemH = mesh(new THREE.BoxGeometry(0.07, 0.02, 0.008), M.inqGoldHi);
+    crossEmblemH.position.set(0, 0.225, 0.43); torso.add(crossEmblemH);
+    // Holy glow at cross center
+    const crossGem = mesh(new THREE.SphereGeometry(0.012, 10, 8), M.inqHoly);
+    crossGem.position.set(0, 0.225, 0.435);
+    torso.add(crossGem);
+
+    // High collar — white with gold trim
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16), M.inqWhiteHi);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18), M.inqGoldHi);
+    collarTrim.rotation.x = Math.PI / 2; collarTrim.position.y = 0.49;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Shoulder caps
+    for (let side = -1; side <= 1; side += 2) {
+      const cap = mesh(new THREE.SphereGeometry(0.16, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), M.inqWhiteHi);
+      cap.scale.set(1.05, 0.7, 1);
+      cap.position.set(side * 0.42, 2.18, 0);
+      root.add(cap);
+      // Gold trim
+      const capTrim = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.inqGoldHi);
+      capTrim.rotation.x = Math.PI / 2; capTrim.position.set(side * 0.42, 2.13, 0);
+      root.add(capTrim);
+      // Shoulder cross
+      const shCrossV = mesh(new THREE.BoxGeometry(0.012, 0.05, 0.008), M.inqGoldHi);
+      shCrossV.position.set(side * 0.42, 2.27, 0); root.add(shCrossV);
+      const shCrossH = mesh(new THREE.BoxGeometry(0.03, 0.012, 0.008), M.inqGoldHi);
+      shCrossH.position.set(side * 0.42, 2.275, 0); root.add(shCrossH);
+    }
+
+    // Arms
+    const armPalette = { cloth: M.inqWhite, mid: M.inqWhiteHi, dark: M.inqWhite, hi: M.inqGold, accent: M.inqGoldHi };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Wide flared sleeves with cross trim
+    [leftArm, rightArm].forEach(arm => {
+      const sleeve = mesh(new THREE.CylinderGeometry(0.092, 0.16, 0.18, 14), M.inqWhiteHi);
+      sleeve.position.y = -0.82; arm.add(sleeve);
+      const hemTrim3 = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.inqGoldHi);
+      hemTrim3.rotation.x = Math.PI / 2; hemTrim3.position.y = -0.91;
+      arm.add(hemTrim3);
+      // Cross sigils around the cuff
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const cV = mesh(new THREE.BoxGeometry(0.005, 0.018, 0.005), M.inqGoldHi);
+        cV.position.set(Math.cos(a) * 0.16, -0.95, Math.sin(a) * 0.16);
+        arm.add(cV);
+        const cH = mesh(new THREE.BoxGeometry(0.014, 0.005, 0.005), M.inqGoldHi);
+        cH.position.set(Math.cos(a) * 0.16, -0.95, Math.sin(a) * 0.16);
+        arm.add(cH);
+      }
+    });
+
+    // HOLY BOOK — held in left hand
+    const book = this._buildHolyBook();
+    leftArm.userData.hand.add(book);
+    book.position.set(0, 0.0, 0.06);
+    book.rotation.set(0, 0, 0);
+    this.parts.book = book;
+
+    // CEREMONIAL HAMMER/MACE — held in right hand (silenced bell on the head)
+    const mace = this._buildInquisitorMace();
+    rightArm.userData.hand.add(mace);
+    mace.position.set(0, 0.04, 0.06);
+    mace.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = mace;
+
+    // Pure-white cape with gold trim
+    const cape = buildCape({ material: M.inqWhite, width: 1.4, height: 1.95 });
+    cape.position.set(0, 2.36, -0.05);
+    root.add(cape);
+    this.cape = cape;
+    const capeTrim = mesh(new THREE.TorusGeometry(0.55, 0.014, 8, 28, Math.PI), M.inqGoldHi);
+    capeTrim.rotation.x = Math.PI / 2;
+    capeTrim.position.set(0, 0.6, -0.1);
+    capeTrim.scale.set(1.3, 1, 0.5);
+    root.add(capeTrim);
+
+    // Neck
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — cross-mitre helm
+    const head = this._buildInquisitorHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    M.inqEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.inqEye;
+  }
+
+  _buildHolyBook() {
+    const book = new THREE.Group();
+    const front = mesh(new THREE.BoxGeometry(0.16, 0.22, 0.012), M.inqGoldHi);
+    front.position.set(0, 0, 0.025); book.add(front);
+    const back = mesh(new THREE.BoxGeometry(0.16, 0.22, 0.012), M.inqGoldHi);
+    back.position.set(0, 0, -0.025); book.add(back);
+    const pages = mesh(new THREE.BoxGeometry(0.155, 0.215, 0.04), M.inqWhiteHi);
+    pages.position.set(0, 0, 0); book.add(pages);
+    const spine = mesh(new THREE.BoxGeometry(0.018, 0.22, 0.06), M.inqGold);
+    spine.position.set(-0.082, 0, 0); book.add(spine);
+    // Gold cross on cover
+    const crossV = mesh(new THREE.BoxGeometry(0.018, 0.1, 0.008), M.inqWhiteHi);
+    crossV.position.set(0, 0.03, 0.034); book.add(crossV);
+    const crossH = mesh(new THREE.BoxGeometry(0.06, 0.018, 0.008), M.inqWhiteHi);
+    crossH.position.set(0, 0.05, 0.034); book.add(crossH);
+    // Holy gem at cross center
+    const gem = mesh(new THREE.SphereGeometry(0.012, 10, 8), M.inqHoly);
+    gem.position.set(0, 0.05, 0.04); book.add(gem);
+    // Corner studs
+    for (let xs = -1; xs <= 1; xs += 2) {
+      for (let ys = -1; ys <= 1; ys += 2) {
+        const stud = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.inqWhiteHi);
+        stud.position.set(xs * 0.06, ys * 0.09, 0.034); book.add(stud);
+      }
+    }
+    return book;
+  }
+
+  _buildInquisitorMace() {
+    const mace = new THREE.Group();
+    const pommel = mesh(new THREE.SphereGeometry(0.034, 12, 10), M.inqGoldHi);
+    mace.add(pommel);
+    const haft = mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.7, 12), M.inqWhiteHi);
+    haft.position.y = 0.36; mace.add(haft);
+    // Gold rings along haft
+    for (let i = 0; i < 5; i++) {
+      const ring = mesh(new THREE.TorusGeometry(0.027, 0.005, 6, 12), M.inqGold);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.1 + i * 0.12;
+      mace.add(ring);
+    }
+    // Top section — large gold mace head with cross atop
+    const head = mesh(new THREE.SphereGeometry(0.07, 14, 12), M.inqGoldHi);
+    head.position.y = 0.78; mace.add(head);
+    // 6 fluted ridges
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const flute = mesh(new THREE.BoxGeometry(0.012, 0.13, 0.012), M.inqGold);
+      flute.position.set(Math.cos(a) * 0.075, 0.78, Math.sin(a) * 0.075);
+      flute.rotation.y = -a;
+      mace.add(flute);
+    }
+    // Top cross
+    const topCrossV = mesh(new THREE.BoxGeometry(0.014, 0.07, 0.014), M.inqGoldHi);
+    topCrossV.position.y = 0.9; mace.add(topCrossV);
+    const topCrossH = mesh(new THREE.BoxGeometry(0.04, 0.014, 0.014), M.inqGoldHi);
+    topCrossH.position.y = 0.92; mace.add(topCrossH);
+    // Holy gem at top
+    const topGem = mesh(new THREE.SphereGeometry(0.014, 10, 8), M.inqHoly);
+    topGem.position.y = 0.92; mace.add(topGem);
+    return mace;
+  }
+
+  _buildInquisitorHead() {
+    const head = new THREE.Group();
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skin);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // Tonsured hair (priest haircut)
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16, 0, Math.PI * 2, Math.PI * 0.2, Math.PI * 0.3), M.shamFur || M.bardWood);
+    scalp.position.y = 0.04;
+    head.add(scalp);
+
+    // Eyes — pure holy white
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.022, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.inqEye);
+    eyeL.position.set(-0.075, -0.02, 0.21); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Nose
+    const nose = mesh(new THREE.ConeGeometry(0.022, 0.06, 6), M.skin);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    head.add(nose);
+
+    // Stern mouth (judgment)
+    const mouth = mesh(new THREE.BoxGeometry(0.06, 0.008, 0.005), M.skinDark);
+    mouth.position.set(0, -0.13, 0.22); head.add(mouth);
+
+    // ===== TALL CROSS-MITRE HELM (the marquee feature — bishop's mitre with cross top) =====
+    // Mitre body — split-pointed shape (two cones meeting at the front)
+    // Front pointed cone
+    const mitreFront = mesh(new THREE.ConeGeometry(0.18, 0.4, 12), M.inqWhiteHi);
+    mitreFront.position.set(0, 0.36, 0.04); mitreFront.rotation.x = -0.2;
+    head.add(mitreFront);
+    // Back pointed cone
+    const mitreBack = mesh(new THREE.ConeGeometry(0.18, 0.4, 12), M.inqWhiteHi);
+    mitreBack.position.set(0, 0.36, -0.04); mitreBack.rotation.x = 0.2;
+    head.add(mitreBack);
+    // Mitre band (gold) at the base
+    const mitreBand = mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.04, 14), M.inqGoldHi);
+    mitreBand.position.y = 0.18; head.add(mitreBand);
+    // Vertical gold strip down the front of the mitre
+    const mitreStripFront = mesh(new THREE.BoxGeometry(0.04, 0.4, 0.025), M.inqGoldHi);
+    mitreStripFront.position.set(0, 0.36, 0.18); mitreStripFront.rotation.x = -0.2;
+    head.add(mitreStripFront);
+    // Cross atop the mitre (the marquee detail)
+    const topCrossV = mesh(new THREE.BoxGeometry(0.014, 0.18, 0.014), M.inqGoldHi);
+    topCrossV.position.y = 0.65; head.add(topCrossV);
+    const topCrossH = mesh(new THREE.BoxGeometry(0.08, 0.014, 0.014), M.inqGoldHi);
+    topCrossH.position.y = 0.66; head.add(topCrossH);
+    // Holy gem at cross center (the apex)
+    const apex = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.inqHoly);
+    apex.position.y = 0.66; head.add(apex);
+    // Side-decoration crosses on the mitre (small embedded crosses on each side)
+    for (let side = -1; side <= 1; side += 2) {
+      const sideCrossV = mesh(new THREE.BoxGeometry(0.008, 0.04, 0.005), M.inqGoldHi);
+      sideCrossV.position.set(side * 0.14, 0.3, 0.0);
+      head.add(sideCrossV);
+      const sideCrossH = mesh(new THREE.BoxGeometry(0.022, 0.008, 0.005), M.inqGoldHi);
+      sideCrossH.position.set(side * 0.14, 0.305, 0.0);
+      head.add(sideCrossH);
+    }
+    // Gold lappets (long ribbons hanging from the back of the mitre)
+    for (let side = -1; side <= 1; side += 2) {
+      const lappet = mesh(new THREE.BoxGeometry(0.04, 0.22, 0.012), M.inqWhite);
+      lappet.position.set(side * 0.05, 0.04, -0.18);
+      head.add(lappet);
+      // Gold trim on lappet
+      const lappetTrim = mesh(new THREE.BoxGeometry(0.002, 0.22, 0.014), M.inqGoldHi);
+      lappetTrim.position.set(side * 0.05 - 0.018, 0.04, -0.185);
+      head.add(lappetTrim);
+      const lappetTrim2 = mesh(new THREE.BoxGeometry(0.002, 0.22, 0.014), M.inqGoldHi);
+      lappetTrim2.position.set(side * 0.05 + 0.018, 0.04, -0.185);
+      head.add(lappetTrim2);
+      // Cross at the bottom of lappet
+      const lappetCrossV = mesh(new THREE.BoxGeometry(0.005, 0.018, 0.005), M.inqGoldHi);
+      lappetCrossV.position.set(side * 0.05, -0.06, -0.19);
+      head.add(lappetCrossV);
+      const lappetCrossH = mesh(new THREE.BoxGeometry(0.012, 0.005, 0.005), M.inqGoldHi);
+      lappetCrossH.position.set(side * 0.05, -0.057, -0.19);
+      head.add(lappetCrossH);
+    }
+
+    return head;
+  }
+}
+
+const inquisitorAnimations = {
+  // HOLY BOLT — extend bell-mace forward, dispelling bolt
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: { rightArm: { rx: 0.55, rz: -0.25 }, body: { rx: -0.04 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -1.0, rz: 0.05 }, body: { ry: 0.12 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.8, rz: 0.0 }, body: { ry: 0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Pure white impact
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0xffffff, maxScale: 0.7, duration: 0.4 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xfaf8ff, maxRadius: 1.4, duration: 0.65 }), time);
+        // Dispel rune (the buff-removal mark)
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0xfff8e8, maxRadius: 0.9, duration: 1.0, runeCount: 8, rotateSpeed: 1.0 }), time);
+        // Gold particles + holy white sparkle
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xffffff, count: 30, speed: 4, duration: 0.85, upwardBias: 0.8, gravity: -2.0 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xffd068, count: 20, speed: 3, duration: 1.0, upwardBias: 1.0, gravity: -1.5 }), time);
+      }},
+    ],
+  },
+  // MANTRA OF SILENCE — silence target with a bell-toll wave
+  spell1: {
+    duration: 1.4,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: -0.55, rz: -0.45 }, leftArm: { rx: -0.55, rz: 0.45 }, body: { rx: -0.04 }, head: { rx: -0.06 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -1.0, rz: 0.0 }, leftArm: { rx: -0.9, rz: 0.4 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.85, rz: 0.0 }, leftArm: { rx: -0.85, rz: 0.4 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Bell-toll concentric shockwaves
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xfaf8ff, maxRadius: 2.4, duration: 0.85 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xfaf8ff, maxRadius: 2.0, duration: 0.7 }), time + 0.15);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xfaf8ff, maxRadius: 1.6, duration: 0.55 }), time + 0.3);
+        // Silence dome
+        mgr.spawn(new EnergyDome(champ.scene, groundPos, { color: 0xfaf8ff, radius: 1.0, duration: 1.3 }), time);
+        // Silence rune at target
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0xfff8e8, maxRadius: 1.1, duration: 1.2, runeCount: 6, rotateSpeed: 0.4 }), time);
+        // Holy particles
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0xffffff, maxScale: 0.7, duration: 0.55 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xffffff, count: 32, speed: 2, duration: 1.2, upwardBias: 0.6, gravity: -0.5 }), time);
+      }},
+    ],
+  },
+  // ANTI-MAGIC FIELD — party-wide spell-immunity dome
+  spell2: {
+    duration: 1.7,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { leftArm: { rx: 1.0, rz: -0.5 }, rightArm: { rx: 1.0, rz: 0.5 }, body: { rx: -0.12 }, head: { rx: -0.16 } }, ease: ease.outBack },
+      { t: 0.78, values: { leftArm: { rx: 1.0, rz: -0.5 }, rightArm: { rx: 1.0, rz: 0.5 }, body: { rx: -0.12 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // MASSIVE pure-white anti-magic dome
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xfaf8ff, radius: 2.8, duration: 1.6 }), time);
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xffffff, maxRadius: 3.2, duration: 1.5, runeCount: 12, rotateSpeed: 0.4 }), time);
+        // Big anti-magic dome
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xffffff, radius: 2.4, duration: 1.5 }), time);
+        // Massive light pillar
+        mgr.spawn(new LightPillar(champ.scene, pos, { color: 0xffffff, height: 5.5, radius: 0.7, duration: 1.0 }), time);
+        // Gold + white particles raining
+        const above = new THREE.Vector3(pos.x, 2.4, pos.z);
+        mgr.spawn(new ParticleBurst(champ.scene, above, { color: 0xffffff, count: 60, speed: 2.5, duration: 1.4, upwardBias: 0.0, gravity: 0.4 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, above, { color: 0xffd068, count: 30, speed: 2, duration: 1.4, upwardBias: 0.0, gravity: 0.3 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  SPIRITUALIST — Mystic V/VI                                              ║
+// ║  Channel Ancestral Spirits · Pale-grey ethereal robes, ★ 4 spirit-     ║
+// ║  orbs (small ghost-faces) orbiting the body ★, spirit-orb staff,       ║
+// ║  ghost-blue-white eye glow                                             ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Spiritualist extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = spiritualistAnimations;
+  }
+
+  // Override update — orbit the spirit-orbs at different rates
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.spiritOrbs) {
+      this.spiritOrbs.rotation.y = time * 0.3;
+      // Each spirit bobs with its own phase
+      this.spiritOrbs.children.forEach((s, i) => {
+        s.position.y = s.userData.baseY + Math.sin(time * 1.0 + i * 1.3) * 0.04;
+      });
+    }
+    if (this.staffOrb) this.staffOrb.scale.setScalar(1 + Math.sin(time * 1.6) * 0.08);
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — pale grey ethereal robes
+    const buildSpiritLeg = (sx) => {
+      const leg = new THREE.Group();
+      const thigh = mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.55, 14), M.spiritGrey);
+      thigh.position.y = 0.95; leg.add(thigh);
+      const shin = mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.5, 14), M.spiritGreyHi);
+      shin.position.y = 0.36; leg.add(shin);
+      // Silver trim band
+      const hemTrim = mesh(new THREE.TorusGeometry(0.24, 0.014, 8, 18), M.spiritSilver);
+      hemTrim.rotation.x = Math.PI / 2; hemTrim.position.y = 0.12;
+      leg.add(hemTrim);
+      // Ghost-wisp trim ornaments
+      for (let i = -1; i <= 1; i++) {
+        const wisp = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.spiritEthereal);
+        wisp.position.set(i * 0.07, 0.12, 0.22); wisp.scale.set(0.7, 1.4, 0.7);
+        leg.add(wisp);
+      }
+      // Sole (faint dark gray)
+      const sole = mesh(new THREE.BoxGeometry(0.2, 0.05, 0.32), M.spiritGreyDark);
+      sole.position.set(0, 0.06, 0.05); leg.add(sole);
+      leg.position.x = sx * 0.18;
+      return leg;
+    };
+    root.add(buildSpiritLeg(-1));
+    root.add(buildSpiritLeg(1));
+
+    // Pelvis — silver belt with hanging spirit charms
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.18, 16), M.spiritGreyDark));
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.1, 18), M.spiritSilver);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Spirit-orb buckle
+    const buckleGem = mesh(new THREE.SphereGeometry(0.035, 14, 10), M.spiritEthereal);
+    buckleGem.position.set(0, 0.04, 0.32); buckleGem.scale.set(1.2, 0.8, 0.5);
+    pelvis.add(buckleGem);
+    // Hanging spirit-wisp charms
+    for (let i = -2; i <= 2; i++) {
+      const wisp = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.spiritEthereal);
+      wisp.position.set(i * 0.06, -0.06 - Math.abs(i) * 0.015, 0.31); wisp.scale.set(0.7, 1.4, 0.7);
+      pelvis.add(wisp);
+      const cord = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.04, 4), M.spiritSilver);
+      cord.position.set(i * 0.06, -0.025 - Math.abs(i) * 0.01, 0.31);
+      pelvis.add(cord);
+    }
+    // Robe drape (with ghostly transparency)
+    const robeDrape = mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.4, 16), M.spiritGrey);
+    robeDrape.position.y = -0.24; pelvis.add(robeDrape);
+    const hemTrim2 = mesh(new THREE.TorusGeometry(0.4, 0.012, 8, 24), M.spiritSilverHi);
+    hemTrim2.rotation.x = Math.PI / 2; hemTrim2.position.y = -0.42;
+    pelvis.add(hemTrim2);
+    // Ghost-wisp trail along the hem
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const wisp = mesh(new THREE.ConeGeometry(0.022, 0.08, 5), M.spiritEthereal);
+      wisp.position.set(Math.cos(a) * 0.4, -0.45, Math.sin(a) * 0.4);
+      wisp.rotation.x = Math.PI;
+      pelvis.add(wisp);
+    }
+    root.add(pelvis);
+
+    // TORSO — pale grey robe with silver trim
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    const robe = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 18), M.spiritGrey);
+    robe.scale.set(1.0, 1, 0.85);
+    torso.add(robe);
+    // Silver vertical stripe
+    const robeStripe = mesh(new THREE.BoxGeometry(0.13, 0.65, 0.018), M.spiritSilver);
+    robeStripe.position.set(0, 0.0, 0.36); torso.add(robeStripe);
+    // Pec mounds
+    const pecL = mesh(new THREE.SphereGeometry(0.16, 14, 12), M.spiritGreyHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // CHEST EMBLEM — spiral of 3 spirits (the marquee Spiritualist symbol)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.085, 16), M.spiritGreyDark);
+    emblemBack.position.set(0, 0.22, 0.41); torso.add(emblemBack);
+    // Outer ring
+    const emblemRing = mesh(new THREE.TorusGeometry(0.078, 0.005, 8, 18), M.spiritSilverHi);
+    emblemRing.position.set(0, 0.22, 0.42); torso.add(emblemRing);
+    // 3 spirit-faces in a triangle
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2 + Math.PI / 2;
+      const spirit = mesh(new THREE.SphereGeometry(0.018, 12, 10), M.spiritEthereal);
+      spirit.position.set(Math.cos(a) * 0.038, 0.22 + Math.sin(a) * 0.038, 0.43); spirit.scale.set(1, 1.2, 0.4);
+      torso.add(spirit);
+      // Connecting wisp
+      if (i < 2 || i === 2) {
+        const a2 = ((i + 1) / 3) * Math.PI * 2 + Math.PI / 2;
+        const trail = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.04, 4), M.spiritSilver);
+        trail.position.set(Math.cos((a + a2) / 2) * 0.038, 0.22 + Math.sin((a + a2) / 2) * 0.038, 0.42);
+        trail.rotation.z = (a + a2) / 2;
+        torso.add(trail);
+      }
+    }
+    // Center heart-orb
+    const emblemCore = mesh(new THREE.SphereGeometry(0.014, 10, 8), M.spiritWisp);
+    emblemCore.position.set(0, 0.22, 0.44);
+    torso.add(emblemCore);
+
+    // Wisp sigils flanking
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 3; i++) {
+        const sigil = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.spiritEthereal);
+        sigil.position.set(side * 0.18, 0.12 - i * 0.1, 0.36); sigil.scale.set(0.7, 1.4, 0.7);
+        torso.add(sigil);
+      }
+    }
+
+    // Collar
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16, 1, false, -Math.PI / 2.4, Math.PI * 1.2), M.spiritGreyHi);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18, Math.PI * 1.2), M.spiritSilverHi);
+    collarTrim.rotation.x = Math.PI / 2;
+    collarTrim.rotation.y = -Math.PI / 2;
+    collarTrim.position.y = 0.49;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Ethereal shoulder caps
+    for (let side = -1; side <= 1; side += 2) {
+      const cap = mesh(new THREE.SphereGeometry(0.16, 14, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), M.spiritGreyHi);
+      cap.scale.set(1.05, 0.7, 1);
+      cap.position.set(side * 0.42, 2.18, 0);
+      root.add(cap);
+      const capTrim = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.spiritSilverHi);
+      capTrim.rotation.x = Math.PI / 2; capTrim.position.set(side * 0.42, 2.13, 0);
+      root.add(capTrim);
+      // Spirit-wisp atop each shoulder
+      const shoulderWisp = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.spiritEthereal);
+      shoulderWisp.position.set(side * 0.42, 2.3, 0); shoulderWisp.scale.set(0.7, 1.4, 0.7);
+      root.add(shoulderWisp);
+    }
+
+    // Arms
+    const armPalette = { cloth: M.spiritGrey, mid: M.spiritGreyHi, dark: M.spiritGreyDark, hi: M.spiritSilver, accent: M.spiritEthereal };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Wide flared sleeves
+    [leftArm, rightArm].forEach(arm => {
+      const sleeve = mesh(new THREE.CylinderGeometry(0.092, 0.16, 0.18, 14), M.spiritGreyHi);
+      sleeve.position.y = -0.82; arm.add(sleeve);
+      const hemTrim3 = mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 16), M.spiritSilverHi);
+      hemTrim3.rotation.x = Math.PI / 2; hemTrim3.position.y = -0.91;
+      arm.add(hemTrim3);
+      // Wisp ornaments around the sleeve hem
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const wisp = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.spiritEthereal);
+        wisp.position.set(Math.cos(a) * 0.16, -0.95, Math.sin(a) * 0.16); wisp.scale.set(0.7, 1.4, 0.7);
+        arm.add(wisp);
+      }
+    });
+
+    // SPIRIT-ORB STAFF
+    const staff = this._buildSpiritStaff();
+    rightArm.userData.hand.add(staff);
+    staff.position.set(0, 0.04, 0.06);
+    staff.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = staff;
+
+    // Cape (faint pale grey)
+    const cape = buildCape({ material: M.spiritGreyDark, width: 1.4, height: 1.95 });
+    cape.position.set(0, 2.36, -0.05);
+    root.add(cape);
+    this.cape = cape;
+    const capeTrim = mesh(new THREE.TorusGeometry(0.55, 0.014, 8, 28, Math.PI), M.spiritSilverHi);
+    capeTrim.rotation.x = Math.PI / 2;
+    capeTrim.position.set(0, 0.6, -0.1);
+    capeTrim.scale.set(1.3, 1, 0.5);
+    root.add(capeTrim);
+    // Wisp fringes on cape hem
+    for (let i = -3; i <= 3; i++) {
+      const wisp = mesh(new THREE.ConeGeometry(0.022, 0.1, 5), M.spiritEthereal);
+      wisp.position.set(i * 0.16, 0.5, -0.13);
+      wisp.rotation.x = Math.PI;
+      root.add(wisp);
+    }
+
+    // Neck
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skinPale);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — pale ghostly face
+    const head = this._buildSpiritualistHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    // ===== ORBITING SPIRIT-ORBS — 4 small ghost-faces around the body (the marquee feature) =====
+    this.spiritOrbs = new THREE.Group();
+    this.spiritOrbs.position.set(0, 1.85, 0);
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const spiritGroup = new THREE.Group();
+      spiritGroup.position.set(Math.cos(a) * 0.7, Math.sin(a * 2) * 0.15, Math.sin(a) * 0.7);
+      spiritGroup.userData.baseY = Math.sin(a * 2) * 0.15;
+      // Spirit body (small ghostly sphere)
+      const body = mesh(new THREE.SphereGeometry(0.05, 12, 10), M.spiritEthereal);
+      body.scale.set(1.0, 1.4, 0.7);
+      spiritGroup.add(body);
+      // Spirit eyes (tiny dark sockets)
+      for (let s = -1; s <= 1; s += 2) {
+        const eye = mesh(new THREE.SphereGeometry(0.008, 6, 4), M.spiritGreyDark);
+        eye.position.set(s * 0.014, 0.012, 0.02); spiritGroup.add(eye);
+      }
+      // Spirit trail wisp behind
+      const trail = mesh(new THREE.SphereGeometry(0.04, 10, 8), M.spiritEthereal);
+      trail.position.set(0, -0.04, -0.04); trail.scale.set(0.6, 0.5, 1.4);
+      spiritGroup.add(trail);
+      this.spiritOrbs.add(spiritGroup);
+    }
+    root.add(this.spiritOrbs);
+
+    M.spiritEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.spiritEye;
+  }
+
+  _buildSpiritStaff() {
+    const staff = new THREE.Group();
+    const pommel = mesh(new THREE.SphereGeometry(0.034, 12, 10), M.spiritSilverHi);
+    staff.add(pommel);
+    const haft = mesh(new THREE.CylinderGeometry(0.024, 0.024, 1.4, 12), M.spiritGreyDark);
+    haft.position.y = 0.74; staff.add(haft);
+    // Silver bands + wisp ornaments
+    for (let i = 0; i < 7; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.027, 0.005, 6, 12), M.spiritSilver);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = 0.1 + i * 0.2;
+      staff.add(wrap);
+    }
+    const midGem = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.spiritEthereal);
+    midGem.position.y = 0.74; midGem.scale.set(1, 0.5, 1);
+    staff.add(midGem);
+    // Top section — silver claw cradle
+    const cradle = mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.06, 12), M.spiritSilverHi);
+    cradle.position.y = 1.46; staff.add(cradle);
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const claw = mesh(new THREE.CylinderGeometry(0.008, 0.005, 0.16, 6), M.spiritSilverHi);
+      claw.position.set(Math.cos(a) * 0.05, 1.55, Math.sin(a) * 0.05);
+      claw.rotation.z = -Math.cos(a) * 0.5;
+      claw.rotation.x = -Math.sin(a) * 0.5;
+      staff.add(claw);
+    }
+    // BIG SPIRIT ORB at the top (the marquee — large pulsing ghost-orb)
+    const orb = mesh(new THREE.SphereGeometry(0.085, 16, 14), M.spiritEthereal);
+    orb.position.y = 1.65;
+    staff.add(orb);
+    this.staffOrb = orb;
+    // Inner brighter shine
+    const orbShine = mesh(new THREE.SphereGeometry(0.045, 12, 10), M.spiritSilverHi);
+    orbShine.position.y = 1.65; staff.add(orbShine);
+    // Tiny ghost-faces orbiting inside the orb (3 small)
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const miniGhost = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.spiritWisp);
+      miniGhost.position.set(Math.cos(a) * 0.06, 1.65 + Math.sin(a * 2) * 0.02, Math.sin(a) * 0.06);
+      miniGhost.scale.set(0.7, 1.4, 0.7);
+      staff.add(miniGhost);
+    }
+    return staff;
+  }
+
+  _buildSpiritualistHead() {
+    const head = new THREE.Group();
+    // Pale ghostly skin
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skinPale);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // Pale silver hair
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.spiritSilver);
+    scalp.scale.set(1, 1.05, 1.05);
+    head.add(scalp);
+    // Long flowing hair
+    const backHair = mesh(new THREE.SphereGeometry(0.24, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), M.spiritSilverHi);
+    backHair.scale.set(1.05, 1.5, 1.1);
+    backHair.position.set(0, -0.05, -0.05);
+    head.add(backHair);
+
+    // Eyes — ghost-blue-white glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.022, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.spiritEye);
+    eyeL.position.set(-0.075, -0.02, 0.21); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Pale brows
+    for (let side = -1; side <= 1; side += 2) {
+      const brow = mesh(new THREE.BoxGeometry(0.04, 0.008, 0.005), M.spiritSilver);
+      brow.position.set(side * 0.075, 0.025, 0.21); brow.rotation.z = side * 0.15;
+      head.add(brow);
+    }
+
+    // Nose
+    const nose = mesh(new THREE.ConeGeometry(0.022, 0.06, 6), M.skinPale);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    head.add(nose);
+
+    // Calm ethereal mouth
+    const mouth = mesh(new THREE.BoxGeometry(0.05, 0.008, 0.005), M.skinDark);
+    mouth.position.set(0, -0.13, 0.22); head.add(mouth);
+
+    // Silver circlet with a third-eye ghost-orb
+    const circlet = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 24), M.spiritSilverHi);
+    circlet.rotation.x = Math.PI / 2;
+    circlet.position.y = 0.04;
+    head.add(circlet);
+    // Forehead ghost-gem
+    const browGem = mesh(new THREE.SphereGeometry(0.028, 12, 10), M.spiritEthereal);
+    browGem.position.set(0, 0.06, 0.21); browGem.scale.set(1.1, 1.0, 0.5);
+    head.add(browGem);
+    // 2 silver wing-prongs flanking the gem
+    for (let side = -1; side <= 1; side += 2) {
+      const prong = mesh(new THREE.ConeGeometry(0.012, 0.06, 4), M.spiritSilverHi);
+      prong.position.set(side * 0.075, 0.1, 0.2); prong.rotation.z = side * 0.4;
+      head.add(prong);
+    }
+
+    // Floating ghost-wisp atop head
+    const topWisp = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.spiritEthereal);
+    topWisp.position.set(0, 0.22, 0); topWisp.scale.set(0.7, 1.4, 0.7);
+    head.add(topWisp);
+
+    return head;
+  }
+}
+
+const spiritualistAnimations = {
+  // GHOST BOLT — staff thrust forward, pale spirit-bolt
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: { rightArm: { rx: 0.55, rz: -0.25 }, body: { rx: -0.04 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -1.0, rz: 0.05 }, body: { ry: 0.12 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.8, rz: 0.0 }, body: { ry: 0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Ghost-blue-white impact
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0xe0e8ff, maxScale: 0.65, duration: 0.35 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0xb0c8ff, maxRadius: 1.4, duration: 0.65 }), time);
+        // Spirit-mark rune (the spirit-link mark)
+        mgr.spawn(new RuneRing(champ.scene, groundPos, { color: 0xb0c8ff, maxRadius: 0.9, duration: 1.2, runeCount: 6, rotateSpeed: 0.6 }), time);
+        // Drifting ghost particles
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xe0e8ff, count: 30, speed: 2, duration: 1.4, upwardBias: 1.0, gravity: -0.4 }), time);
+      }},
+    ],
+  },
+  // SPIRIT OF THE BEAR — target ally gains +HP buff (big bear-spirit appears)
+  spell1: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 0.4, rz: -0.5 }, leftArm: { rx: -0.4, rz: 0.5 }, body: { rx: -0.04 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -0.85, rz: 0.0 }, leftArm: { rx: -0.85, rz: 0.0 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.7, rz: 0.0 }, leftArm: { rx: -0.7, rz: 0.0 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        // Bear-spirit summon pillar (large slow upward drift)
+        const targetGround = new THREE.Vector3(champPos.x, 0.12, champPos.z + 1.5);
+        mgr.spawn(new LightPillar(champ.scene, targetGround, { color: 0xb0c8ff, height: 4.0, radius: 0.55, duration: 1.0 }), time);
+        // Big ghost-dome around target
+        mgr.spawn(new EnergyDome(champ.scene, targetGround, { color: 0xe0e8ff, radius: 1.4, duration: 1.3 }), time);
+        // Spirit-aura rune ring
+        mgr.spawn(new RuneRing(champ.scene, targetGround, { color: 0xb0c8ff, maxRadius: 1.5, duration: 1.4, runeCount: 8, rotateSpeed: 0.5 }), time);
+        // Pale spirits drifting upward
+        const above = new THREE.Vector3(champPos.x, 2.5, champPos.z + 1.5);
+        mgr.spawn(new ParticleBurst(champ.scene, above, { color: 0xe0e8ff, count: 50, speed: 2, duration: 1.5, upwardBias: 1.6, gravity: -0.4 }), time);
+      }},
+    ],
+  },
+  // SPIRIT OF THE WOLF — party gains attack-speed buff (multiple wolf-spirits radiate outward)
+  spell2: {
+    duration: 1.6,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { leftArm: { rx: 0.6, rz: -0.7 }, rightArm: { rx: 0.6, rz: 0.7 }, body: { rx: -0.08 }, head: { rx: -0.1 } }, ease: ease.outBack },
+      { t: 0.78, values: { leftArm: { rx: 0.6, rz: -0.7 }, rightArm: { rx: 0.6, rz: 0.7 }, body: { rx: -0.08 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.22, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        mgr.spawn(new HolyCircle(champ.scene, pos, { color: 0xb0c8ff, radius: 2.4, duration: 1.5 }), time);
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xe0e8ff, maxRadius: 2.8, duration: 1.4, runeCount: 12, rotateSpeed: 1.4 }), time);
+        // Wolf-spirit pillars radiating outward in 4 directions
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2;
+          const r = 1.2;
+          const wolfPos = new THREE.Vector3(pos.x + Math.cos(a) * r, 0.12, pos.z + Math.sin(a) * r);
+          mgr.spawn(new LightPillar(champ.scene, wolfPos, { color: 0xe0e8ff, height: 2.5, radius: 0.3, duration: 0.8 }), time + i * 0.05);
+          mgr.spawn(new ImpactFlash(champ.scene, new THREE.Vector3(wolfPos.x, 1.4, wolfPos.z), { color: 0xe0e8ff, maxScale: 0.55, duration: 0.5 }), time + i * 0.05);
+        }
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  GEOMANCER — Mystic VI/VI                                                ║
+// ║  Earth · Terrain · Mountain Heart · ★ Heavy stone-plate armor ★ (the   ║
+// ║  ONLY armored mystic), ★ orbital stone shards ★, ★ craggy mountain    ║
+// ║  staff ★, mountain-peak crest helm, earth-bronze eye glow              ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Geomancer extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    this.build();
+    this.captureRestPose();
+    this.animations = geomancerAnimations;
+  }
+
+  // Override update — orbit the stone shards slowly (very mountain-like, ponderous)
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.stoneShards) {
+      this.stoneShards.rotation.y = time * 0.18;
+      this.stoneShards.children.forEach((s, i) => {
+        s.rotation.x = time * 0.3 + i * 1.2;
+        s.rotation.z = time * 0.2 + i * 0.8;
+      });
+    }
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs — heavy stone-plate (using the standard buildLeg with earth palette)
+    const legPalette = { dark: M.geoStoneDark, mid: M.geoStone, accent: M.geoBronze, trim: M.geoBronzeHi, leather: M.geoEarth };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis — earth-stone with bronze studs + hanging stone-fragment charms
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.geoStoneDark));
+    const belt = mesh(new THREE.CylinderGeometry(0.305, 0.305, 0.1, 18), M.geoBronzeHi);
+    belt.position.y = 0.04; pelvis.add(belt);
+    // Mountain-peak buckle
+    const buckleBack = mesh(new THREE.CircleGeometry(0.045, 16), M.geoStone);
+    buckleBack.position.set(0, 0.04, 0.32); pelvis.add(buckleBack);
+    // 3 mountain-peaks rising from the buckle
+    for (let i = -1; i <= 1; i++) {
+      const peak = mesh(new THREE.ConeGeometry(0.012, 0.04, 4), M.geoBronzeHi);
+      peak.position.set(i * 0.018, 0.06, 0.34);
+      pelvis.add(peak);
+    }
+    // Earth-rune in buckle
+    const buckleRune = mesh(new THREE.SphereGeometry(0.014, 10, 8), M.geoRune);
+    buckleRune.position.set(0, 0.04, 0.34); buckleRune.scale.set(1, 1, 0.5);
+    pelvis.add(buckleRune);
+    // Stone-fragment hip charms
+    for (let i = -2; i <= 2; i++) {
+      const cord = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.04, 4), M.geoEarth);
+      cord.position.set(i * 0.06, -0.04, 0.31);
+      pelvis.add(cord);
+      const stone = mesh(new THREE.OctahedronGeometry(0.018, 0), M.geoStoneHi);
+      stone.position.set(i * 0.06, -0.1, 0.31); stone.scale.set(0.9, 1.2, 0.9);
+      pelvis.add(stone);
+    }
+    // Rocky tassets — 6 jagged stone plates around the lower pelvis
+    for (let i = 0; i < 6; i++) {
+      const a = -Math.PI * 0.5 + (i / 5) * Math.PI * 1.0;
+      const tasset = mesh(new THREE.BoxGeometry(0.13, 0.36, 0.04), M.geoStone);
+      tasset.position.set(Math.cos(a) * 0.3, -0.22, Math.sin(a) * 0.3);
+      tasset.lookAt(Math.cos(a) * 2, -0.22, Math.sin(a) * 2);
+      tasset.rotateX(0.06);
+      pelvis.add(tasset);
+      // Bronze stud at top
+      const stud = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.geoBronzeHi);
+      stud.position.set(Math.cos(a) * 0.32, -0.06, Math.sin(a) * 0.32);
+      pelvis.add(stud);
+      // Mossy crack along each tasset
+      const moss = mesh(new THREE.BoxGeometry(0.05, 0.012, 0.005), M.geoMoss);
+      moss.position.set(Math.cos(a) * 0.32, -0.18, Math.sin(a) * 0.32);
+      moss.lookAt(Math.cos(a) * 2, -0.18, Math.sin(a) * 2);
+      pelvis.add(moss);
+    }
+    root.add(pelvis);
+
+    // TORSO — heavy stone-plate cuirass
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+    // Base body
+    const base = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.7, 18), M.geoStoneDark);
+    base.scale.set(1.05, 1, 0.85);
+    torso.add(base);
+    // Stone cuirass (front prominent)
+    const cuirass = mesh(new THREE.CylinderGeometry(0.38, 0.36, 0.6, 16, 1, false, -Math.PI / 2.2, Math.PI * 1.3), M.geoStone);
+    cuirass.scale.set(1.05, 1, 0.85);
+    cuirass.position.y = 0.04;
+    torso.add(cuirass);
+    // Pec mounds (heavy stone)
+    const pecL = mesh(new THREE.SphereGeometry(0.18, 14, 12), M.geoStoneHi);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.55);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+    // Bronze rivets along the cuirass edges
+    for (let i = 0; i < 5; i++) {
+      const ry = 0.22 - i * 0.12;
+      const rivetL = mesh(new THREE.SphereGeometry(0.014, 8, 6), M.geoBronzeHi);
+      rivetL.position.set(-0.34, ry, 0.18); torso.add(rivetL);
+      const rivetR = rivetL.clone(); rivetR.position.x = 0.34; torso.add(rivetR);
+    }
+    // Cracked moss accents on the cuirass
+    for (let i = 0; i < 4; i++) {
+      const moss = mesh(new THREE.BoxGeometry(0.08, 0.012, 0.005), M.geoMoss);
+      moss.position.set((i - 1.5) * 0.15, -0.05, 0.39); moss.rotation.z = (i % 2 === 0 ? 1 : -1) * 0.2;
+      torso.add(moss);
+    }
+
+    // CHEST EMBLEM — mountain peak in a circle (the marquee Geomancer symbol)
+    const emblemBack = mesh(new THREE.CircleGeometry(0.08, 16), M.geoStoneDark);
+    emblemBack.position.set(0, 0.22, 0.41); torso.add(emblemBack);
+    const emblemRing = mesh(new THREE.TorusGeometry(0.075, 0.008, 8, 18), M.geoBronzeHi);
+    emblemRing.position.set(0, 0.22, 0.42); torso.add(emblemRing);
+    // 3 mountain peaks (different heights)
+    const peakHeights = [0.05, 0.08, 0.06];
+    for (let i = -1; i <= 1; i++) {
+      const h = peakHeights[i + 1];
+      const peak = mesh(new THREE.ConeGeometry(0.022, h, 3), M.geoBronzeHi);
+      peak.position.set(i * 0.025, 0.22 - 0.02 + h / 2, 0.43);
+      torso.add(peak);
+    }
+    // Earth-rune at center base
+    const emblemRune = mesh(new THREE.SphereGeometry(0.012, 10, 8), M.geoRune);
+    emblemRune.position.set(0, 0.18, 0.435);
+    torso.add(emblemRune);
+
+    // High collar (stone)
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.14, 16), M.geoStoneDark);
+    collar.position.y = 0.42; torso.add(collar);
+    const collarTrim = mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18), M.geoBronzeHi);
+    collarTrim.rotation.x = Math.PI / 2; collarTrim.position.y = 0.49;
+    torso.add(collarTrim);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // BIG STONE PAULDRONS (geomancer is heavy — bigger pauldrons than other mystics)
+    for (let side = -1; side <= 1; side += 2) {
+      const pauld = mesh(new THREE.SphereGeometry(0.22, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.6), M.geoStone);
+      pauld.scale.set(1.15, 0.95, 1.05);
+      pauld.position.set(side * 0.42, 2.2, 0);
+      root.add(pauld);
+      // Bronze rim
+      const pauldTrim = mesh(new THREE.TorusGeometry(0.22, 0.012, 8, 20), M.geoBronzeHi);
+      pauldTrim.rotation.x = Math.PI / 2; pauldTrim.position.set(side * 0.42, 2.16, 0);
+      root.add(pauldTrim);
+      // Mountain-peak spike on top of each pauldron
+      const peak = mesh(new THREE.ConeGeometry(0.04, 0.14, 4), M.geoStoneHi);
+      peak.position.set(side * 0.42, 2.34, 0);
+      root.add(peak);
+      // Earth-rune at the peak's base
+      const peakRune = mesh(new THREE.SphereGeometry(0.018, 10, 8), M.geoRune);
+      peakRune.position.set(side * 0.42, 2.27, 0); peakRune.scale.set(1, 0.5, 1);
+      root.add(peakRune);
+    }
+
+    // Arms
+    const armPalette = { cloth: M.geoEarth, mid: M.geoStone, dark: M.geoStoneDark, hi: M.geoBronze, accent: M.geoBronzeHi };
+    const leftArm = buildArm(-1, 0.18, armPalette);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+    const rightArm = buildArm(1, 0.18, armPalette);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+    // Stone-knuckle bracers
+    [leftArm, rightArm].forEach(arm => {
+      for (let i = 0; i < 3; i++) {
+        const ring = mesh(new THREE.TorusGeometry(0.088, 0.012, 8, 16), M.geoBronzeHi);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = -0.5 - i * 0.13;
+        arm.add(ring);
+      }
+      // Stone-knuckle on the gauntlet
+      const knuckle = mesh(new THREE.OctahedronGeometry(0.025, 0), M.geoStoneHi);
+      knuckle.position.set(0, -0.92, 0.07); knuckle.scale.set(1, 0.8, 1);
+      arm.add(knuckle);
+    });
+
+    // CRAGGY MOUNTAIN STAFF
+    const staff = this._buildMountainStaff();
+    rightArm.userData.hand.add(staff);
+    staff.position.set(0, 0.04, 0.06);
+    staff.rotation.set(Math.PI * 0.42, 0, 0);
+    this.parts.weapon = staff;
+
+    // No flowing cape (heavy stone armor doesn't flow)
+    this.cape = null;
+
+    // Neck (stone-protected)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.geoStoneDark);
+    neck.position.y = 2.32; root.add(neck);
+
+    // HEAD — mountain-peak crested helm
+    const head = this._buildGeomancerHead();
+    head.position.y = 2.56;
+    root.add(head);
+    this.parts.head = head;
+
+    // ===== ORBITAL STONE SHARDS — 5 jagged stones rotating around the body =====
+    this.stoneShards = new THREE.Group();
+    this.stoneShards.position.set(0, 1.85, 0);
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const r = 0.65 + (i % 2) * 0.1;
+      const shardSize = 0.05 + (i % 3) * 0.012;
+      // Jagged irregular shape (use random-ish polyhedron)
+      const shard = mesh(new THREE.OctahedronGeometry(shardSize, 0), i % 2 === 0 ? M.geoStoneHi : M.geoStone);
+      shard.position.set(Math.cos(a) * r, Math.sin(a * 2) * 0.12, Math.sin(a) * r);
+      shard.scale.set(1 + (i % 2) * 0.3, 0.7, 1.2 + (i % 3) * 0.2);
+      this.stoneShards.add(shard);
+      // Earth-rune dot on each shard
+      const shardRune = mesh(new THREE.SphereGeometry(0.012, 6, 4), M.geoRune);
+      shardRune.position.copy(shard.position);
+      this.stoneShards.add(shardRune);
+    }
+    root.add(this.stoneShards);
+
+    M.geoEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.geoEye;
+  }
+
+  _buildMountainStaff() {
+    const staff = new THREE.Group();
+    // Pommel — stone knot
+    const pommel = mesh(new THREE.OctahedronGeometry(0.04, 0), M.geoStoneHi);
+    pommel.scale.y = 0.7;
+    staff.add(pommel);
+    // Long gnarled stone haft (with bumps)
+    const haft = mesh(new THREE.CylinderGeometry(0.03, 0.034, 1.4, 10), M.geoStone);
+    haft.position.y = 0.74; staff.add(haft);
+    // Stone bumps along haft (gnarly mountain-staff look)
+    for (let i = 0; i < 5; i++) {
+      const knot = mesh(new THREE.OctahedronGeometry(0.04 + (i % 2) * 0.012, 0), M.geoStoneHi);
+      knot.position.y = 0.2 + i * 0.22; knot.scale.set(1.2, 0.6, 1.2);
+      staff.add(knot);
+    }
+    // Bronze rune bands at intervals
+    for (let i = 0; i < 4; i++) {
+      const band = mesh(new THREE.TorusGeometry(0.034, 0.005, 6, 12), M.geoBronzeHi);
+      band.rotation.x = Math.PI / 2;
+      band.position.y = 0.3 + i * 0.28;
+      staff.add(band);
+    }
+    // Mid-haft earth-rune
+    const midRune = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.geoRune);
+    midRune.position.y = 0.74;
+    staff.add(midRune);
+    // ===== TOP MOUNTAIN-PEAK CRYSTAL CLUSTER =====
+    // Several jagged stone-shards forming a peak
+    const peak1 = mesh(new THREE.ConeGeometry(0.06, 0.18, 4), M.geoStoneHi);
+    peak1.position.y = 1.55; staff.add(peak1);
+    const peak2 = mesh(new THREE.ConeGeometry(0.04, 0.14, 4), M.geoStone);
+    peak2.position.set(0.05, 1.5, 0); peak2.rotation.z = 0.3;
+    staff.add(peak2);
+    const peak3 = mesh(new THREE.ConeGeometry(0.04, 0.14, 4), M.geoStoneDark);
+    peak3.position.set(-0.05, 1.5, 0); peak3.rotation.z = -0.3;
+    staff.add(peak3);
+    // Glowing earth-rune at the peak's heart
+    const peakRune = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.geoRune);
+    peakRune.position.y = 1.5; peakRune.scale.set(1, 0.8, 0.6);
+    staff.add(peakRune);
+    // Tiny floating fragments orbiting the peak
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const fragment = mesh(new THREE.OctahedronGeometry(0.018, 0), M.geoStoneHi);
+      fragment.position.set(Math.cos(a) * 0.14, 1.55 + Math.sin(a * 2) * 0.04, Math.sin(a) * 0.14);
+      staff.add(fragment);
+    }
+    return staff;
+  }
+
+  _buildGeomancerHead() {
+    const head = new THREE.Group();
+
+    // Tan/weathered face skin
+    const face = mesh(new THREE.SphereGeometry(0.2, 18, 14), M.skin);
+    face.position.set(0, -0.02, 0.04); face.scale.set(0.95, 1, 1);
+    head.add(face);
+
+    // Brown hair scalp (visible behind helm)
+    const scalp = mesh(new THREE.SphereGeometry(0.21, 20, 16), M.geoEarth);
+    scalp.scale.set(1, 1.0, 1.05);
+    head.add(scalp);
+
+    // Wild grey-brown beard (mountain-hermit style — long and shaggy)
+    const beard = mesh(new THREE.SphereGeometry(0.16, 16, 12), M.geoStoneHi);
+    beard.position.set(0, -0.18, 0.1); beard.scale.set(1.05, 1.4, 0.9);
+    head.add(beard);
+    // Beard tip
+    const beardTip = mesh(new THREE.ConeGeometry(0.06, 0.16, 6), M.geoStoneHi);
+    beardTip.position.set(0, -0.36, 0.05); beardTip.rotation.x = Math.PI;
+    head.add(beardTip);
+    // Mustache
+    for (let side = -1; side <= 1; side += 2) {
+      const mustache = mesh(new THREE.BoxGeometry(0.06, 0.018, 0.012), M.geoStoneHi);
+      mustache.position.set(side * 0.05, -0.08, 0.21); mustache.rotation.z = side * 0.18;
+      head.add(mustache);
+    }
+
+    // Eyes — earth-bronze glow
+    const eyeStrip = mesh(new THREE.BoxGeometry(0.22, 0.022, 0.02), M.stoneDark);
+    eyeStrip.position.set(0, -0.025, 0.18); head.add(eyeStrip);
+    const eyeL = mesh(new THREE.SphereGeometry(0.022, 10, 8), M.geoEye);
+    eyeL.position.set(-0.075, -0.02, 0.21); head.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.075; head.add(eyeR);
+
+    // Bushy eyebrows
+    for (let side = -1; side <= 1; side += 2) {
+      const brow = mesh(new THREE.BoxGeometry(0.06, 0.014, 0.012), M.geoStoneHi);
+      brow.position.set(side * 0.075, 0.025, 0.21); brow.rotation.z = side * 0.18;
+      head.add(brow);
+    }
+
+    // Strong nose
+    const nose = mesh(new THREE.ConeGeometry(0.025, 0.07, 6), M.skin);
+    nose.position.set(0, -0.07, 0.22); nose.rotation.x = Math.PI / 2;
+    head.add(nose);
+
+    // ===== MOUNTAIN-PEAK CREST HELM =====
+    // Stone helm dome (open-faced, like an old crown)
+    const helmBand = mesh(new THREE.TorusGeometry(0.21, 0.024, 10, 24), M.geoStone);
+    helmBand.rotation.x = Math.PI / 2;
+    helmBand.position.y = 0.04;
+    head.add(helmBand);
+    // Bronze trim around the helm
+    const helmTrim = mesh(new THREE.TorusGeometry(0.215, 0.012, 8, 26), M.geoBronzeHi);
+    helmTrim.rotation.x = Math.PI / 2;
+    helmTrim.position.y = 0.06;
+    head.add(helmTrim);
+    // 3 MOUNTAIN PEAKS rising from the helm (the marquee feature)
+    const peakHeights = [0.18, 0.26, 0.18];
+    for (let i = -1; i <= 1; i++) {
+      const h = peakHeights[i + 1];
+      const peak = mesh(new THREE.ConeGeometry(0.045 + Math.abs(i) * 0.005, h, 4), i === 0 ? M.geoStoneHi : M.geoStone);
+      peak.position.set(i * 0.085, 0.05 + h / 2, 0);
+      head.add(peak);
+      // Bronze peak-tip cap
+      const peakCap = mesh(new THREE.SphereGeometry(0.012, 6, 4), M.geoBronzeHi);
+      peakCap.position.set(i * 0.085, 0.05 + h, 0);
+      head.add(peakCap);
+    }
+    // Glowing earth-rune at the central peak's base
+    const helmRune = mesh(new THREE.SphereGeometry(0.024, 10, 8), M.geoRune);
+    helmRune.position.set(0, 0.06, 0.21); helmRune.scale.set(1, 1, 0.5);
+    head.add(helmRune);
+    // Mossy patches on the helm (mountain-aged look)
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const moss = mesh(new THREE.SphereGeometry(0.025, 8, 6), M.geoMoss);
+      moss.position.set(Math.cos(a) * 0.21, 0.04 + Math.sin(a) * 0.01, Math.sin(a) * 0.21); moss.scale.set(1, 0.4, 1);
+      head.add(moss);
+    }
+    // Cheek/jaw guards (stone)
+    for (let side = -1; side <= 1; side += 2) {
+      const cheekShape = new THREE.Shape();
+      cheekShape.moveTo(0, 0); cheekShape.lineTo(0.08, 0);
+      cheekShape.lineTo(0.06, -0.16); cheekShape.lineTo(-0.02, -0.18); cheekShape.closePath();
+      const cheek = mesh(new THREE.ExtrudeGeometry(cheekShape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.008, bevelSegments: 2 }), M.geoStone);
+      cheek.position.set(side * 0.18, -0.05, 0.06);
+      cheek.rotation.y = side > 0 ? -0.4 : Math.PI + 0.4;
+      head.add(cheek);
+    }
+
+    return head;
+  }
+}
+
+const geomancerAnimations = {
+  // STONE THROW — stone shard hurled forward (scales with M.ATK instead of P.ATK)
+  attack: {
+    duration: 0.95,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.28, values: { rightArm: { rx: 0.85, rz: -0.4 }, body: { ry: -0.12 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -0.85, rz: 0.0 }, body: { ry: 0.15 } }, ease: ease.out },
+      { t: 0.75, values: { rightArm: { rx: -0.7, rz: 0.0 }, body: { ry: 0.1 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetPos = new THREE.Vector3(champPos.x, 1.5, champPos.z + 1.6);
+        const groundPos = new THREE.Vector3(targetPos.x, 0.12, targetPos.z);
+        // Heavy earth-bronze impact
+        mgr.spawn(new ImpactFlash(champ.scene, targetPos, { color: 0xc8783c, maxScale: 0.7, duration: 0.4 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, groundPos, { color: 0x8a6028, maxRadius: 1.6, duration: 0.7 }), time);
+        // Stone-fragment particles
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0x786040, count: 32, speed: 4.5, duration: 0.85, upwardBias: 0.5, gravity: -3.0 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, targetPos, { color: 0xc8783c, count: 18, speed: 3.5, duration: 0.95, upwardBias: 0.6, gravity: -2.5 }), time);
+      }},
+    ],
+  },
+  // EARTHQUAKE — slam staff into ground, AoE phys + slow + 1s taunt
+  spell1: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: 1.15, rz: -0.05 }, body: { rx: -0.12 }, head: { rx: -0.1 } }, ease: ease.out },
+      { t: 0.5,  values: { rightArm: { rx: -1.4, rz: 0.0 }, body: { rx: 0.18, py: -0.08 } }, ease: ease.in },
+      { t: 0.72, values: { rightArm: { rx: -1.2, rz: 0.0 }, body: { rx: 0.14, py: -0.04 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.5, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const slamPos = new THREE.Vector3(champPos.x + 0.3, 0.12, champPos.z + 0.6);
+        // Massive earth slam
+        mgr.spawn(new ImpactFlash(champ.scene, new THREE.Vector3(slamPos.x, 0.3, slamPos.z), { color: 0xc8783c, maxScale: 1.0, duration: 0.45 }), time);
+        mgr.spawn(new FilledShockwave(champ.scene, slamPos, { color: 0x8a6028, maxRadius: 2.2, duration: 0.6 }), time);
+        // Multiple cascading shockwaves (the earthquake)
+        mgr.spawn(new ShockwaveRing(champ.scene, slamPos, { color: 0xc8783c, maxRadius: 3.0, duration: 0.85 }), time);
+        mgr.spawn(new ShockwaveRing(champ.scene, slamPos, { color: 0x8a6028, maxRadius: 3.6, duration: 1.0 }), time + 0.15);
+        // Earth pillar
+        mgr.spawn(new LightPillar(champ.scene, slamPos, { color: 0xc8783c, height: 3.0, radius: 0.5, duration: 0.7 }), time);
+        // Slow rune (the slow effect)
+        mgr.spawn(new RuneRing(champ.scene, slamPos, { color: 0x8a6028, maxRadius: 2.4, duration: 1.4, runeCount: 8, rotateSpeed: 0.2 }), time);
+        // Heavy rock/dust particles
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(slamPos.x, 0.5, slamPos.z), { color: 0x786040, count: 70, speed: 5, duration: 1.2, upwardBias: 1.6, gravity: -2.0 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, new THREE.Vector3(slamPos.x, 0.5, slamPos.z), { color: 0xc8783c, count: 40, speed: 4, duration: 1.2, upwardBias: 1.4, gravity: -1.5 }), time);
+      }},
+    ],
+  },
+  // STONE SKIN — target ally gains +200 P.DEF buff (stone-shell)
+  spell2: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.22, values: { rightArm: { rx: -0.55, rz: -0.3 }, leftArm: { rx: -0.55, rz: 0.3 }, body: { rx: -0.04 } }, ease: ease.out },
+      { t: 0.55, values: { rightArm: { rx: -0.95, rz: 0.05 }, leftArm: { rx: -0.95, rz: -0.05 }, body: { ry: 0.04 } }, ease: ease.out },
+      { t: 0.78, values: { rightArm: { rx: -0.85, rz: 0.05 }, leftArm: { rx: -0.85, rz: -0.05 } }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.55, fn: (champ, mgr, time) => {
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const targetGround = new THREE.Vector3(champPos.x, 0.12, champPos.z + 1.5);
+        // Stone shell forming over target — bronze rune ring + earth dome
+        mgr.spawn(new RuneRing(champ.scene, targetGround, { color: 0xc8783c, maxRadius: 1.4, duration: 1.4, runeCount: 6, rotateSpeed: 0.4 }), time);
+        // Stone dome (the stone skin itself)
+        mgr.spawn(new EnergyDome(champ.scene, targetGround, { color: 0x8a6028, radius: 1.1, duration: 1.3 }), time);
+        // Stone fragments rising up around target
+        const target = new THREE.Vector3(champPos.x, 1.4, champPos.z + 1.5);
+        mgr.spawn(new ImpactFlash(champ.scene, target, { color: 0xc8783c, maxScale: 0.65, duration: 0.6 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, target, { color: 0x786040, count: 40, speed: 3, duration: 1.2, upwardBias: 1.2, gravity: -1.0 }), time);
+        // Light pillar (the protective shell)
+        mgr.spawn(new LightPillar(champ.scene, targetGround, { color: 0xc8783c, height: 3.2, radius: 0.45, duration: 0.9 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  VIEWER — preview-only setup                                             ║
+// ║  CC: ignore everything below this line — game runtime doesn't need it.  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05060c);
+scene.fog = new THREE.Fog(0x05060c, 9, 22);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(4.5, 2.4, 5.8);
+camera.lookAt(0, 1.45, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 1.45, 0);
+controls.minDistance = 3;
+controls.maxDistance = 12;
+controls.minPolarAngle = Math.PI * 0.18;
+controls.maxPolarAngle = Math.PI * 0.55;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.45;
+
+// ─── Lighting (3-point + counter-rim) ─────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x4a4a5a, 0.32));
+const key = new THREE.DirectionalLight(0xfff0d8, 1.6);
+key.position.set(5, 7, 4);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -4; key.shadow.camera.right = 4;
+key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
+key.shadow.bias = -0.0003;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x8090c8, 0.55);
+fill.position.set(-4, 4, 3);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffaa50, 0.85);
+rim.position.set(-2, 3, -5);
+scene.add(rim);
+const rimAmber = new THREE.PointLight(0xff8030, 1.2, 8, 1.5);
+rimAmber.position.set(0, 1.7, -2.2);
+scene.add(rimAmber);
+
+// ─── Dais ─────────────────────────────────────────────────────────────────
+const daisGroup = new THREE.Group();
+const daisBase = mesh(new THREE.CylinderGeometry(2.2, 2.5, 0.18, 64), M.stone, { receive: true });
+daisBase.position.y = 0.04; daisGroup.add(daisBase);
+const daisTop = mesh(new THREE.CylinderGeometry(2.0, 2.05, 0.06, 64), M.stoneDark, { receive: true });
+daisTop.position.y = 0.16; daisGroup.add(daisTop);
+const daisRing = mesh(new THREE.TorusGeometry(2.0, 0.04, 12, 64), M.brass);
+daisRing.rotation.x = Math.PI / 2; daisRing.position.y = 0.19; daisGroup.add(daisRing);
+// 8 small runic engravings around the dais
+for (let i = 0; i < 8; i++) {
+  const a = (i / 8) * Math.PI * 2;
+  const rune = mesh(new THREE.BoxGeometry(0.18, 0.005, 0.04), M.stoneRune);
+  rune.position.set(Math.cos(a) * 1.85, 0.195, Math.sin(a) * 1.85);
+  rune.rotation.y = -a + Math.PI / 2;
+  daisGroup.add(rune);
+}
+// Subtle cracks
+for (let i = 0; i < 6; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const r = 0.5 + Math.random() * 1.3;
+  const crack = mesh(new THREE.BoxGeometry(0.4 + Math.random() * 0.4, 0.001, 0.012), M.stoneDark);
+  crack.position.set(Math.cos(a) * r, 0.193, Math.sin(a) * r);
+  crack.rotation.y = Math.random() * Math.PI;
+  daisGroup.add(crack);
+}
+scene.add(daisGroup);
+
+// ─── Aura ring (color-tinted per class) ───────────────────────────────────
+const auraGeo = new THREE.RingGeometry(2.05, 2.35, 96, 1);
+const auraMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0xff8020) }, uOpacity: { value: 0.55 } },
+  vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+    varying vec3 vPos;
+    void main() {
+      float r = length(vPos.xy);
+      float a = atan(vPos.y, vPos.x);
+      float pulse = 0.55 + 0.45 * sin(uTime * 1.2 + a * 4.0);
+      float band = smoothstep(2.05, 2.18, r) * smoothstep(2.35, 2.18, r);
+      gl_FragColor = vec4(uColor * pulse * 1.4, band * uOpacity * pulse);
+    }`,
+  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+});
+const aura = new THREE.Mesh(auraGeo, auraMat);
+aura.rotation.x = -Math.PI / 2;
+aura.position.y = 0.205;
+scene.add(aura);
+
+// ─── Floating embers ──────────────────────────────────────────────────────
+const EMBER_COUNT = 220;
+const emberPositions = new Float32Array(EMBER_COUNT * 3);
+const emberSeeds = new Float32Array(EMBER_COUNT);
+for (let i = 0; i < EMBER_COUNT; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const r = 1.5 + Math.random() * 4.5;
+  emberPositions[i*3 + 0] = Math.cos(a) * r;
+  emberPositions[i*3 + 1] = Math.random() * 4.5;
+  emberPositions[i*3 + 2] = Math.sin(a) * r;
+  emberSeeds[i] = Math.random();
+}
+const emberGeo = new THREE.BufferGeometry();
+emberGeo.setAttribute('position', new THREE.Float32BufferAttribute(emberPositions, 3));
+emberGeo.setAttribute('seed', new THREE.Float32BufferAttribute(emberSeeds, 1));
+const emberMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0.95, 0.7, 0.3) } },
+  vertexShader: `
+    attribute float seed; uniform float uTime; varying float vAlpha;
+    void main() {
+      vec3 p = position;
+      p.y = mod(p.y + uTime * (0.15 + seed * 0.25), 4.5);
+      p.x += sin(uTime * 0.5 + seed * 6.28) * 0.15;
+      p.z += cos(uTime * 0.4 + seed * 6.28) * 0.15;
+      vAlpha = (1.0 - p.y / 4.5) * (0.5 + seed * 0.5);
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = (1.5 + seed * 2.0) * (300.0 / -mv.z);
+    }`,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vAlpha;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5;
+      float d = length(c);
+      if (d > 0.5) discard;
+      float a = pow(1.0 - d * 2.0, 2.0) * vAlpha;
+      gl_FragColor = vec4(uColor, a);
+    }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+const embers = new THREE.Points(emberGeo, emberMat);
+scene.add(embers);
+
+// ─── Post-processing ──────────────────────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.78, 0.4, 0.82);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ─── Effect manager ───────────────────────────────────────────────────────
+const effectMgr = new EffectManager(scene);
+
+// ─── Class registry ───────────────────────────────────────────────────────
+const classRegistry = {
+  bard: {
+    name: 'Bard',
+    family: 'Mystic · I/VI',
+    role: 'Buff Songs · Inspiring Presence',
+    accent: '#ffb088',
+    accentGlow: 'rgba(255, 176, 136, 0.5)',
+    auraColor: 0xff9870,
+    emberColor: new THREE.Color(1.0, 0.65, 0.5),
+    abilities: { attack: 'Sound Wave', spell1: 'Song of Valor', spell2: 'Crescendo' },
+    factory: () => new Bard(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  witch: {
+    name: 'Witch',
+    family: 'Mystic · II/VI',
+    role: 'Curses · Hexes · Cackling',
+    accent: '#80a050',
+    accentGlow: 'rgba(128, 160, 80, 0.5)',
+    auraColor: 0x4a6a30,
+    emberColor: new THREE.Color(0.5, 0.65, 0.3),
+    abilities: { attack: 'Hex Bolt', spell1: 'Curse of Frailty', spell2: 'Hex Toad' },
+    factory: () => new Witch(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  shaman: {
+    name: 'Shaman',
+    family: 'Mystic · III/VI',
+    role: 'Totems · Spirit Link',
+    accent: '#ffc060',
+    accentGlow: 'rgba(255, 192, 96, 0.5)',
+    auraColor: 0xe8a040,
+    emberColor: new THREE.Color(1.0, 0.75, 0.4),
+    abilities: { attack: 'Totemic Strike', spell1: 'Earth Totem', spell2: 'Healing Totem' },
+    factory: () => new Shaman(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  inquisitor: {
+    name: 'Inquisitor',
+    family: 'Mystic · IV/VI',
+    role: 'Anti-Magic · Sanctified',
+    accent: '#ffffff',
+    accentGlow: 'rgba(255, 255, 255, 0.5)',
+    auraColor: 0xfaf8ff,
+    emberColor: new THREE.Color(1.0, 0.98, 1.0),
+    abilities: { attack: 'Holy Bolt', spell1: 'Mantra of Silence', spell2: 'Anti-Magic Field' },
+    factory: () => new Inquisitor(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  spiritualist: {
+    name: 'Spiritualist',
+    family: 'Mystic · V/VI',
+    role: 'Channel Ancestral Spirits',
+    accent: '#e0e8ff',
+    accentGlow: 'rgba(224, 232, 255, 0.5)',
+    auraColor: 0xb0c8ff,
+    emberColor: new THREE.Color(0.85, 0.9, 1.0),
+    abilities: { attack: 'Ghost Bolt', spell1: 'Spirit of the Bear', spell2: 'Spirit of the Wolf' },
+    factory: () => new Spiritualist(scene, new THREE.Vector3(0, 0, 0)),
+  },
+  geomancer: {
+    name: 'Geomancer',
+    family: 'Mystic · VI/VI',
+    role: 'Earth · Terrain · Mountain Heart',
+    accent: '#c8783c',
+    accentGlow: 'rgba(200, 120, 60, 0.5)',
+    auraColor: 0x8a6028,
+    emberColor: new THREE.Color(0.78, 0.47, 0.24),
+    abilities: { attack: 'Stone Throw', spell1: 'Earthquake', spell2: 'Stone Skin' },
+    factory: () => new Geomancer(scene, new THREE.Vector3(0, 0, 0)),
+  },
+};
+
+// ─── Build all champions up front (single per class — viewer only shows one)
+const champions = {};
+for (const key in classRegistry) {
+  const champ = classRegistry[key].factory();
+  champ.group.visible = false;
+  champions[key] = champ;
+}
+let activeChampion = champions.bard;
+activeChampion.group.visible = true;
+
+// ─── Class swap ───────────────────────────────────────────────────────────
+function selectClass(key) {
+  const def = classRegistry[key];
+  if (!def) return;
+  // Hide previous, show new
+  if (activeChampion) {
+    activeChampion.group.visible = false;
+    activeChampion.stopAnimation && activeChampion.stopAnimation();
+  }
+  effectMgr.clear();
+  activeChampion = champions[key];
+  activeChampion.group.visible = true;
+
+  // Update UI
+  document.getElementById('familyLabel').textContent = def.family;
+  document.getElementById('nameLabel').textContent = def.name;
+  document.getElementById('roleLabel').textContent = def.role;
+  document.getElementById('ab-attack-name').textContent = def.abilities.attack;
+  document.getElementById('ab-spell1-name').textContent = def.abilities.spell1;
+  document.getElementById('ab-spell2-name').textContent = def.abilities.spell2;
+  document.documentElement.style.setProperty('--accent', def.accent);
+  document.documentElement.style.setProperty('--accent-glow', def.accentGlow);
+
+  // Update aura + embers tint
+  auraMat.uniforms.uColor.value.setHex(def.auraColor);
+  emberMat.uniforms.uColor.value.copy(def.emberColor);
+}
+
+// ─── UI wiring ────────────────────────────────────────────────────────────
+document.getElementById('classSelect').addEventListener('change', (e) => {
+  selectClass(e.target.value);
+});
+
+const abilityButtons = document.querySelectorAll('.ab-btn');
+abilityButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!activeChampion || activeChampion.isPlaying()) return;
+    const animName = btn.dataset.anim;
+    activeChampion.playAnimation(animName, clock.getElapsedTime(), effectMgr);
+    btn.classList.add('cooling');
+    setTimeout(() => btn.classList.remove('cooling'), (activeChampion.animations[animName]?.duration || 1) * 1000 + 100);
+  });
+});
+
+let demoMode = false;
+let demoIdx = 0;
+let demoNextTime = 0;
+const demoOrder = ['attack', 'spell1', 'attack', 'spell2'];
+document.getElementById('demoBtn').addEventListener('click', (e) => {
+  demoMode = !demoMode;
+  demoIdx = 0;
+  e.target.textContent = demoMode ? '⏸ Stop Demo' : '▶ Cycle Animations';
+  demoNextTime = clock.getElapsedTime() + 0.4;
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── Main loop ────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const time = clock.getElapsedTime();
+
+  controls.update();
+
+  if (activeChampion) activeChampion.update(time, dt);
+  effectMgr.update(time, dt);
+
+  emberMat.uniforms.uTime.value = time;
+  auraMat.uniforms.uTime.value = time;
+
+  if (demoMode && time >= demoNextTime && activeChampion && !activeChampion.isPlaying()) {
+    const animName = demoOrder[demoIdx % demoOrder.length];
+    activeChampion.playAnimation(animName, time, effectMgr);
+    demoIdx++;
+    const dur = activeChampion.animations[animName]?.duration || 1;
+    demoNextTime = time + dur + 0.5;
+  }
+
+  composer.render();
+}
+
+// Initial UI setup
+selectClass('bard');
+
+// Hide loading splash
+setTimeout(() => document.getElementById('loading').classList.add('hidden'), 220);
+
+animate();
+
+</script>
+</body>
+</html>
