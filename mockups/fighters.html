@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fighter Class Library — Crucible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #05060c; }
+  body { font-family: 'Sora', sans-serif; color: #e8e6d8; user-select: none; }
+  #app { width: 100vw; height: 100vh; position: relative; }
+  canvas { display: block; }
+  .ui { position: absolute; pointer-events: none; z-index: 10; }
+  .interactive { pointer-events: auto; }
+
+  .label { top: 36px; left: 50%; transform: translateX(-50%); text-align: center; }
+  .label .family { font-size: 11px; color: #6a6b7a; letter-spacing: 0.5em; text-transform: uppercase; }
+  .label .name {
+    font-family: 'Cinzel', serif; font-size: 52px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent, #ffaa30);
+    text-shadow: 0 0 30px var(--accent-glow, rgba(255, 170, 48, 0.45));
+    margin: 8px 0 6px;
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+  .label .role { font-size: 12px; color: #8a8b9a; letter-spacing: 0.4em; text-transform: uppercase; }
+  .label .divider {
+    width: 220px; height: 1px; margin: 10px auto 0;
+    background: linear-gradient(90deg, transparent, var(--accent, #ffaa30), transparent);
+    transition: background 0.5s;
+  }
+
+  .selector {
+    top: 40px; right: 40px;
+    background: linear-gradient(135deg, rgba(20, 21, 42, 0.7), rgba(10, 11, 20, 0.5));
+    border: 1px solid rgba(200, 152, 96, 0.22);
+    padding: 14px 18px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    min-width: 200px;
+  }
+  .selector label {
+    display: block; font-size: 9px; color: #6a6b7a;
+    letter-spacing: 0.5em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .selector select {
+    width: 100%; background: transparent; color: var(--accent, #ffaa30);
+    border: none; outline: none;
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+    padding-right: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23c89860' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0 center;
+    transition: color 0.5s;
+  }
+  .selector select option { background: #14152a; color: #e8e6d8; }
+  .selector select option:disabled { color: #4a4b5a; }
+
+  .abilities {
+    bottom: 60px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px;
+  }
+  .ab-btn {
+    pointer-events: auto; cursor: pointer;
+    background: linear-gradient(180deg, rgba(20, 21, 42, 0.8), rgba(10, 11, 20, 0.65));
+    border: 1px solid rgba(200, 152, 96, 0.28);
+    padding: 11px 18px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: #e8e6d8; font-family: 'Sora', sans-serif;
+    display: flex; align-items: center; gap: 12px;
+    min-width: 180px;
+    transition: all 0.18s ease;
+    position: relative; overflow: hidden;
+  }
+  .ab-btn:hover {
+    border-color: var(--accent, rgba(227, 184, 120, 0.7));
+    background: linear-gradient(180deg, rgba(35, 30, 50, 0.9), rgba(15, 16, 28, 0.8));
+    transform: translateY(-2px);
+  }
+  .ab-btn:active { transform: translateY(0); }
+  .ab-btn.cooling { pointer-events: none; opacity: 0.55; }
+  .ab-btn .icon {
+    font-family: 'Cinzel', serif; font-weight: 700; font-size: 16px;
+    color: var(--accent, #ffaa30);
+    width: 30px; height: 30px;
+    border: 1px solid rgba(200, 152, 96, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.5s, border-color 0.5s;
+  }
+  .ab-btn .text { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+  .ab-btn .name {
+    font-family: 'Cinzel', serif; font-size: 13px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .ab-btn .key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: #6a6b7a; letter-spacing: 0.2em;
+  }
+
+  .demo-row {
+    bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 14px; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #3a3b4a;
+    letter-spacing: 0.3em; text-transform: uppercase;
+  }
+  .demo-btn {
+    pointer-events: auto; cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(200, 152, 96, 0.3);
+    color: #c89860;
+    padding: 6px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+    transition: all 0.18s;
+  }
+  .demo-btn:hover { border-color: #e3b878; color: #e3b878; }
+
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .loading {
+    position: fixed; inset: 0; background: #05060c; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.8s; pointer-events: none;
+  }
+  .loading.hidden { opacity: 0; }
+  .loading .spinner {
+    font-family: 'Cinzel', serif; color: #c89860;
+    letter-spacing: 0.4em; font-size: 14px; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="vignette"></div>
+
+  <div class="ui label">
+    <div class="family" id="familyLabel">Fighter · I/VI</div>
+    <div class="name" id="nameLabel">Berserker</div>
+    <div class="divider"></div>
+    <div class="role" id="roleLabel">Rage · Glass Cannon</div>
+  </div>
+
+  <div class="ui selector interactive">
+    <label>Fighter Class</label>
+    <select id="classSelect">
+      <option value="berserker">Berserker</option>
+      <option value="gladiator" disabled>Gladiator (coming)</option>
+      <option value="samurai" disabled>Samurai (coming)</option>
+      <option value="monk" disabled>Monk (coming)</option>
+      <option value="spellblade" disabled>Spellblade (coming)</option>
+      <option value="paladin" disabled>Paladin (coming)</option>
+    </select>
+  </div>
+
+  <div class="ui abilities interactive">
+    <button class="ab-btn" data-anim="attack">
+      <div class="icon">A</div>
+      <div class="text">
+        <div class="name" id="ab-attack-name">Reaving Strike</div>
+        <div class="key">ATTACK</div>
+      </div>
+    </button>
+    <button class="ab-btn" data-anim="spell1">
+      <div class="icon">I</div>
+      <div class="text">
+        <div class="name" id="ab-spell1-name">Bloodthirst</div>
+        <div class="key">SPELL I</div>
+      </div>
+    </button>
+    <button class="ab-btn" data-anim="spell2">
+      <div class="icon">II</div>
+      <div class="text">
+        <div class="name" id="ab-spell2-name">Whirlwind</div>
+        <div class="key">SPELL II</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="ui demo-row interactive">
+    <button class="demo-btn" id="demoBtn">▶ Cycle Animations</button>
+    <span>· Drag to Rotate · Scroll to Zoom</span>
+  </div>
+
+  <div class="loading" id="loading"><div class="spinner">FORGING ⋯</div></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  GAME LIBRARY — FIGHTER FAMILY                                           ║
+// ║                                                                          ║
+// ║  Everything from here to the "VIEWER" marker is the importable runtime  ║
+// ║  for the actual game. CC: extract this section into classes/fighters.js.║
+// ║                                                                          ║
+// ║  Lifecycle:                                                              ║
+// ║    const champ = new Berserker(scene, position);                         ║
+// ║    champ.playAnimation('attack', time, effectManager);                   ║
+// ║    champ.update(time, dt);  // call every frame                          ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ─── Math ──────────────────────────────────────────────────────────────────
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = {
+  linear: t => t,
+  inOut: t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2,
+  out: t => 1 - Math.pow(1 - t, 3),
+  outBack: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  in: t => t * t * t,
+};
+
+// ─── Materials (palette dictionary) ────────────────────────────────────────
+const M = {
+  // Berserker palette — bone, leather, hide, savage feral amber-yellow glow
+  skin:        new THREE.MeshStandardMaterial({ color: 0xc09680, metalness: 0.0, roughness: 0.85 }),
+  skinDark:    new THREE.MeshStandardMaterial({ color: 0x8a6a55, metalness: 0.0, roughness: 0.9 }),
+  woadPaint:   new THREE.MeshStandardMaterial({ color: 0x4a1010, metalness: 0.0, roughness: 1.0 }),
+  hidePatch:   new THREE.MeshStandardMaterial({ color: 0x4a3018, metalness: 0.0, roughness: 0.95 }),
+  crimsonSash: new THREE.MeshStandardMaterial({ color: 0x5a1a1a, metalness: 0.0, roughness: 0.85, side: THREE.DoubleSide }),
+  savageEye:   new THREE.MeshStandardMaterial({ color: 0xffd048, emissive: 0xff9020, emissiveIntensity: 5.0, metalness: 0, roughness: 0 }),
+  savageRune:  new THREE.MeshStandardMaterial({ color: 0xffaa30, emissive: 0xff8020, emissiveIntensity: 1.8, metalness: 0, roughness: 0.5 }),
+
+  // Shared materials (bone, fur, wood used widely; leather/blade/etc. are universals)
+  bone:      new THREE.MeshStandardMaterial({ color: 0xc8c0a8, metalness: 0.0, roughness: 0.8 }),
+  boneHi:    new THREE.MeshStandardMaterial({ color: 0xe0d8c0, metalness: 0.0, roughness: 0.7 }),
+  fur:       new THREE.MeshStandardMaterial({ color: 0x3a2a18, metalness: 0.0, roughness: 1.0 }),
+  furHi:     new THREE.MeshStandardMaterial({ color: 0x6a5238, metalness: 0.0, roughness: 1.0 }),
+  wood:      new THREE.MeshStandardMaterial({ color: 0x4a3018, metalness: 0.05, roughness: 0.92 }),
+  woodHi:    new THREE.MeshStandardMaterial({ color: 0x6a4828, metalness: 0.05, roughness: 0.85 }),
+
+  leather:   new THREE.MeshStandardMaterial({ color: 0x2a1810, metalness: 0.05, roughness: 0.92 }),
+  leatherHi: new THREE.MeshStandardMaterial({ color: 0x4a2a18, metalness: 0.05, roughness: 0.85 }),
+  leatherDark: new THREE.MeshStandardMaterial({ color: 0x18120a, metalness: 0.05, roughness: 0.95 }),
+  cloth:     new THREE.MeshStandardMaterial({ color: 0x161624, metalness: 0.0, roughness: 0.95 }),
+  blade:     new THREE.MeshStandardMaterial({ color: 0xc8d4e0, metalness: 0.95, roughness: 0.15 }),
+  bladeDark: new THREE.MeshStandardMaterial({ color: 0x6a7280, metalness: 0.92, roughness: 0.32 }),
+  iron:      new THREE.MeshStandardMaterial({ color: 0x252a32, metalness: 0.92, roughness: 0.45 }),
+  ironHi:    new THREE.MeshStandardMaterial({ color: 0x4a4e58, metalness: 0.95, roughness: 0.32 }),
+  stone:     new THREE.MeshStandardMaterial({ color: 0x252830, metalness: 0.0, roughness: 0.95 }),
+  stoneDark: new THREE.MeshStandardMaterial({ color: 0x14161c, metalness: 0.0, roughness: 1.0 }),
+  stoneRune: new THREE.MeshStandardMaterial({ color: 0xc89860, emissive: 0xc89860, emissiveIntensity: 1.4, metalness: 0, roughness: 1 }),
+  brass:     new THREE.MeshStandardMaterial({ color: 0xc89860, metalness: 0.95, roughness: 0.22, emissive: 0x3a2410, emissiveIntensity: 0.25 }),
+  brassDark: new THREE.MeshStandardMaterial({ color: 0x8a6840, metalness: 0.95, roughness: 0.35 }),
+};
+
+// ─── Geometry helper ───────────────────────────────────────────────────────
+function mesh(geo, mat, opts = {}) {
+  const m = new THREE.Mesh(geo, mat);
+  if (opts.cast !== false) m.castShadow = true;
+  if (opts.receive) m.receiveShadow = true;
+  if (opts.pos) m.position.set(...opts.pos);
+  if (opts.rot) m.rotation.set(...opts.rot);
+  if (opts.scale) {
+    if (Array.isArray(opts.scale)) m.scale.set(...opts.scale);
+    else m.scale.setScalar(opts.scale);
+  }
+  return m;
+}
+
+// ─── Effect base class + concrete VFX ──────────────────────────────────────
+class Effect {
+  constructor(scene) { this.scene = scene; this.alive = true; this.duration = 1; this.startTime = 0; }
+  init(t) { this.startTime = t; }
+  update(time, dt) {
+    const t01 = (time - this.startTime) / this.duration;
+    if (t01 >= 1) { this.alive = false; return; }
+    this.tick(Math.max(0, t01), dt);
+  }
+  tick(t01, dt) {}
+  dispose() {}
+}
+
+class ShockwaveRing extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.8;
+    this.maxRadius = opts.maxRadius ?? 1.8;
+    this.startRadius = opts.startRadius ?? 0.15;
+    const geo = new THREE.RingGeometry(0.94, 1.0, 64);
+    const mat = new THREE.MeshBasicMaterial({
+      color: opts.color ?? 0xc89860, transparent: true, opacity: 1,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(this.startRadius);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(this.startRadius, this.maxRadius, ease.out(t01)));
+    this.mesh.material.opacity = (1 - t01) * 0.95;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class FilledShockwave extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.55;
+    this.maxRadius = opts.maxRadius ?? 1.4;
+    const geo = new THREE.CircleGeometry(1.0, 48);
+    const mat = new THREE.MeshBasicMaterial({
+      color: opts.color ?? 0xffe080, transparent: true, opacity: 0.7,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.015;
+    this.mesh.scale.setScalar(0.2);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(0.2, this.maxRadius, ease.out(t01)));
+    this.mesh.material.opacity = (1 - t01) * 0.55;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class RuneRing extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 1.4;
+    this.maxRadius = opts.maxRadius ?? 1.7;
+    this.startRadius = opts.startRadius ?? 0.4;
+    this.rotateSpeed = opts.rotateSpeed ?? 0.7;
+    this.runeCount = opts.runeCount ?? 8;
+    const geo = new THREE.RingGeometry(0.85, 1.0, 96, 1);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xe3b878) },
+        uOpacity: { value: 1.0 }, uRunes: { value: this.runeCount }, uRotate: { value: 0 },
+      },
+      vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        uniform float uRunes; uniform float uRotate;
+        varying vec3 vPos;
+        void main() {
+          float r = length(vPos.xy);
+          float a = atan(vPos.y, vPos.x) + uRotate;
+          float seg = mod(a / (2.0 * 3.14159265) * uRunes, 1.0);
+          float rune = smoothstep(0.30, 0.50, seg) * smoothstep(0.70, 0.50, seg);
+          float pulse = 0.6 + 0.4 * sin(uTime * 4.0);
+          float band = smoothstep(0.85, 0.92, r) * smoothstep(1.0, 0.95, r);
+          float outer = smoothstep(0.97, 0.99, r) * smoothstep(1.0, 0.98, r);
+          float glow = band * (rune * 0.85 + 0.15) * pulse + outer * 1.4;
+          gl_FragColor = vec4(uColor * glow * 1.5, uOpacity * glow);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(this.startRadius);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(this.startRadius, this.maxRadius, ease.out(t01)));
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (1 - t01) * 0.95;
+    this.mesh.material.uniforms.uRotate.value = t01 * this.rotateSpeed * Math.PI;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class EnergyDome extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 2.4;
+    this.radius = opts.radius ?? 1.5;
+    const geo = new THREE.SphereGeometry(this.radius, 32, 24, 0, Math.PI * 2, 0, Math.PI / 2);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xc89860) }, uOpacity: { value: 1.0 } },
+      vertexShader: `
+        varying vec3 vNormal; varying vec3 vPos;
+        void main() {
+          vNormal = normalize(normalMatrix * normal); vPos = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec3 vNormal; varying vec3 vPos;
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - (modelMatrix * vec4(vPos, 1.0)).xyz);
+          float fres = 1.0 - max(dot(normalize((modelMatrix * vec4(vNormal, 0.0)).xyz), viewDir), 0.0);
+          fres = pow(fres, 2.0);
+          float hex = sin(vPos.y * 6.0 + uTime * 1.5) * 0.5 + 0.5;
+          float lines = pow(hex, 6.0);
+          float sweep = abs(sin(vPos.y * 3.0 - uTime * 2.0));
+          sweep = smoothstep(0.7, 1.0, sweep) * 0.4;
+          float intensity = fres * 0.7 + lines * 0.3 + sweep;
+          gl_FragColor = vec4(uColor * intensity * 1.6, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.05;
+    this.mesh.scale.setScalar(0.1);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.15 ? lerp(0.1, 1.0, ease.outBack(t01 / 0.15)) : 1.0;
+    this.mesh.scale.setScalar(s);
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (t01 < 0.7 ? 1.0 : 1.0 - (t01 - 0.7) / 0.3) * 0.85;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class HolyCircle extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 3.2;
+    this.radius = opts.radius ?? 1.8;
+    const geo = new THREE.RingGeometry(0.05, 1.0, 96, 1);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xfddc80) }, uOpacity: { value: 1.0 } },
+      vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec3 vPos;
+        void main() {
+          float r = length(vPos.xy);
+          float a = atan(vPos.y, vPos.x);
+          float outerRing = smoothstep(0.93, 0.97, r) * smoothstep(1.0, 0.97, r);
+          float midRing = smoothstep(0.65, 0.69, r) * smoothstep(0.72, 0.69, r);
+          float starAng = mod(a + uTime * 0.3, 6.28318 / 6.0) * 6.0;
+          float star = smoothstep(0.0, 0.6, sin(starAng * 1.0)) * smoothstep(0.3, 0.55, r) * smoothstep(0.65, 0.55, r);
+          float fill = smoothstep(0.97, 0.0, r) * 0.08;
+          float runeAng = mod(a + uTime * -0.5, 6.28318 / 12.0) * 12.0;
+          float runes = smoothstep(0.4, 0.5, sin(runeAng)) * smoothstep(0.78, 0.85, r) * smoothstep(0.92, 0.85, r);
+          float pulse = 0.7 + 0.3 * sin(uTime * 3.0);
+          float intensity = (outerRing + midRing * 0.7 + star * 0.9 + runes * 1.1) * pulse + fill;
+          gl_FragColor = vec4(uColor * intensity * 1.7, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.position.copy(position);
+    this.mesh.position.y += 0.02;
+    this.mesh.scale.setScalar(0.1);
+    this.targetScale = this.radius;
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.25 ? lerp(0.1, this.targetScale, ease.out(t01 / 0.25)) : this.targetScale;
+    this.mesh.scale.setScalar(s);
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = t01 < 0.85 ? 1.0 : 1.0 - (t01 - 0.85) / 0.15;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class LightPillar extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.6;
+    this.height = opts.height ?? 3.2;
+    this.radius = opts.radius ?? 0.5;
+    const geo = new THREE.CylinderGeometry(this.radius, this.radius * 0.7, this.height, 32, 1, true);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(opts.color ?? 0xfddc80) }, uOpacity: { value: 1.0 } },
+      vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          float vertical = smoothstep(1.0, 0.0, vUv.y) * smoothstep(0.0, 0.15, vUv.y);
+          float horizontal = 1.0 - abs(vUv.x - 0.5) * 2.0;
+          float pattern = sin(vUv.y * 30.0 - uTime * 8.0) * 0.5 + 0.5;
+          pattern = pow(pattern, 2.0) * 0.4;
+          float intensity = vertical * (0.7 + pattern * 0.5) * horizontal;
+          gl_FragColor = vec4(uColor * intensity * 2.0, uOpacity * intensity);
+        }`,
+      transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.position.y += this.height / 2;
+    this.mesh.scale.x = this.mesh.scale.z = 0.3;
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    const s = t01 < 0.2 ? lerp(0.3, 1.0, ease.outBack(t01 / 0.2)) : 1.0;
+    this.mesh.scale.x = this.mesh.scale.z = s;
+    this.mesh.material.uniforms.uTime.value = t01 * this.duration;
+    this.mesh.material.uniforms.uOpacity.value = (1 - t01) * 1.2;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class ParticleBurst extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 1.2;
+    const count = opts.count ?? 50;
+    const speed = opts.speed ?? 3;
+    this.gravity = opts.gravity ?? -2.5;
+    this.upwardBias = opts.upwardBias ?? 1.5;
+    this.size = opts.size ?? 1.6;
+    this.count = count;
+    this.positions = new Float32Array(count * 3);
+    this.velocities = new Float32Array(count * 3);
+    this.life = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      this.positions[i*3 + 0] = position.x;
+      this.positions[i*3 + 1] = position.y;
+      this.positions[i*3 + 2] = position.z;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const v = (0.4 + Math.random() * 0.6) * speed;
+      this.velocities[i*3 + 0] = Math.sin(phi) * Math.cos(theta) * v;
+      this.velocities[i*3 + 1] = Math.abs(Math.cos(phi)) * v + this.upwardBias;
+      this.velocities[i*3 + 2] = Math.sin(phi) * Math.sin(theta) * v;
+      this.life[i] = 0.5 + Math.random() * 0.5;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
+    geo.setAttribute('life', new THREE.Float32BufferAttribute(this.life, 1));
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uDuration: { value: this.duration },
+        uColor: { value: new THREE.Color(opts.color ?? 0xe3b878) }, uSize: { value: this.size },
+      },
+      vertexShader: `
+        attribute float life;
+        uniform float uTime; uniform float uDuration; uniform float uSize;
+        varying float vLife;
+        void main() {
+          vLife = clamp(1.0 - uTime / (uDuration * life), 0.0, 1.0);
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = uSize * vLife * (300.0 / -mv.z);
+        }`,
+      fragmentShader: `
+        uniform vec3 uColor; varying float vLife;
+        void main() {
+          vec2 c = gl_PointCoord - 0.5;
+          float d = length(c);
+          if (d > 0.5) discard;
+          float a = pow(1.0 - d * 2.0, 1.5) * vLife;
+          gl_FragColor = vec4(uColor * (1.0 + vLife), a);
+        }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    this.points = new THREE.Points(geo, mat);
+    scene.add(this.points);
+  }
+  tick(t01, dt) {
+    for (let i = 0; i < this.count; i++) {
+      this.positions[i*3 + 0] += this.velocities[i*3 + 0] * dt;
+      this.positions[i*3 + 1] += this.velocities[i*3 + 1] * dt;
+      this.positions[i*3 + 2] += this.velocities[i*3 + 2] * dt;
+      this.velocities[i*3 + 1] += this.gravity * dt;
+    }
+    this.points.geometry.attributes.position.needsUpdate = true;
+    this.points.material.uniforms.uTime.value = t01 * this.duration;
+  }
+  dispose() { this.points.geometry.dispose(); this.points.material.dispose(); this.scene.remove(this.points); }
+}
+
+class ImpactFlash extends Effect {
+  constructor(scene, position, opts = {}) {
+    super(scene);
+    this.duration = opts.duration ?? 0.3;
+    this.maxScale = opts.maxScale ?? 0.7;
+    const geo = new THREE.SphereGeometry(1, 16, 12);
+    const mat = new THREE.MeshBasicMaterial({ color: opts.color ?? 0xffffff, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.copy(position);
+    this.mesh.scale.setScalar(0.05);
+    scene.add(this.mesh);
+  }
+  tick(t01) {
+    this.mesh.scale.setScalar(lerp(0.05, this.maxScale, ease.out(t01)));
+    this.mesh.material.opacity = 1 - t01;
+  }
+  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.scene.remove(this.mesh); }
+}
+
+class EffectManager {
+  constructor(scene) { this.scene = scene; this.effects = []; }
+  spawn(effect, time) { effect.init(time); this.effects.push(effect); }
+  update(time, dt) {
+    for (let i = this.effects.length - 1; i >= 0; i--) {
+      this.effects[i].update(time, dt);
+      if (!this.effects[i].alive) {
+        this.effects[i].dispose();
+        this.effects.splice(i, 1);
+      }
+    }
+  }
+  clear() {
+    for (const e of this.effects) e.dispose();
+    this.effects = [];
+  }
+}
+
+// ─── Shared part builders ──────────────────────────────────────────────────
+function buildLeg(side, palette = {}) {
+  const dark = palette.dark || M.iron;
+  const mid = palette.mid || M.ironHi;
+  const accent = palette.accent || M.brass;
+  const trim = palette.trim || M.brass;
+  const leather = palette.leather || M.leather;
+  const leg = new THREE.Group();
+  const sx = side;
+  const thigh = mesh(new THREE.CylinderGeometry(0.13, 0.115, 0.55, 14), dark);
+  thigh.position.y = 0.95; leg.add(thigh);
+  const kneeBase = mesh(new THREE.SphereGeometry(0.135, 14, 10), mid);
+  kneeBase.position.y = 0.66; kneeBase.scale.set(1, 0.7, 1.2); leg.add(kneeBase);
+  const kneeStud = mesh(new THREE.SphereGeometry(0.05, 10, 8), accent);
+  kneeStud.position.set(0, 0.66, 0.13); leg.add(kneeStud);
+  const greave = mesh(new THREE.CylinderGeometry(0.115, 0.13, 0.45, 14), mid);
+  greave.position.y = 0.39; leg.add(greave);
+  const greaveTrim = mesh(new THREE.TorusGeometry(0.118, 0.012, 8, 16), trim);
+  greaveTrim.position.y = 0.6; greaveTrim.rotation.x = Math.PI / 2; leg.add(greaveTrim);
+  const boot = mesh(new THREE.BoxGeometry(0.22, 0.13, 0.32), dark);
+  boot.position.set(0, 0.105, 0.06); leg.add(boot);
+  const toeShape = new THREE.Shape();
+  toeShape.moveTo(-0.11, 0); toeShape.lineTo(0.11, 0);
+  toeShape.lineTo(0.08, 0.12); toeShape.lineTo(-0.08, 0.12); toeShape.closePath();
+  const toe = mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 }), accent);
+  toe.position.set(0, 0.06, 0.18); leg.add(toe);
+  const heel = mesh(new THREE.BoxGeometry(0.22, 0.06, 0.08), leather);
+  heel.position.set(0, 0.04, -0.07); leg.add(heel);
+  leg.position.x = sx * 0.18;
+  return leg;
+}
+
+function buildCape(opts = {}) {
+  const widthSegs = 14, heightSegs = 22;
+  const width = opts.width || 1.3;
+  const height = opts.height || 1.85;
+  const mat = opts.material;
+  const verts = [], indices = [], uvs = [], original = [];
+  for (let y = 0; y <= heightSegs; y++) {
+    const v = y / heightSegs;
+    const w = width * (0.45 + v * 0.55);
+    for (let x = 0; x <= widthSegs; x++) {
+      const u = x / widthSegs;
+      const angle = (u - 0.5) * Math.PI * 0.55;
+      const px = Math.sin(angle) * w / 2;
+      const py = -v * height;
+      const sideFwd = (1 - Math.cos(angle)) * 0.14;
+      const bulge = Math.sin(v * Math.PI) * 0.07;
+      const pz = -0.04 + sideFwd - bulge;
+      verts.push(px, py, pz);
+      uvs.push(u, 1 - v);
+      original.push(px, py, pz);
+    }
+  }
+  for (let y = 0; y < heightSegs; y++) {
+    for (let x = 0; x < widthSegs; x++) {
+      const a = y * (widthSegs + 1) + x, b = a + 1, c = a + widthSegs + 1, d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  const cape = mesh(geo, mat);
+  cape.userData.original = original;
+  cape.userData.cols = widthSegs + 1;
+  cape.userData.rows = heightSegs + 1;
+  return cape;
+}
+
+function buildArm(sx, shoulderAngle, palette = {}) {
+  const cloth = palette.cloth || M.cloth;
+  const mid = palette.mid || M.iron;
+  const dark = palette.dark || M.iron;
+  const hi = palette.hi || M.ironHi;
+  const accent = palette.accent || M.brass;
+  const arm = new THREE.Group();
+  const upper = mesh(new THREE.CylinderGeometry(0.085, 0.08, 0.4, 12), cloth);
+  upper.position.y = -0.2; arm.add(upper);
+  const vambrace = mesh(new THREE.CylinderGeometry(0.085, 0.095, 0.42, 12), mid);
+  vambrace.position.y = -0.62; arm.add(vambrace);
+  const vTrim = mesh(new THREE.TorusGeometry(0.088, 0.01, 6, 16), accent);
+  vTrim.rotation.x = Math.PI / 2; vTrim.position.y = -0.42; arm.add(vTrim);
+  const elbow = mesh(new THREE.SphereGeometry(0.1, 12, 10), hi);
+  elbow.position.y = -0.42; elbow.scale.set(1, 0.8, 1); arm.add(elbow);
+  const gauntlet = mesh(new THREE.BoxGeometry(0.15, 0.18, 0.12), dark);
+  gauntlet.position.y = -0.92; arm.add(gauntlet);
+  const knuckle = mesh(new THREE.BoxGeometry(0.16, 0.05, 0.08), accent);
+  knuckle.position.set(0, -0.85, 0.05); arm.add(knuckle);
+  const hand = new THREE.Group();
+  hand.position.y = -0.96;
+  arm.add(hand);
+  arm.userData.hand = hand;
+  arm.position.set(sx * 0.42, 2.18, 0);
+  arm.rotation.z = sx * shoulderAngle;
+  return arm;
+}
+
+// ─── Champion base class ───────────────────────────────────────────────────
+class Champion {
+  constructor(scene, position) {
+    this.scene = scene;
+    this.group = new THREE.Group();
+    this.group.position.copy(position);
+    this.parts = {};
+    this.restPose = null;
+    this.animations = {};
+    this.activeAnim = null;
+    this.animStart = 0;
+    this.firedEffects = new Set();
+    this.cape = null;
+    this.eyeMaterial = null;
+    scene.add(this.group);
+  }
+  captureRestPose() {
+    this.restPose = {};
+    for (const name in this.parts) {
+      const p = this.parts[name];
+      this.restPose[name] = {
+        px: p.position.x, py: p.position.y, pz: p.position.z,
+        rx: p.rotation.x, ry: p.rotation.y, rz: p.rotation.z,
+      };
+    }
+  }
+  playAnimation(name, time, manager) {
+    if (!this.animations[name]) return;
+    this.activeAnim = name;
+    this.animStart = time;
+    this.animManager = manager;
+    this.firedEffects.clear();
+  }
+  isPlaying() { return !!this.activeAnim; }
+  stopAnimation() { this.activeAnim = null; this.resetPose(); }
+  resetPose() {
+    for (const name in this.parts) {
+      const rest = this.restPose[name];
+      const p = this.parts[name];
+      p.position.set(rest.px, rest.py, rest.pz);
+      p.rotation.set(rest.rx, rest.ry, rest.rz);
+    }
+  }
+  applyKeyframes(keyframes, t01) {
+    let prev = keyframes[0];
+    let next = keyframes[keyframes.length - 1];
+    for (let i = 0; i < keyframes.length - 1; i++) {
+      if (keyframes[i].t <= t01 && keyframes[i + 1].t >= t01) {
+        prev = keyframes[i]; next = keyframes[i + 1]; break;
+      }
+    }
+    const range = next.t - prev.t;
+    const local = range > 0 ? (t01 - prev.t) / range : 0;
+    const easedFn = next.ease || ease.inOut;
+    const eased = easedFn(local);
+    const partNames = new Set([...Object.keys(prev.values || {}), ...Object.keys(next.values || {})]);
+    for (const name of partNames) {
+      const part = this.parts[name];
+      if (!part) continue;
+      const rest = this.restPose[name];
+      const a = (prev.values || {})[name] || {};
+      const b = (next.values || {})[name] || {};
+      ['x','y','z'].forEach(axis => {
+        const pkey = 'p' + axis, rkey = 'r' + axis;
+        if (pkey in a || pkey in b) part.position[axis] = rest[pkey] + lerp(a[pkey] ?? 0, b[pkey] ?? 0, eased);
+        if (rkey in a || rkey in b) part.rotation[axis] = rest[rkey] + lerp(a[rkey] ?? 0, b[rkey] ?? 0, eased);
+      });
+    }
+  }
+  update(time, dt) {
+    const breathe = Math.sin(time * 1.2 + this.group.position.x) * 0.006;
+    this.group.scale.y = 1 + breathe;
+    if (this.cape) {
+      const pos = this.cape.geometry.attributes.position;
+      const orig = this.cape.userData.original;
+      const cols = this.cape.userData.cols;
+      const rows = this.cape.userData.rows;
+      for (let i = 0; i < pos.count; i++) {
+        const ix = i * 3;
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const u = col / (cols - 1);
+        const v = row / (rows - 1);
+        const wave = Math.sin(time * 0.9 + u * 3 + v * 5) * 0.025 * v;
+        const sway = Math.sin(time * 0.6 + v * 2) * 0.02 * v;
+        pos.array[ix + 0] = orig[ix + 0] + sway;
+        pos.array[ix + 2] = orig[ix + 2] + wave;
+      }
+      pos.needsUpdate = true;
+      this.cape.geometry.computeVertexNormals();
+    }
+    if (this.eyeMaterial) {
+      const base = this.eyeMaterial.userData.baseIntensity || 5;
+      this.eyeMaterial.emissiveIntensity = base + Math.sin(time * 2.5) * 1.0;
+    }
+    if (this.activeAnim) {
+      const anim = this.animations[this.activeAnim];
+      const elapsed = time - this.animStart;
+      const t01 = Math.min(1, elapsed / anim.duration);
+      this.resetPose();
+      this.applyKeyframes(anim.keyframes, t01);
+      if (anim.effects) {
+        for (let i = 0; i < anim.effects.length; i++) {
+          const fx = anim.effects[i];
+          if (t01 >= fx.time && !this.firedEffects.has(i)) {
+            this.firedEffects.add(i);
+            fx.fn(this, this.animManager, time);
+          }
+        }
+      }
+      if (t01 >= 1) { this.activeAnim = null; this.resetPose(); }
+    }
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  BERSERKER — Fighter I/VI                                                ║
+// ║  Rage · Glass Cannon · Wolf-skull crown helm, bare tattooed arms,        ║
+// ║  twin hand-axes, savage fur mantle, hide chestplate with bone ribs,     ║
+// ║  trophy bone belt, feral amber-yellow eye glow                          ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+class Berserker extends Champion {
+  constructor(scene, position) {
+    super(scene, position);
+    // Whirlwind spin state — controlled by spell2's effect callback,
+    // applied each frame in this class's overridden update()
+    this.spinning = false;
+    this.spinStart = 0;
+    this.spinDuration = 0;
+    this.build();
+    this.captureRestPose();
+    this.animations = berserkerAnimations;
+  }
+
+  // Override update to spin the whole group during Whirlwind
+  update(time, dt) {
+    super.update(time, dt);
+    if (this.spinning) {
+      const elapsed = time - this.spinStart;
+      if (elapsed >= this.spinDuration) {
+        this.spinning = false;
+        this.group.rotation.y = 0;
+      } else {
+        // Eased rotation through 2.5 revolutions over the spin duration
+        const spinT = elapsed / this.spinDuration;
+        this.group.rotation.y = Math.PI * 2 * 2.5 * ease.inOut(spinT);
+      }
+    }
+  }
+
+  build() {
+    const root = this.group;
+
+    // Legs in leather/hide pants and boots (palette swap on the buildLeg helper)
+    const legPalette = { dark: M.hidePatch, mid: M.leatherHi, accent: M.bone, trim: M.bone, leather: M.leatherDark };
+    root.add(buildLeg(-1, legPalette));
+    root.add(buildLeg(1, legPalette));
+
+    // Pelvis — leather wrap with trophy bone belt
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 1.28;
+    pelvis.add(mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 16), M.hidePatch));
+    // Bone belt buckle — small skull-shape
+    const buckle = mesh(new THREE.SphereGeometry(0.05, 12, 10), M.boneHi);
+    buckle.position.set(0, 0, 0.31); buckle.scale.set(1, 1, 0.6);
+    pelvis.add(buckle);
+    // Empty sockets in the skull buckle
+    const skullEyeL = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.stoneDark);
+    skullEyeL.position.set(-0.02, 0.01, 0.33); pelvis.add(skullEyeL);
+    const skullEyeR = skullEyeL.clone(); skullEyeR.position.x = 0.02; pelvis.add(skullEyeR);
+    // Hanging bone trophies around the front of the belt
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI * 0.4 + (i / 4) * Math.PI * 0.8;
+      // Leather strap
+      const strap = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.06, 4), M.leather);
+      strap.position.set(Math.cos(a + Math.PI / 2) * 0.31, -0.07, Math.sin(a + Math.PI / 2) * 0.31);
+      pelvis.add(strap);
+      // Bone tooth/claw trophy
+      const trophy = mesh(new THREE.ConeGeometry(0.014 + (i % 2) * 0.006, 0.06, 5), i % 2 === 0 ? M.bone : M.boneHi);
+      trophy.position.set(Math.cos(a + Math.PI / 2) * 0.32, -0.13, Math.sin(a + Math.PI / 2) * 0.32);
+      trophy.rotation.x = Math.PI;
+      pelvis.add(trophy);
+    }
+    // Side pelvis straps (rough leather wraps, not metal tassets)
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+      if (Math.abs(angle + Math.PI / 2) < 0.4) continue;
+      const t = mesh(new THREE.BoxGeometry(0.16, 0.28, 0.04), M.hidePatch);
+      t.position.set(Math.cos(angle) * 0.28, -0.18, Math.sin(angle) * 0.28);
+      t.lookAt(Math.cos(angle) * 2, -0.18, Math.sin(angle) * 2);
+      t.rotateX(0.18);
+      pelvis.add(t);
+    }
+    root.add(pelvis);
+
+    // TORSO — hide chestplate with bone reinforcement, bare midriff, war paint
+    const torso = new THREE.Group();
+    torso.position.y = 1.85;
+
+    // Front leather/hide chestpiece (covers upper chest)
+    const chestUpper = mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.42, 16), M.hidePatch);
+    chestUpper.scale.set(1.05, 1, 0.85);
+    chestUpper.position.y = 0.14;
+    torso.add(chestUpper);
+
+    // Bare midriff (skin showing — strong silhouette break vs. armored tanks)
+    const midriff = mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.3, 16), M.skin);
+    midriff.scale.set(1.0, 1, 0.85);
+    midriff.position.y = -0.18;
+    torso.add(midriff);
+
+    // War paint stripes across the bare midriff (3 horizontal slashes)
+    for (let i = 0; i < 3; i++) {
+      const paint = mesh(new THREE.BoxGeometry(0.32, 0.014, 0.005), M.woadPaint);
+      paint.position.set(0, -0.1 - i * 0.08, 0.28);
+      torso.add(paint);
+    }
+
+    // Bone rib reinforcement strips (curving along the torso sides — primal armor)
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 5; i++) {
+        const yPos = 0.22 - i * 0.1;
+        const bonePiece = mesh(new THREE.BoxGeometry(0.06, 0.02, 0.018), M.bone);
+        bonePiece.position.set(side * 0.34, yPos, 0.16 + (i % 2) * 0.03);
+        bonePiece.rotation.z = side * 0.25;
+        torso.add(bonePiece);
+      }
+    }
+
+    // Pec mounds (hide-covered)
+    const pecL = mesh(new THREE.SphereGeometry(0.18, 14, 12), M.hidePatch);
+    pecL.position.set(-0.16, 0.22, 0.22); pecL.scale.set(1, 0.7, 0.6);
+    torso.add(pecL);
+    const pecR = pecL.clone(); pecR.position.x = 0.16;
+    torso.add(pecR);
+
+    // Bone medallion chest emblem (small skull trophy)
+    const medallionBack = mesh(new THREE.CircleGeometry(0.06, 16), M.leatherDark);
+    medallionBack.position.set(0, 0.08, 0.36); torso.add(medallionBack);
+    const medallion = mesh(new THREE.SphereGeometry(0.045, 14, 12), M.boneHi);
+    medallion.position.set(0, 0.08, 0.39); medallion.scale.set(1, 1.2, 0.5);
+    torso.add(medallion);
+    // Empty eye sockets
+    const medEyeL = mesh(new THREE.SphereGeometry(0.012, 8, 6), M.stoneDark);
+    medEyeL.position.set(-0.018, 0.1, 0.42); torso.add(medEyeL);
+    const medEyeR = medEyeL.clone(); medEyeR.position.x = 0.018; torso.add(medEyeR);
+    // Tiny teeth at bottom of medallion
+    for (let i = -1; i <= 1; i++) {
+      const tooth = mesh(new THREE.ConeGeometry(0.005, 0.012, 3), M.boneHi);
+      tooth.position.set(i * 0.012, 0.06, 0.42);
+      tooth.rotation.x = Math.PI;
+      torso.add(tooth);
+    }
+
+    // Tribal rune marks down the chest sides (savage rune glow, lighter than tank's geometric runes)
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 3; i++) {
+        const yOff = 0.0 - i * 0.08;
+        const rune = mesh(new THREE.BoxGeometry(0.04, 0.01, 0.005), M.savageRune);
+        rune.position.set(side * 0.28, yOff, 0.22);
+        rune.rotation.z = side * 0.4;
+        torso.add(rune);
+      }
+    }
+
+    // Shoulder neck-collar (rough leather strap)
+    const collar = mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.1, 16), M.leatherDark);
+    collar.position.y = 0.4; torso.add(collar);
+
+    root.add(torso);
+    this.parts.body = torso;
+
+    // Pauldrons — minimal bone studs (the fur mantle covers most of the shoulder area)
+    for (let side = -1; side <= 1; side += 2) {
+      const studBase = mesh(new THREE.SphereGeometry(0.16, 12, 10, 0, Math.PI * 2, 0, Math.PI / 1.7), M.hidePatch);
+      studBase.scale.set(1, 0.7, 1);
+      studBase.position.set(side * 0.42, 2.2, 0);
+      root.add(studBase);
+      // Bone spike on top
+      const boneSpike = mesh(new THREE.ConeGeometry(0.03, 0.12, 6), M.bone);
+      boneSpike.position.set(side * 0.42, 2.32, 0);
+      root.add(boneSpike);
+    }
+
+    // FUR MANTLE — replaces the cape, smaller and more savage than Warden's
+    const mantle = this._buildSavageMantle();
+    mantle.position.set(0, 2.32, 0);
+    root.add(mantle);
+
+    // BARE ARMS (inlined — not buildArm) for visible skin + tribal tattoos
+    const buildBareArm = (sx, shoulderAngle) => {
+      const arm = new THREE.Group();
+      // Bare upper arm
+      const upper = mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.4, 12), M.skin);
+      upper.position.y = -0.2; arm.add(upper);
+      // Single leather armband on upper arm
+      const armband = mesh(new THREE.TorusGeometry(0.085, 0.012, 8, 14), M.leather);
+      armband.rotation.x = Math.PI / 2; armband.position.y = -0.32; arm.add(armband);
+      // Bone bead on the armband
+      const bead = mesh(new THREE.SphereGeometry(0.018, 8, 6), M.boneHi);
+      bead.position.set(sx * 0.085, -0.32, 0); arm.add(bead);
+      // Tribal tattoo bands on upper arm (chevron-style war paint)
+      for (let i = 0; i < 2; i++) {
+        const tat = mesh(new THREE.BoxGeometry(0.025, 0.07, 0.005), M.woadPaint);
+        tat.position.set(sx * 0.07, -0.1 - i * 0.1, 0.05);
+        tat.rotation.z = (i % 2 === 0 ? sx : -sx) * 0.4;
+        arm.add(tat);
+      }
+      // Elbow — bare skin
+      const elbow = mesh(new THREE.SphereGeometry(0.09, 12, 10), M.skin);
+      elbow.position.y = -0.42; elbow.scale.set(1, 0.8, 1); arm.add(elbow);
+      // Bare forearm
+      const forearm = mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.4, 12), M.skin);
+      forearm.position.y = -0.62; arm.add(forearm);
+      // Multiple leather wraps on forearm (bracer-like)
+      for (let i = 0; i < 5; i++) {
+        const wrap = mesh(new THREE.TorusGeometry(0.078, 0.008, 6, 14), M.leather);
+        wrap.rotation.x = Math.PI / 2;
+        wrap.position.y = -0.5 - i * 0.07;
+        arm.add(wrap);
+      }
+      // Wrist binding (heavier dark leather)
+      const wristWrap = mesh(new THREE.CylinderGeometry(0.084, 0.082, 0.07, 14), M.leatherDark);
+      wristWrap.position.y = -0.87; arm.add(wristWrap);
+      // Bone studs on wrist wrap
+      for (let i = 0; i < 3; i++) {
+        const a = -0.8 + i * 0.8;
+        const stud = mesh(new THREE.SphereGeometry(0.012, 6, 4), M.bone);
+        stud.position.set(Math.cos(a) * 0.085, -0.87, Math.sin(a) * 0.085);
+        arm.add(stud);
+      }
+      // Hand (bare skin, small)
+      const handMesh = mesh(new THREE.BoxGeometry(0.13, 0.16, 0.1), M.skin);
+      handMesh.position.y = -0.95; arm.add(handMesh);
+      // Hand attachment point (weapons parent here)
+      const hand = new THREE.Group();
+      hand.position.y = -0.96;
+      arm.add(hand);
+      arm.userData.hand = hand;
+      arm.position.set(sx * 0.42, 2.18, 0);
+      arm.rotation.z = sx * shoulderAngle;
+      return arm;
+    };
+
+    const leftArm = buildBareArm(-1, 0.22);
+    leftArm.rotation.x = -0.05;
+    root.add(leftArm);
+    this.parts.leftArm = leftArm;
+
+    const rightArm = buildBareArm(1, 0.22);
+    rightArm.rotation.x = -0.05;
+    root.add(rightArm);
+    this.parts.rightArm = rightArm;
+
+    // TWIN HAND-AXES — one in each hand (no shield), slight variants
+    const leftAxe = this._buildHandAxe(0);
+    leftArm.userData.hand.add(leftAxe);
+    leftAxe.position.set(0, 0.02, 0.08);
+    leftAxe.rotation.set(Math.PI * 0.4, 0, 0.05);
+    this.parts.leftWeapon = leftAxe;
+
+    const rightAxe = this._buildHandAxe(1);
+    rightArm.userData.hand.add(rightAxe);
+    rightAxe.position.set(0, 0.02, 0.08);
+    rightAxe.rotation.set(Math.PI * 0.4, 0, -0.05);
+    this.parts.rightWeapon = rightAxe;
+
+    // Neck (bare skin)
+    const neck = mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.12, 12), M.skin);
+    neck.position.y = 2.32; root.add(neck);
+
+    // Helm — wolf skull crown
+    const helm = this._buildWolfSkullHelm();
+    helm.position.y = 2.56;
+    root.add(helm);
+    this.parts.head = helm;
+
+    // No cape — fur mantle is the back/shoulder garment
+    this.cape = null;
+
+    M.savageEye.userData.baseIntensity = 5.0;
+    this.eyeMaterial = M.savageEye;
+  }
+
+  _buildSavageMantle() {
+    const mantle = new THREE.Group();
+    // Smaller torus base — only covers shoulders/back, narrower than Warden's
+    const base = mesh(new THREE.TorusGeometry(0.36, 0.1, 12, 28, Math.PI * 0.95), M.fur);
+    base.rotation.x = Math.PI / 2;
+    base.rotation.z = Math.PI / 2;
+    mantle.add(base);
+
+    // Fur tufts — layered, scruffier than Warden's
+    const TUFT_COUNT = 38;
+    for (let i = 0; i < TUFT_COUNT; i++) {
+      const t = i / (TUFT_COUNT - 1);
+      const angle = -Math.PI * 0.05 + t * Math.PI * 0.95;
+      const r = 0.36 + (Math.random() - 0.3) * 0.04;
+      const tuft = mesh(new THREE.ConeGeometry(0.04 + Math.random() * 0.02, 0.09 + Math.random() * 0.05, 6), Math.random() > 0.55 ? M.furHi : M.fur);
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      tuft.position.set(cosA * r, sinA * r * 0.4 + (Math.random() - 0.5) * 0.04, -Math.abs(sinA) * 0.16 + (Math.random() - 0.5) * 0.05);
+      tuft.lookAt(cosA * r * 3, sinA * r * 1.2, -Math.abs(sinA) * 0.5);
+      tuft.rotation.x += Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+      mantle.add(tuft);
+    }
+
+    // Front-tie cord with bone toggle
+    const tieKnot = mesh(new THREE.SphereGeometry(0.025, 10, 8), M.leather);
+    tieKnot.position.set(0, -0.04, 0.36);
+    mantle.add(tieKnot);
+    const toggle = mesh(new THREE.CylinderGeometry(0.012, 0.015, 0.05, 8), M.bone);
+    toggle.position.set(0, -0.08, 0.4);
+    mantle.add(toggle);
+
+    return mantle;
+  }
+
+  _buildHandAxe(variant) {
+    const axe = new THREE.Group();
+    // Pommel — bone tip with small wood cap
+    const pommel = mesh(new THREE.SphereGeometry(0.04, 12, 10), M.bone);
+    axe.add(pommel);
+    const pommelCap = mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.02, 10), M.iron);
+    pommelCap.position.y = 0.03; axe.add(pommelCap);
+
+    // Wood haft
+    const haft = mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45, 12), M.wood);
+    haft.position.y = 0.26; axe.add(haft);
+
+    // Leather grip wrap (lower portion of haft)
+    const grip = mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.18, 12), M.leather);
+    grip.position.y = 0.13; axe.add(grip);
+    // Wraps for grip texture
+    for (let i = 0; i < 4; i++) {
+      const wrap = mesh(new THREE.TorusGeometry(0.029, 0.003, 6, 12), M.leatherDark);
+      wrap.rotation.x = Math.PI / 2;
+      wrap.position.y = 0.06 + i * 0.04;
+      axe.add(wrap);
+    }
+
+    // Iron collar where head meets haft
+    const collar = mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.06, 8), M.iron);
+    collar.position.y = 0.5; axe.add(collar);
+
+    // HEAD — single curved bit, primal asymmetric shape
+    const headShape = new THREE.Shape();
+    headShape.moveTo(-0.025, -0.1);
+    headShape.lineTo(0.025, -0.1);
+    headShape.bezierCurveTo(0.18, -0.06, 0.32, 0.08, 0.32, 0.22);
+    headShape.lineTo(0.08, 0.18);
+    headShape.bezierCurveTo(0.05, 0.06, 0.0, -0.05, -0.025, -0.1);
+    headShape.closePath();
+
+    const head = mesh(new THREE.ExtrudeGeometry(headShape, { depth: 0.024, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.004, bevelSegments: 2 }), M.bladeDark);
+    head.position.set(0, 0.58, -0.012); axe.add(head);
+
+    // Sharp inner edge (steel highlight along the cutting edge)
+    const edgeShape = new THREE.Shape();
+    edgeShape.moveTo(0.16, -0.05);
+    edgeShape.lineTo(0.32, 0.22);
+    edgeShape.lineTo(0.18, 0.16);
+    edgeShape.closePath();
+    const edge = mesh(new THREE.ExtrudeGeometry(edgeShape, { depth: 0.028, bevelEnabled: false }), M.blade);
+    edge.position.set(0, 0.58, -0.014); axe.add(edge);
+
+    // Top spike on the haft (small)
+    const topSpike = mesh(new THREE.ConeGeometry(0.025, 0.06, 6), M.iron);
+    topSpike.position.y = 0.78; axe.add(topSpike);
+
+    // Variant trinket tied to the haft (different per axe for asymmetric character)
+    if (variant === 0) {
+      // Bone trinket on left axe
+      const trinket = mesh(new THREE.SphereGeometry(0.018, 6, 4), M.boneHi);
+      trinket.position.set(-0.035, 0.52, 0.05); axe.add(trinket);
+      const string = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.08, 4), M.leather);
+      string.position.set(-0.02, 0.55, 0.03); string.rotation.z = 0.5;
+      axe.add(string);
+    } else {
+      // Feather/claw on right axe
+      const featherShape = new THREE.Shape();
+      featherShape.moveTo(-0.012, 0); featherShape.lineTo(0.012, 0);
+      featherShape.lineTo(0.008, 0.06); featherShape.lineTo(0, 0.075); featherShape.lineTo(-0.008, 0.06);
+      featherShape.closePath();
+      const feather = mesh(new THREE.ExtrudeGeometry(featherShape, { depth: 0.005, bevelEnabled: false }), M.boneHi);
+      feather.position.set(-0.04, 0.5, 0.05); feather.rotation.z = 0.4;
+      axe.add(feather);
+      const string = mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.06, 4), M.leather);
+      string.position.set(-0.02, 0.53, 0.03); string.rotation.z = 0.5;
+      axe.add(string);
+    }
+
+    return axe;
+  }
+
+  _buildWolfSkullHelm() {
+    const helm = new THREE.Group();
+
+    // Lower section: leather hood/wrap (covers face/jaw)
+    const lower = mesh(new THREE.SphereGeometry(0.22, 20, 16), M.hidePatch);
+    lower.scale.set(1.05, 1.0, 1.1);
+    helm.add(lower);
+
+    // Brow band (dark leather)
+    const browBand = mesh(new THREE.TorusGeometry(0.225, 0.018, 8, 24), M.leatherDark);
+    browBand.rotation.x = Math.PI / 2;
+    browBand.position.y = 0.04;
+    helm.add(browBand);
+
+    // Eye visor — wide horizontal slit with savage glow
+    const visor = mesh(new THREE.BoxGeometry(0.34, 0.05, 0.04), M.stoneDark);
+    visor.position.set(0, 0.0, 0.18);
+    helm.add(visor);
+
+    // Glowing savage eyes — feral amber-yellow
+    const eyeL = mesh(new THREE.SphereGeometry(0.024, 10, 8), M.savageEye);
+    eyeL.position.set(-0.085, 0.0, 0.21); helm.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.x = 0.085; helm.add(eyeR);
+
+    // War paint stripe down forehead (vertical war mark)
+    const paint = mesh(new THREE.BoxGeometry(0.025, 0.12, 0.005), M.woadPaint);
+    paint.position.set(0, 0.07, 0.21);
+    helm.add(paint);
+    // Side war paint stripes (smaller, on cheek areas)
+    for (let side = -1; side <= 1; side += 2) {
+      const sidePaint = mesh(new THREE.BoxGeometry(0.012, 0.06, 0.005), M.woadPaint);
+      sidePaint.position.set(side * 0.13, -0.04, 0.21);
+      sidePaint.rotation.z = side * 0.3;
+      helm.add(sidePaint);
+    }
+
+    // Cheek/jaw guards (rough leather)
+    const jaw = (sx) => {
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0); shape.lineTo(0.1, 0);
+      shape.lineTo(0.08, -0.16); shape.lineTo(-0.02, -0.18); shape.closePath();
+      const g = mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.008, bevelSegments: 2 }), M.hidePatch);
+      g.position.set(sx * 0.18, -0.1, 0.08);
+      g.rotation.y = sx > 0 ? -0.4 : Math.PI + 0.4;
+      return g;
+    };
+    helm.add(jaw(-1)); helm.add(jaw(1));
+
+    // ===== WOLF SKULL CROWN — sits on top of the helm =====
+    // Skull base (elongated bone-colored sphere)
+    const skull = mesh(new THREE.SphereGeometry(0.13, 16, 12), M.bone);
+    skull.scale.set(0.95, 0.7, 1.5);
+    skull.position.set(0, 0.18, 0.05);
+    helm.add(skull);
+
+    // Snout — elongated cone protruding forward over the helm visor
+    const snout = mesh(new THREE.ConeGeometry(0.075, 0.2, 12), M.bone);
+    snout.position.set(0, 0.16, 0.24);
+    snout.rotation.x = Math.PI / 2;
+    helm.add(snout);
+
+    // Snout tip (slightly darker — wet nose)
+    const snoutCap = mesh(new THREE.SphereGeometry(0.045, 10, 8), M.boneHi);
+    snoutCap.position.set(0, 0.155, 0.32);
+    helm.add(snoutCap);
+
+    // Empty eye sockets on top of the skull (dark recesses)
+    const socketL = mesh(new THREE.SphereGeometry(0.028, 10, 8), M.stoneDark);
+    socketL.position.set(-0.05, 0.21, 0.18);
+    socketL.scale.set(1, 0.7, 0.5);
+    helm.add(socketL);
+    const socketR = socketL.clone(); socketR.position.x = 0.05; helm.add(socketR);
+
+    // Jaw teeth — small white wedges hanging from the snout edge
+    for (let i = 0; i < 6; i++) {
+      const offset = (i - 2.5) * 0.022;
+      const tooth = mesh(new THREE.ConeGeometry(0.012, 0.03, 4), M.boneHi);
+      tooth.position.set(offset, 0.085, 0.31);
+      tooth.rotation.x = Math.PI;
+      helm.add(tooth);
+    }
+    // Two larger fangs at the corners
+    for (let side = -1; side <= 1; side += 2) {
+      const fang = mesh(new THREE.ConeGeometry(0.018, 0.06, 5), M.boneHi);
+      fang.position.set(side * 0.07, 0.07, 0.3);
+      fang.rotation.x = Math.PI;
+      helm.add(fang);
+    }
+
+    // Crown ridge (subtle bone ridge along the top of the skull)
+    const crownRidge = mesh(new THREE.BoxGeometry(0.03, 0.04, 0.18), M.boneHi);
+    crownRidge.position.set(0, 0.28, 0.08);
+    helm.add(crownRidge);
+
+    // Bone trinkets / fangs hanging from sides of helm
+    for (let side = -1; side <= 1; side += 2) {
+      // Leather hanger string
+      const hanger = mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.1, 4), M.leather);
+      hanger.position.set(side * 0.22, -0.08, 0.05); helm.add(hanger);
+      // Bone fang
+      const fang = mesh(new THREE.ConeGeometry(0.018, 0.06, 5), M.boneHi);
+      fang.position.set(side * 0.22, -0.16, 0.05);
+      fang.rotation.x = Math.PI;
+      helm.add(fang);
+      // Small bead near top of string
+      const bead = mesh(new THREE.SphereGeometry(0.012, 6, 4), M.bone);
+      bead.position.set(side * 0.22, -0.06, 0.05);
+      helm.add(bead);
+    }
+
+    // Bottom rim (dark leather strip)
+    const helmRim = mesh(new THREE.TorusGeometry(0.21, 0.014, 8, 24), M.leatherDark);
+    helmRim.rotation.x = Math.PI / 2;
+    helmRim.position.y = -0.21;
+    helm.add(helmRim);
+
+    return helm;
+  }
+}
+
+const berserkerAnimations = {
+  // REAVING STRIKE — fast double-axe slash, alternating left then right
+  attack: {
+    duration: 0.7,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.18, values: {                                        // wind both arms back
+        leftArm:  { rx: 0.55, rz: -0.4 },
+        rightArm: { rx: 0.55, rz: 0.4 },
+        body:     { rx: -0.04 },
+      }, ease: ease.out },
+      { t: 0.4,  values: {                                        // first slash — left axe sweeps in
+        leftArm:  { rx: -0.95, rz: 0.3 },
+        rightArm: { rx: 0.55, rz: 0.4 },
+        body:     { ry: 0.15, rz: -0.08 },
+      }, ease: ease.out },
+      { t: 0.62, values: {                                        // second slash — right axe sweeps in
+        leftArm:  { rx: -0.7, rz: 0.2 },
+        rightArm: { rx: -0.95, rz: -0.3 },
+        body:     { ry: -0.15, rz: 0.08 },
+      }, ease: ease.out },
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.4, fn: (champ, mgr, time) => {
+        // First impact (left axe)
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x - 0.3, 0.5, champPos.z + 1.0);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff8020, maxRadius: 1.2, duration: 0.5 }), time);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0xffaa30, maxScale: 0.65, duration: 0.25 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xffaa30, count: 22, speed: 4, duration: 0.65, upwardBias: 1.2, gravity: -3.5 }), time);
+      }},
+      { time: 0.62, fn: (champ, mgr, time) => {
+        // Second impact (right axe)
+        const champPos = new THREE.Vector3(); champ.group.getWorldPosition(champPos);
+        const pos = new THREE.Vector3(champPos.x + 0.3, 0.5, champPos.z + 1.0);
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff8020, maxRadius: 1.2, duration: 0.5 }), time);
+        mgr.spawn(new ImpactFlash(champ.scene, pos, { color: 0xffaa30, maxScale: 0.65, duration: 0.25 }), time);
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xffaa30, count: 22, speed: 4, duration: 0.65, upwardBias: 1.2, gravity: -3.5 }), time);
+      }},
+    ],
+  },
+  // BLOODTHIRST — savage roar pose with red aura
+  spell1: {
+    duration: 1.5,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.18, values: {                                         // both axes raised, head back, roar
+        leftArm:  { rx: 0.85, rz: -0.65 },
+        rightArm: { rx: 0.85, rz: 0.65 },
+        body:     { rx: -0.18 },
+        head:     { rx: -0.28 },
+      }, ease: ease.out },
+      { t: 0.78, values: {                                         // hold the roar
+        leftArm:  { rx: 0.85, rz: -0.65 },
+        rightArm: { rx: 0.85, rz: 0.65 },
+        body:     { rx: -0.18 },
+        head:     { rx: -0.28 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.18, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.5;
+        // Blood-red rage aura (energy dome)
+        mgr.spawn(new EnergyDome(champ.scene, pos, { color: 0xff5018, radius: 1.5, duration: 1.3 }), time);
+        const ringPos = pos.clone(); ringPos.y = 0.12;
+        // Ground rune ring (savage rotation, fast)
+        mgr.spawn(new RuneRing(champ.scene, ringPos, { color: 0xff7022, maxRadius: 1.9, duration: 1.1, runeCount: 6, rotateSpeed: 1.8 }), time);
+        // Outward shockwave from the roar's force
+        mgr.spawn(new ShockwaveRing(champ.scene, ringPos, { color: 0xff5018, maxRadius: 2.4, duration: 0.75 }), time);
+        // Particle plume erupting from chest (the rage erupting outward)
+        const chestPos = pos.clone(); chestPos.y = 1.9;
+        mgr.spawn(new ParticleBurst(champ.scene, chestPos, { color: 0xff7022, count: 60, speed: 3, duration: 1.3, upwardBias: 3.0, gravity: -1.5 }), time);
+        // Impact flash at chest center
+        mgr.spawn(new ImpactFlash(champ.scene, chestPos, { color: 0xffaa30, maxScale: 0.7, duration: 0.4 }), time);
+      }},
+    ],
+  },
+  // WHIRLWIND — full-body spin attack, multiple shockwaves cascading outward
+  spell2: {
+    duration: 2.2,
+    keyframes: [
+      { t: 0,    values: {} },
+      { t: 0.13, values: {                                         // arms extend outward (axes will fly outward in spin)
+        leftArm:  { rx: 0.0, rz: -1.15 },
+        rightArm: { rx: 0.0, rz: 1.15 },
+        body:     { rx: 0.06 },
+      }, ease: ease.out },
+      { t: 0.85, values: {                                         // hold extended pose throughout the spin
+        leftArm:  { rx: 0.0, rz: -1.15 },
+        rightArm: { rx: 0.0, rz: 1.15 },
+        body:     { rx: 0.06 },
+      }},
+      { t: 1.0,  values: {}, ease: ease.inOut },
+    ],
+    effects: [
+      { time: 0.13, fn: (champ, mgr, time) => {
+        // Trigger the body spin (handled in Berserker.update)
+        champ.spinning = true;
+        champ.spinStart = time;
+        champ.spinDuration = 1.6;
+        // Initial outward shockwave
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff8020, maxRadius: 2.5, duration: 0.9 }), time);
+        // Continuous particle storm from waist-height
+        const stormPos = pos.clone(); stormPos.y = 1.2;
+        mgr.spawn(new ParticleBurst(champ.scene, stormPos, { color: 0xffaa30, count: 90, speed: 4.5, duration: 1.8, upwardBias: 0.8, gravity: -1.5 }), time);
+      }},
+      { time: 0.35, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Mid-spin secondary shockwave
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xff5018, maxRadius: 3.0, duration: 0.85 }), time);
+        // Fast-rotating rune ring (matches the spin)
+        mgr.spawn(new RuneRing(champ.scene, pos, { color: 0xff7022, maxRadius: 2.2, duration: 1.2, runeCount: 6, rotateSpeed: 3.0 }), time);
+      }},
+      { time: 0.6, fn: (champ, mgr, time) => {
+        const pos = new THREE.Vector3(); champ.group.getWorldPosition(pos); pos.y = 0.12;
+        // Late-spin tertiary shockwave (the rage keeps cascading)
+        mgr.spawn(new ShockwaveRing(champ.scene, pos, { color: 0xffaa30, maxRadius: 3.6, duration: 0.9 }), time);
+        // Final ember burst as the spin winds down
+        mgr.spawn(new ParticleBurst(champ.scene, pos, { color: 0xff8020, count: 50, speed: 5, duration: 1.0, upwardBias: 2.5, gravity: -3.5 }), time);
+      }},
+    ],
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  VIEWER — preview-only setup                                             ║
+// ║  CC: ignore everything below this line — game runtime doesn't need it.  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05060c);
+scene.fog = new THREE.Fog(0x05060c, 9, 22);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(4.5, 2.4, 5.8);
+camera.lookAt(0, 1.45, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 1.45, 0);
+controls.minDistance = 3;
+controls.maxDistance = 12;
+controls.minPolarAngle = Math.PI * 0.18;
+controls.maxPolarAngle = Math.PI * 0.55;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.45;
+
+// ─── Lighting (3-point + counter-rim) ─────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x4a4a5a, 0.32));
+const key = new THREE.DirectionalLight(0xfff0d8, 1.6);
+key.position.set(5, 7, 4);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -4; key.shadow.camera.right = 4;
+key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
+key.shadow.bias = -0.0003;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x8090c8, 0.55);
+fill.position.set(-4, 4, 3);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffaa50, 0.85);
+rim.position.set(-2, 3, -5);
+scene.add(rim);
+const rimAmber = new THREE.PointLight(0xff8030, 1.2, 8, 1.5);
+rimAmber.position.set(0, 1.7, -2.2);
+scene.add(rimAmber);
+
+// ─── Dais ─────────────────────────────────────────────────────────────────
+const daisGroup = new THREE.Group();
+const daisBase = mesh(new THREE.CylinderGeometry(2.2, 2.5, 0.18, 64), M.stone, { receive: true });
+daisBase.position.y = 0.04; daisGroup.add(daisBase);
+const daisTop = mesh(new THREE.CylinderGeometry(2.0, 2.05, 0.06, 64), M.stoneDark, { receive: true });
+daisTop.position.y = 0.16; daisGroup.add(daisTop);
+const daisRing = mesh(new THREE.TorusGeometry(2.0, 0.04, 12, 64), M.brass);
+daisRing.rotation.x = Math.PI / 2; daisRing.position.y = 0.19; daisGroup.add(daisRing);
+// 8 small runic engravings around the dais
+for (let i = 0; i < 8; i++) {
+  const a = (i / 8) * Math.PI * 2;
+  const rune = mesh(new THREE.BoxGeometry(0.18, 0.005, 0.04), M.stoneRune);
+  rune.position.set(Math.cos(a) * 1.85, 0.195, Math.sin(a) * 1.85);
+  rune.rotation.y = -a + Math.PI / 2;
+  daisGroup.add(rune);
+}
+// Subtle cracks
+for (let i = 0; i < 6; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const r = 0.5 + Math.random() * 1.3;
+  const crack = mesh(new THREE.BoxGeometry(0.4 + Math.random() * 0.4, 0.001, 0.012), M.stoneDark);
+  crack.position.set(Math.cos(a) * r, 0.193, Math.sin(a) * r);
+  crack.rotation.y = Math.random() * Math.PI;
+  daisGroup.add(crack);
+}
+scene.add(daisGroup);
+
+// ─── Aura ring (color-tinted per class) ───────────────────────────────────
+const auraGeo = new THREE.RingGeometry(2.05, 2.35, 96, 1);
+const auraMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0xff8020) }, uOpacity: { value: 0.55 } },
+  vertexShader: `varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform float uTime; uniform vec3 uColor; uniform float uOpacity;
+    varying vec3 vPos;
+    void main() {
+      float r = length(vPos.xy);
+      float a = atan(vPos.y, vPos.x);
+      float pulse = 0.55 + 0.45 * sin(uTime * 1.2 + a * 4.0);
+      float band = smoothstep(2.05, 2.18, r) * smoothstep(2.35, 2.18, r);
+      gl_FragColor = vec4(uColor * pulse * 1.4, band * uOpacity * pulse);
+    }`,
+  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+});
+const aura = new THREE.Mesh(auraGeo, auraMat);
+aura.rotation.x = -Math.PI / 2;
+aura.position.y = 0.205;
+scene.add(aura);
+
+// ─── Floating embers ──────────────────────────────────────────────────────
+const EMBER_COUNT = 220;
+const emberPositions = new Float32Array(EMBER_COUNT * 3);
+const emberSeeds = new Float32Array(EMBER_COUNT);
+for (let i = 0; i < EMBER_COUNT; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const r = 1.5 + Math.random() * 4.5;
+  emberPositions[i*3 + 0] = Math.cos(a) * r;
+  emberPositions[i*3 + 1] = Math.random() * 4.5;
+  emberPositions[i*3 + 2] = Math.sin(a) * r;
+  emberSeeds[i] = Math.random();
+}
+const emberGeo = new THREE.BufferGeometry();
+emberGeo.setAttribute('position', new THREE.Float32BufferAttribute(emberPositions, 3));
+emberGeo.setAttribute('seed', new THREE.Float32BufferAttribute(emberSeeds, 1));
+const emberMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0.95, 0.7, 0.3) } },
+  vertexShader: `
+    attribute float seed; uniform float uTime; varying float vAlpha;
+    void main() {
+      vec3 p = position;
+      p.y = mod(p.y + uTime * (0.15 + seed * 0.25), 4.5);
+      p.x += sin(uTime * 0.5 + seed * 6.28) * 0.15;
+      p.z += cos(uTime * 0.4 + seed * 6.28) * 0.15;
+      vAlpha = (1.0 - p.y / 4.5) * (0.5 + seed * 0.5);
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = (1.5 + seed * 2.0) * (300.0 / -mv.z);
+    }`,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vAlpha;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5;
+      float d = length(c);
+      if (d > 0.5) discard;
+      float a = pow(1.0 - d * 2.0, 2.0) * vAlpha;
+      gl_FragColor = vec4(uColor, a);
+    }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+const embers = new THREE.Points(emberGeo, emberMat);
+scene.add(embers);
+
+// ─── Post-processing ──────────────────────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.78, 0.4, 0.82);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ─── Effect manager ───────────────────────────────────────────────────────
+const effectMgr = new EffectManager(scene);
+
+// ─── Class registry ───────────────────────────────────────────────────────
+// Other 5 fighters get added here as they're built. Until then they're disabled
+// in the dropdown above and absent from this registry.
+const classRegistry = {
+  berserker: {
+    name: 'Berserker',
+    family: 'Fighter · I/VI',
+    role: 'Rage · Glass Cannon',
+    accent: '#ffaa30',
+    accentGlow: 'rgba(255, 170, 48, 0.5)',
+    auraColor: 0xff8020,
+    emberColor: new THREE.Color(0.95, 0.7, 0.3),
+    abilities: { attack: 'Reaving Strike', spell1: 'Bloodthirst', spell2: 'Whirlwind' },
+    factory: () => new Berserker(scene, new THREE.Vector3(0, 0, 0)),
+  },
+};
+
+// ─── Build all champions up front (single per class — viewer only shows one)
+const champions = {};
+for (const key in classRegistry) {
+  const champ = classRegistry[key].factory();
+  champ.group.visible = false;
+  champions[key] = champ;
+}
+let activeChampion = champions.berserker;
+activeChampion.group.visible = true;
+
+// ─── Class swap ───────────────────────────────────────────────────────────
+function selectClass(key) {
+  const def = classRegistry[key];
+  if (!def) return;
+  // Hide previous, show new
+  if (activeChampion) {
+    activeChampion.group.visible = false;
+    activeChampion.stopAnimation && activeChampion.stopAnimation();
+  }
+  effectMgr.clear();
+  activeChampion = champions[key];
+  activeChampion.group.visible = true;
+
+  // Update UI
+  document.getElementById('familyLabel').textContent = def.family;
+  document.getElementById('nameLabel').textContent = def.name;
+  document.getElementById('roleLabel').textContent = def.role;
+  document.getElementById('ab-attack-name').textContent = def.abilities.attack;
+  document.getElementById('ab-spell1-name').textContent = def.abilities.spell1;
+  document.getElementById('ab-spell2-name').textContent = def.abilities.spell2;
+  document.documentElement.style.setProperty('--accent', def.accent);
+  document.documentElement.style.setProperty('--accent-glow', def.accentGlow);
+
+  // Update aura + embers tint
+  auraMat.uniforms.uColor.value.setHex(def.auraColor);
+  emberMat.uniforms.uColor.value.copy(def.emberColor);
+}
+
+// ─── UI wiring ────────────────────────────────────────────────────────────
+document.getElementById('classSelect').addEventListener('change', (e) => {
+  selectClass(e.target.value);
+});
+
+const abilityButtons = document.querySelectorAll('.ab-btn');
+abilityButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!activeChampion || activeChampion.isPlaying()) return;
+    const animName = btn.dataset.anim;
+    activeChampion.playAnimation(animName, clock.getElapsedTime(), effectMgr);
+    btn.classList.add('cooling');
+    setTimeout(() => btn.classList.remove('cooling'), (activeChampion.animations[animName]?.duration || 1) * 1000 + 100);
+  });
+});
+
+let demoMode = false;
+let demoIdx = 0;
+let demoNextTime = 0;
+const demoOrder = ['attack', 'spell1', 'attack', 'spell2'];
+document.getElementById('demoBtn').addEventListener('click', (e) => {
+  demoMode = !demoMode;
+  demoIdx = 0;
+  e.target.textContent = demoMode ? '⏸ Stop Demo' : '▶ Cycle Animations';
+  demoNextTime = clock.getElapsedTime() + 0.4;
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── Main loop ────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const time = clock.getElapsedTime();
+
+  controls.update();
+
+  if (activeChampion) activeChampion.update(time, dt);
+  effectMgr.update(time, dt);
+
+  emberMat.uniforms.uTime.value = time;
+  auraMat.uniforms.uTime.value = time;
+
+  if (demoMode && time >= demoNextTime && activeChampion && !activeChampion.isPlaying()) {
+    const animName = demoOrder[demoIdx % demoOrder.length];
+    activeChampion.playAnimation(animName, time, effectMgr);
+    demoIdx++;
+    const dur = activeChampion.animations[animName]?.duration || 1;
+    demoNextTime = time + dur + 0.5;
+  }
+
+  composer.render();
+}
+
+// Initial UI setup
+selectClass('berserker');
+
+// Hide loading splash
+setTimeout(() => document.getElementById('loading').classList.add('hidden'), 220);
+
+animate();
+
+</script>
+</body>
+</html>
